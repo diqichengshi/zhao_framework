@@ -17,6 +17,11 @@
             <artifactId>spring-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.zhaojuan.spring</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

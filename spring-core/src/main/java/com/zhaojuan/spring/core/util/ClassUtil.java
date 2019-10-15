@@ -186,4 +186,13 @@ public class ClassUtil {
             }
         }
     }
+
+    // 通过反射生成对象
+    public static Object newInstance(Class<?> classInfo) {
+        try {
+            return classInfo.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("反射生成对象失败" + e.getMessage());
+        }
+    }
 }
