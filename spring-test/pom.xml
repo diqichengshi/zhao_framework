@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spring-beans</artifactId>
+    <artifactId>spring-test</artifactId>
+
 
 </project>

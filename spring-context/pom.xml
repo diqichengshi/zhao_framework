@@ -9,6 +9,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spring-beans</artifactId>
+    <artifactId>spring-context</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.zhaojuan.spring</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
