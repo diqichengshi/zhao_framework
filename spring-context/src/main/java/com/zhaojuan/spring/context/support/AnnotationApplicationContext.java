@@ -2,6 +2,7 @@ package com.zhaojuan.spring.context.support;
 
 import com.zhaojuan.spring.beans.annotation.Autowired;
 import com.zhaojuan.spring.beans.annotation.Service;
+import com.zhaojuan.spring.context.ApplicationContext;
 import com.zhaojuan.spring.core.util.ClassUtil;
 import com.zhaojuan.spring.core.util.StringUtils;
 
@@ -9,12 +10,12 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ClassPathApplicationContext {
+public class AnnotationApplicationContext implements ApplicationContext {
     // 扫包范围
     private String packageName;
     private ConcurrentHashMap<String, Object> beans;
 
-    public ClassPathApplicationContext(String packageName) throws Exception {
+    public AnnotationApplicationContext(String packageName) throws Exception {
         this.packageName = packageName;
         beans = new ConcurrentHashMap<String, Object>();
         // 初始化beans Service注解
@@ -41,15 +42,15 @@ public class ClassPathApplicationContext {
         }
     }
 
-    public Object getBean(String beanId) throws Exception {
+    public Object getBean(String beanId) {
         if (beanId == null || StringUtils.isEmpty(beanId)) {
             throw new RuntimeException("beanId不能为空");
         }
-        Object class1 = beans.get(beanId);
-        if (class1 == null) {
+        Object obj = beans.get(beanId);
+        if (obj == null) {
             throw new RuntimeException("该包下没有BeanId为" + beanId + "的类");
         }
-        return class1;
+        return obj;
     }
 
     /**
@@ -80,12 +81,21 @@ public class ClassPathApplicationContext {
         // 判断当前类是否存在注解
         for (Field field : declaredFileds) {
             Autowired annotation = field.getAnnotation(Autowired.class);
-            String name = field.getName();
-            Object newBean = getBean(name);
-            if (null != object) {
-                field.setAccessible(true);
-                field.set(object, newBean);
+            if (null !=annotation){
+                String name = field.getName();
+                Object newBean = getBean(name);
+                if (null != object) {
+                    field.setAccessible(true);
+                    field.set(object, newBean);
+                }
             }
         }
+    }
+    /**
+     * 销毁方法，用于释放资源
+     */
+    public void destroy(){
+        beans.clear();
+        beans = null;
     }
 }
