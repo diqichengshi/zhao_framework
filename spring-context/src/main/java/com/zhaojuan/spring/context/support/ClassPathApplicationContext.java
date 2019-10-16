@@ -9,18 +9,18 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ClassPathXmlApplicationContext {
+public class ClassPathApplicationContext {
     // 扫包范围
     private String packageName;
     private ConcurrentHashMap<String, Object> beans;
 
-    public ClassPathXmlApplicationContext(String packageName) throws Exception {
+    public ClassPathApplicationContext(String packageName) throws Exception {
         this.packageName = packageName;
         beans = new ConcurrentHashMap<String, Object>();
         // 初始化beans Service注解
         initBeans();
         // 初始化属性以及Autowired注解
-        initAttris();
+        initAttributes();
     }
 
     private void initBeans() {
@@ -33,11 +33,11 @@ public class ClassPathXmlApplicationContext {
         }
     }
 
-    private void initAttris() throws Exception {
-        for (Object o : beans.keySet()) {
-            System.out.println("key=" + o + " value=" + beans.get(o));
+    private void initAttributes() throws Exception {
+        for (Object obj : beans.keySet()) {
+            System.out.println("key=" + obj + " value=" + beans.get(obj));
             // 依赖注入
-            attriAssign(beans.get(o));
+            attriAssign(beans.get(obj));
         }
     }
 
