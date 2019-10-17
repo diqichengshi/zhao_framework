@@ -13,8 +13,8 @@ public class BeanWrapperImpl implements BeanWrapper {
     private Object object;
 
     public BeanWrapperImpl(Object beanInstance) {
+        this.object = beanInstance;
         Assert.notNull(object, "target object must not be null");
-        this.object = object;
     }
 
     @Override

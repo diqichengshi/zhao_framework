@@ -14,6 +14,6 @@ public interface BeanDefinition {
     boolean isPrototype();
 
     String getInitMethodName();
-
+    public String[] getDependsOn();
     MutablePropertyValues getPropertyValues();
 }

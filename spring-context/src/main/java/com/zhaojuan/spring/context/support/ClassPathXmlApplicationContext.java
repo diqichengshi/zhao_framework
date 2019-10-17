@@ -1,6 +1,5 @@
 package com.zhaojuan.spring.context.support;
 
-import com.zhaojuan.spring.beans.DefaultBeanFactory;
 import com.zhaojuan.spring.beans.XmlBeanFactory;
 import com.zhaojuan.spring.context.ApplicationContext;
 

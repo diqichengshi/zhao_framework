@@ -2,6 +2,7 @@ package com.zhaojuan.spring.beans;
 
 import com.zhaojuan.spring.beans.annotation.Autowired;
 import com.zhaojuan.spring.beans.annotation.Service;
+import com.zhaojuan.spring.beans.factory.support.AbstractBeanFactory;
 import com.zhaojuan.spring.core.util.ClassUtils;
 import com.zhaojuan.spring.core.util.StringUtils;
 
@@ -9,7 +10,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class AnnotationBeanFactory extends DefaultBeanFactory {
+public class AnnotationBeanFactory extends AbstractBeanFactory implements BeanFactory, BeanDefinitionRegistry {
 
     // 扫包范围
     private String packageName;
@@ -92,4 +93,24 @@ public class AnnotationBeanFactory extends DefaultBeanFactory {
         }
     }
 
+
+    @Override
+    public void registerBeanDefinition(String beanName, BeanDefinition hkBeanDefinition) throws Exception {
+
+    }
+
+    @Override
+    public BeanDefinition getBeanDefinition(String beanName) {
+        return null;
+    }
+
+    @Override
+    public boolean containsBeanDefinition(String beanName) {
+        return false;
+    }
+
+    @Override
+    protected Object createBean(String beanName, BeanDefinition mbd, Object[] args) throws BeanCreationException {
+        return null;
+    }
 }

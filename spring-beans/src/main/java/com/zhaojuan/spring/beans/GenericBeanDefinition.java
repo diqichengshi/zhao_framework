@@ -9,12 +9,9 @@ public class GenericBeanDefinition implements BeanDefinition {
     private String scope = BeanDefinition.SINGLETION;
 
     private String initMethodName;
-
+    private String[] dependsOn;
     private MutablePropertyValues propertyValues;
 
-    public MutablePropertyValues getPropertyValues() {
-        return propertyValues;
-    }
     public void setBeanClass(Class<?> beanClass) {
         this.beanClass = beanClass;
     }
@@ -47,5 +44,19 @@ public class GenericBeanDefinition implements BeanDefinition {
         return initMethodName;
     }
 
+    /**
+     * 返回此bean所依赖的bean名称
+     */
+    @Override
+    public String[] getDependsOn() {
+        return this.dependsOn;
+    }
+    public MutablePropertyValues getPropertyValues() {
+        return propertyValues;
+    }
+
+    public void setPropertyValues(MutablePropertyValues propertyValues) {
+        this.propertyValues = propertyValues;
+    }
 
 }
