@@ -3,16 +3,15 @@ package com.zhaojuan.spring.core.util;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-public class ClassUtil {
+public class ClassUtils {
     /**
      * 取得某个接口下所有实现这个接口的类
      */
@@ -193,6 +192,34 @@ public class ClassUtil {
             return classInfo.newInstance();
         } catch (Exception e) {
             throw new RuntimeException("反射生成对象失败" + e.getMessage());
+        }
+    }
+
+    /**
+     * 确定给定类是否具有具有给定签名的公共方法，
+     * *如果可用，则返回（否则返回null）
+     */
+    public static Method getMethodIfAvailable(Class<?> clazz, String methodName, Class<?>... paramTypes) {
+        Assert.notNull(clazz, "Class must not be null");
+        Assert.notNull(methodName, "Method name must not be null");
+        if (paramTypes != null) {
+            try {
+                return clazz.getMethod(methodName, paramTypes);
+            } catch (NoSuchMethodException ex) {
+                return null;
+            }
+        } else {
+            Set<Method> candidates = new HashSet<Method>(1);
+            Method[] methods = clazz.getMethods();
+            for (Method method : methods) {
+                if (methodName.equals(method.getName())) {
+                    candidates.add(method);
+                }
+            }
+            if (candidates.size() == 1) {
+                return candidates.iterator().next();
+            }
+            return null;
         }
     }
 }

@@ -2,16 +2,11 @@ package com.zhaojuan.spring.beans;
 
 import com.zhaojuan.spring.beans.annotation.Autowired;
 import com.zhaojuan.spring.beans.annotation.Service;
-import com.zhaojuan.spring.core.util.ClassUtil;
+import com.zhaojuan.spring.core.util.ClassUtils;
 import com.zhaojuan.spring.core.util.StringUtils;
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AnnotationBeanFactory extends DefaultBeanFactory {
@@ -31,7 +26,7 @@ public class AnnotationBeanFactory extends DefaultBeanFactory {
 
     private void initBeans() {
         // 1.扫包
-        List<Class<?>> classes = ClassUtil.getClasses(packageName);
+        List<Class<?>> classes = ClassUtils.getClasses(packageName);
         // 2.判断是否有注解
         ConcurrentHashMap<String, Object> findClassExistAnnotation = findClassExistAnnotation(classes);
         if (findClassExistAnnotation == null || findClassExistAnnotation.isEmpty()) {
@@ -70,7 +65,7 @@ public class AnnotationBeanFactory extends DefaultBeanFactory {
                 if (StringUtils.isEmpty(beanId)) {
                     beanId = StringUtils.toLowerCaseFirstOne(clazz.getSimpleName());// 获取当前类名
                 }
-                Object newInstance = ClassUtil.newInstance(clazz);
+                Object newInstance = ClassUtils.newInstance(clazz);
                 beans.put(beanId, newInstance);
             }
         }

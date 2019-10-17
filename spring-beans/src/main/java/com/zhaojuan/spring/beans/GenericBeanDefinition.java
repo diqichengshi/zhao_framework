@@ -10,7 +10,11 @@ public class GenericBeanDefinition implements BeanDefinition {
 
     private String initMethodName;
 
+    private MutablePropertyValues propertyValues;
 
+    public MutablePropertyValues getPropertyValues() {
+        return propertyValues;
+    }
     public void setBeanClass(Class<?> beanClass) {
         this.beanClass = beanClass;
     }
@@ -42,4 +46,6 @@ public class GenericBeanDefinition implements BeanDefinition {
     public String getInitMethodName() {
         return initMethodName;
     }
+
+
 }

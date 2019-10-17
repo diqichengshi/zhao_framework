@@ -8,6 +8,7 @@
     <artifactId>spring-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0</version>
+
     <modules>
         <module>spring-beans</module>
         <module>spring-core</module>
@@ -15,5 +16,10 @@
         <module>spring-context</module>
     </modules>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 
 </project>

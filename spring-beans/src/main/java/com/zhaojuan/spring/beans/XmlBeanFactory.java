@@ -77,7 +77,8 @@ public class XmlBeanFactory extends DefaultBeanFactory {
                     bd.setBeanClass(cls);
                     bd.setScope(beanScope);
                     // bd.setInitMethodName("init");
-                    super.registerBeanDefinition(beanId, bd);
+                    super.registerBeanDefinition(beanId, bd); // 注册BeanDefinition
+
                 }
             }
         } catch (Exception e) {
@@ -86,61 +87,4 @@ public class XmlBeanFactory extends DefaultBeanFactory {
         }
     }
 
-    @Override
-    public Object getBean(String name) throws Exception {
-        Object obj = super.getBean(name);
-        //根据id获取该bean对象的element元素对象
-        Element beanElement = beanElementMap.get(name);
-        String beanScope = beanScopeMap.get(name);
-        // 进行属性赋值
-        setFieldValues(beanElement, beanScope, obj.getClass(), obj);
-        return obj;
-    }
-
-    /**
-     * 该方法用于为对象设置成员属性值
-     *
-     * @param beanEle   bean所对应的element对象
-     * @param beanId    bean元素的id属性
-     * @param beanScope bean元素的scope属性
-     * @param cls       类对象
-     * @param obj       要为其成员属性赋值的实例对象
-     */
-    private void setFieldValues(Element beanEle, String beanScope, Class<?> cls, Object obj) {
-        try {
-            //获取每个bean元素下的所有property元素，该元素用于给属性赋值
-            List<Element> propEles = beanEle.elements("property");
-            //如果property元素集合为null，调用putInMap方法将对象放进Map中
-            if (propEles == null) {
-                return;
-            }
-            //遍历property元素集合
-            for (Element propEle : propEles) {
-                //获取每个元素的name属性值和value属性值
-                String fieldName = propEle.attributeValue("name");
-                String fieldValue = propEle.attributeValue("value");
-                //利用反射技术根据name属性值获得类的成员属性
-                Field field = cls.getDeclaredField(fieldName);
-                //将该属性设置为可访问(防止成员属性被私有化导致访问失败)
-                field.setAccessible(true);
-                //获取成员属性的类型名称，若非字符串类型，则需要做相应转换
-                String fieldTypeName = field.getType().getName();
-                //判断该成员属性是否为int或Integer类型
-                if ("int".equals(fieldTypeName) || "java.lang.Integer".equals(fieldTypeName)) {
-                    //转换为int类型并为该成员属性赋值
-                    int intFieldValue = Integer.parseInt(fieldValue);
-                    field.set(obj, intFieldValue);
-                }
-                //判断该成员属性是否为String类型
-                if ("java.lang.String".equals(fieldTypeName)) {
-                    //为该成员属性赋值
-                    field.set(obj, fieldValue);
-                }
-                //此处省略其它类型的判断......道理相同！
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 }
