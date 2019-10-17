@@ -2,7 +2,10 @@ package com.zhaojuan.spring.beans;
 
 import com.zhaojuan.spring.beans.annotation.Autowired;
 import com.zhaojuan.spring.beans.annotation.Service;
+import com.zhaojuan.spring.beans.config.BeanDefinition;
+import com.zhaojuan.spring.beans.factory.BeanFactory;
 import com.zhaojuan.spring.beans.factory.support.AbstractBeanFactory;
+import com.zhaojuan.spring.beans.factory.support.BeanDefinitionRegistry;
 import com.zhaojuan.spring.core.util.ClassUtils;
 import com.zhaojuan.spring.core.util.StringUtils;
 
@@ -82,7 +85,7 @@ public class AnnotationBeanFactory extends AbstractBeanFactory implements BeanFa
         // 判断当前类是否存在注解
         for (Field field : declaredFileds) {
             Autowired annotation = field.getAnnotation(Autowired.class);
-            if (null !=annotation){
+            if (null != annotation) {
                 String name = field.getName();
                 Object newBean = getBean(name);
                 if (null != object) {

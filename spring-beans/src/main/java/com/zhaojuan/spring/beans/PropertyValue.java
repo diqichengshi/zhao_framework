@@ -11,14 +11,17 @@ public class PropertyValue {
         this.name = name;
         this.value = value;
     }
+
     public PropertyValue(PropertyValue original) {
         Assert.notNull(original, "Original must not be null");
         this.name = original.getName();
         this.value = original.getValue();
     }
+
     public String getName() {
         return this.name;
     }
+
     public Object getValue() {
         return this.value;
     }

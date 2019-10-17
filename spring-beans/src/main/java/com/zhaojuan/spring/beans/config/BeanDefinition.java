@@ -1,4 +1,6 @@
-package com.zhaojuan.spring.beans;
+package com.zhaojuan.spring.beans.config;
+
+import com.zhaojuan.spring.beans.MutablePropertyValues;
 
 public interface BeanDefinition {
     final static String SINGLETION = "singleton";
@@ -14,6 +16,8 @@ public interface BeanDefinition {
     boolean isPrototype();
 
     String getInitMethodName();
+
     public String[] getDependsOn();
+
     MutablePropertyValues getPropertyValues();
 }

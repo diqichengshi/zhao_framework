@@ -10,6 +10,7 @@ public interface BeanWrapper {
      * 返回包装对象的CLass
      */
     Class<?> getWrappedClass();
+
     /**
      * 设置配置属性
      */

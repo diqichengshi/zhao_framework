@@ -1,4 +1,6 @@
-package com.zhaojuan.spring.beans;
+package com.zhaojuan.spring.beans.factory.support;
+
+import com.zhaojuan.spring.beans.config.BeanDefinition;
 
 public interface BeanDefinitionRegistry {
 

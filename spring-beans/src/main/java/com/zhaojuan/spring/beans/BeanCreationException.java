@@ -5,11 +5,12 @@ import com.zhaojuan.spring.core.util.ObjectUtils;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BeanCreationException extends RuntimeException{
+public class BeanCreationException extends RuntimeException {
     private List<Throwable> relatedCauses;
 
     /**
      * Create a new BeansException with the specified message.
+     *
      * @param msg the detail message
      */
     public BeanCreationException(String msg) {
@@ -19,12 +20,14 @@ public class BeanCreationException extends RuntimeException{
     /**
      * Create a new BeansException with the specified message
      * and root cause.
-     * @param msg the detail message
+     *
+     * @param msg   the detail message
      * @param cause the root cause
      */
     public BeanCreationException(String msg, Throwable cause) {
         super(msg, cause);
     }
+
     public void addRelatedCause(Throwable ex) {
         if (this.relatedCauses == null) {
             this.relatedCauses = new LinkedList<Throwable>();

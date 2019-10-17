@@ -3,6 +3,7 @@ package com.zhaojuan.spring.test.entity;
 public class Role {
     private Integer id;
     private String name;
+
     public Role() {
         System.out.println("Role无参构造方法执行");
     }

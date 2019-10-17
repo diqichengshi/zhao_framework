@@ -1,7 +1,7 @@
 package com.zhaojuan.spring.beans.factory.support;
 
 import com.zhaojuan.spring.beans.BeanCreationException;
-import com.zhaojuan.spring.beans.SingletonBeanRegistry;
+import com.zhaojuan.spring.beans.config.SingletonBeanRegistry;
 import com.zhaojuan.spring.beans.factory.ObjectFactory;
 import com.zhaojuan.spring.core.util.Assert;
 import org.apache.commons.logging.Log;
@@ -167,6 +167,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
             return (singletonObject != NULL_OBJECT ? singletonObject : null);
         }
     }
+
     protected void addSingleton(String beanName, Object singletonObject) {
         synchronized (this.singletonObjects) {
             this.singletonObjects.put(beanName, (singletonObject != null ? singletonObject : NULL_OBJECT));
@@ -180,6 +181,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     public boolean containsSingleton(String beanName) {
         return this.singletonObjects.containsKey(beanName);
     }
+
     /**
      * 返回指定的singleton bean当前是否正在创建中
      * (within the entire factory).
@@ -263,7 +265,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
     protected void beforeSingletonCreation(String beanName) {
         if (!this.inCreationCheckExclusions.contains(beanName) && !this.singletonsCurrentlyInCreation.add(beanName)) {
-            throw new BeanCreationException(beanName+"正在创建中");
+            throw new BeanCreationException(beanName + "正在创建中");
         }
     }
 
@@ -292,6 +294,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
         }
         destroyBean(beanName, disposableBean);*/
     }
+
     public final Object getSingletonMutex() {
         return this.singletonObjects;
     }

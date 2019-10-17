@@ -18,7 +18,7 @@ public class TestXmlApplication {
         System.out.println("多例role" + role);*/
 
         // 获取以来注入的对象
-        Role role=user.getRole();
+        Role role = user.getRole();
         System.out.println("注入的多例role" + role);
     }
 

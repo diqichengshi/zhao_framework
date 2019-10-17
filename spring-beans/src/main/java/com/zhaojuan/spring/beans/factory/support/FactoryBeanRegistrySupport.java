@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
-    /** Cache of singleton objects created by FactoryBeans: FactoryBean name --> object */
+    /**
+     * Cache of singleton objects created by FactoryBeans: FactoryBean name --> object
+     */
     private final Map<String, Object> factoryBeanObjectCache = new ConcurrentHashMap<String, Object>(16);
 
     protected Object getCachedObjectForFactoryBean(String beanName) {
@@ -18,8 +20,9 @@ public class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
 
     /**
      * Obtain an object to expose from the given FactoryBean.
-     * @param factory the FactoryBean instance
-     * @param beanName the name of the bean
+     *
+     * @param factory           the FactoryBean instance
+     * @param beanName          the name of the bean
      * @param shouldPostProcess whether the bean is subject to post-processing
      * @return the object obtained from the FactoryBean
      * @throws BeanCreationException if FactoryBean object creation failed
@@ -36,14 +39,12 @@ public class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
                     Object alreadyThere = this.factoryBeanObjectCache.get(beanName);
                     if (alreadyThere != null) {
                         object = alreadyThere;
-                    }
-                    else {
+                    } else {
                         if (object != null && shouldPostProcess) {
                             try {
                                 object = postProcessObjectFromFactoryBean(object, beanName);
-                            }
-                            catch (Throwable ex) {
-                                throw new BeanCreationException(beanName+ "Post-processing of FactoryBean's singleton object failed", ex);
+                            } catch (Throwable ex) {
+                                throw new BeanCreationException(beanName + "Post-processing of FactoryBean's singleton object failed", ex);
                             }
                         }
                         this.factoryBeanObjectCache.put(beanName, (object != null ? object : NULL_OBJECT));
@@ -51,15 +52,13 @@ public class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
                 }
                 return (object != NULL_OBJECT ? object : null);
             }
-        }
-        else {
+        } else {
             Object object = doGetObjectFromFactoryBean(factory, beanName);
             if (object != null && shouldPostProcess) {
                 try {
                     object = postProcessObjectFromFactoryBean(object, beanName);
-                }
-                catch (Throwable ex) {
-                    throw new BeanCreationException(beanName+ "Post-processing失败", ex);
+                } catch (Throwable ex) {
+                    throw new BeanCreationException(beanName + "Post-processing失败", ex);
                 }
             }
             return object;
@@ -68,7 +67,8 @@ public class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
 
     /**
      * Obtain an object to expose from the given FactoryBean.
-     * @param factory the FactoryBean instance
+     *
+     * @param factory  the FactoryBean instance
      * @param beanName the name of the bean
      * @return the object obtained from the FactoryBean
      * @throws BeanCreationException if FactoryBean object creation failed
@@ -81,14 +81,15 @@ public class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
         try {
             object = factory.getObject();
         } catch (Throwable ex) {
-            throw new BeanCreationException(beanName+ "正在创建中");
+            throw new BeanCreationException(beanName + "正在创建中");
         }
 
         if (object == null && isSingletonCurrentlyInCreation(beanName)) {
-            throw new BeanCreationException(beanName+ "正在创建中");
+            throw new BeanCreationException(beanName + "正在创建中");
         }
         return object;
     }
+
     protected Object postProcessObjectFromFactoryBean(Object object, String beanName) throws BeansException {
         return object;
     }

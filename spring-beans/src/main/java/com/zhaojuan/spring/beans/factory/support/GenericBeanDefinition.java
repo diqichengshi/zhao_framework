@@ -1,4 +1,7 @@
-package com.zhaojuan.spring.beans;
+package com.zhaojuan.spring.beans.factory.support;
+
+import com.zhaojuan.spring.beans.MutablePropertyValues;
+import com.zhaojuan.spring.beans.config.BeanDefinition;
 
 import java.util.Objects;
 
@@ -19,6 +22,7 @@ public class GenericBeanDefinition implements BeanDefinition {
     public void setScope(String scope) {
         this.scope = scope;
     }
+
     public void setInitMethodName(String initMethodName) {
         this.initMethodName = initMethodName;
     }
@@ -27,18 +31,22 @@ public class GenericBeanDefinition implements BeanDefinition {
     public Class<?> getBeanClass() {
         return beanClass;
     }
+
     @Override
     public String getScope() {
         return scope;
     }
+
     @Override
     public boolean isSingleton() {
         return Objects.equals(scope, BeanDefinition.SINGLETION);
     }
+
     @Override
     public boolean isPrototype() {
         return Objects.equals(scope, BeanDefinition.PROTOTYPE);
     }
+
     @Override
     public String getInitMethodName() {
         return initMethodName;
@@ -51,6 +59,7 @@ public class GenericBeanDefinition implements BeanDefinition {
     public String[] getDependsOn() {
         return this.dependsOn;
     }
+
     public MutablePropertyValues getPropertyValues() {
         return propertyValues;
     }

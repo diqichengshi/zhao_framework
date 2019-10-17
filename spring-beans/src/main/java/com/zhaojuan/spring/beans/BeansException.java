@@ -2,9 +2,10 @@ package com.zhaojuan.spring.beans;
 
 import com.zhaojuan.spring.core.util.ObjectUtils;
 
-public class BeansException extends RuntimeException{
+public class BeansException extends RuntimeException {
     /**
      * Create a new BeansException with the specified message.
+     *
      * @param msg the detail message
      */
     public BeansException(String msg) {
@@ -14,7 +15,8 @@ public class BeansException extends RuntimeException{
     /**
      * Create a new BeansException with the specified message
      * and root cause.
-     * @param msg the detail message
+     *
+     * @param msg   the detail message
      * @param cause the root cause
      */
     public BeansException(String msg, Throwable cause) {

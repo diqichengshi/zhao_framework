@@ -1,12 +1,14 @@
 package com.zhaojuan.spring.beans;
 
+import com.zhaojuan.spring.beans.config.BeanDefinition;
 import com.zhaojuan.spring.beans.factory.support.AbstractBeanFactory;
+import com.zhaojuan.spring.beans.factory.support.BeanDefinitionRegistry;
+import com.zhaojuan.spring.beans.factory.support.GenericBeanDefinition;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 

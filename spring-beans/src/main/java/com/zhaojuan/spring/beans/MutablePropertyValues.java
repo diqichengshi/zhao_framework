@@ -4,7 +4,7 @@ import com.zhaojuan.spring.core.util.StringUtils;
 
 import java.util.*;
 
-public class MutablePropertyValues implements PropertyValues{
+public class MutablePropertyValues implements PropertyValues {
 
     private final List<PropertyValue> propertyValueList;
 
@@ -22,8 +22,7 @@ public class MutablePropertyValues implements PropertyValues{
             for (Map.Entry<?, ?> entry : original.entrySet()) {
                 this.propertyValueList.add(new PropertyValue(entry.getKey().toString(), entry.getValue()));
             }
-        }
-        else {
+        } else {
             this.propertyValueList = new ArrayList<PropertyValue>(0);
         }
     }
@@ -77,7 +76,8 @@ public class MutablePropertyValues implements PropertyValues{
      * a property name and a property value.
      * <p>Note: As of Spring 3.0, we recommend using the more concise
      * and chaining-capable variant {@link #add}.
-     * @param propertyName name of the property
+     *
+     * @param propertyName  name of the property
      * @param propertyValue value of the property
      * @see #addPropertyValue(PropertyValue)
      */
@@ -88,7 +88,8 @@ public class MutablePropertyValues implements PropertyValues{
     /**
      * Add a PropertyValue object, replacing any existing one for the
      * corresponding property or getting merged with it (if applicable).
-     * @param propertyName name of the property
+     *
+     * @param propertyName  name of the property
      * @param propertyValue value of the property
      * @return this in order to allow for adding multiple property values in a chain
      */
@@ -108,6 +109,7 @@ public class MutablePropertyValues implements PropertyValues{
 
     /**
      * Remove the given PropertyValue, if contained.
+     *
      * @param pv the PropertyValue to remove
      */
     public void removePropertyValue(PropertyValue pv) {
@@ -116,6 +118,7 @@ public class MutablePropertyValues implements PropertyValues{
 
     /**
      * Overloaded version of {@code removePropertyValue} that takes a property name.
+     *
      * @param propertyName name of the property
      * @see #removePropertyValue(PropertyValue)
      */
@@ -141,11 +144,12 @@ public class MutablePropertyValues implements PropertyValues{
 
     /**
      * Get the raw property value, if any.
+     *
      * @param propertyName the name to search for
      * @return the raw property value, or {@code null}
-     * @since 4.0
      * @see #getPropertyValue(String)
      * @see PropertyValue#getValue()
+     * @since 4.0
      */
     public Object get(String propertyName) {
         PropertyValue pv = getPropertyValue(propertyName);
@@ -170,6 +174,7 @@ public class MutablePropertyValues implements PropertyValues{
      * outside of the PropertyValue(s) mechanism.
      * <p>This will lead to {@code true} being returned from
      * a {@link #contains} call for the specified property.
+     *
      * @param propertyName the name of the property.
      */
     public void registerProcessedProperty(String propertyName) {
@@ -181,6 +186,7 @@ public class MutablePropertyValues implements PropertyValues{
 
     /**
      * Clear the "processed" registration of the given property, if any.
+     *
      * @since 3.2.13
      */
     public void clearProcessedProperty(String propertyName) {
