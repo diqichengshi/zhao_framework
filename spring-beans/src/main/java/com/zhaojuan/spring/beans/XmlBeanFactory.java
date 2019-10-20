@@ -1,9 +1,11 @@
 package com.zhaojuan.spring.beans;
 
 import com.zhaojuan.spring.beans.config.BeanDefinition;
+import com.zhaojuan.spring.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import com.zhaojuan.spring.beans.factory.support.AbstractBeanFactory;
 import com.zhaojuan.spring.beans.factory.support.BeanDefinitionRegistry;
 import com.zhaojuan.spring.beans.factory.support.GenericBeanDefinition;
+import com.zhaojuan.spring.core.util.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -12,7 +14,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class XmlBeanFactory extends AbstractBeanFactory implements BeanDefinitionRegistry {
+public class XmlBeanFactory extends AbstractAutowireCapableBeanFactory implements BeanDefinitionRegistry {
 
     /**
      * 存储beanElement对象容器
@@ -84,16 +86,26 @@ public class XmlBeanFactory extends AbstractBeanFactory implements BeanDefinitio
                     return;
                 }
                 List<PropertyValue> pvs = new ArrayList<>();
+                List<String> refList = new ArrayList<>();
                 //遍历property元素集合
                 for (Element propElement : propElements) {
                     //获取每个元素的name属性值和value属性值
                     String fieldName = propElement.attributeValue("name");
                     String fieldValue = propElement.attributeValue("value");
-                    PropertyValue pv = new PropertyValue(fieldName, fieldValue);
-                    pvs.add(pv);
+                    if (StringUtils.isNotEmpty(fieldValue)){
+                        PropertyValue pv = new PropertyValue(fieldName, fieldValue);
+                        pvs.add(pv);
+                    }else {
+                        String ref = propElement.attributeValue("ref");
+                        refList.add(ref); // 需要依赖注入的属性
+                        PropertyValue pv = new PropertyValue(fieldName, ref);
+                        pvs.add(pv);
+                    }
+
                 }
                 MutablePropertyValues mpvs = new MutablePropertyValues(pvs);
                 bd.setPropertyValues(mpvs);
+                bd.setDependsOn(refList);
                 // bd.setInitMethodName("init");
                 registerBeanDefinition(beanId, bd); // 注册BeanDefinition
 
@@ -145,38 +157,6 @@ public class XmlBeanFactory extends AbstractBeanFactory implements BeanDefinitio
         return instantiateBean(beanName, bd);
     }
 
-    /**
-     * 属性填充
-     */
-    public void populateBean(String beanName, BeanDefinition bd, BeanWrapper bw) {
-        PropertyValues pvs = bd.getPropertyValues();
-        applyPropertyValues(beanName, bd, bw, pvs);
-    }
-
-    /**
-     * 对象的属性赋值
-     */
-    protected void applyPropertyValues(String beanName, BeanDefinition mbd, BeanWrapper bw, PropertyValues pvs) {
-        List<PropertyValue> original;
-        if (pvs instanceof MutablePropertyValues) {
-            original = pvs.getPropertyValueList();
-        } else {
-            original = Arrays.asList(pvs.getPropertyValues());
-        }
-        // 创建深度副本,解析值的任何引用
-        List<PropertyValue> deepCopy = new ArrayList<PropertyValue>(original.size());
-        for (PropertyValue pv : original) {
-            deepCopy.add(pv);
-        }
-
-        // 设置我们的深度副本
-        try {
-            bw.setPropertyValues(new MutablePropertyValues(deepCopy));
-        } catch (Exception ex) {
-            throw new BeansException(beanName + "Error setting property values" + ex);
-        }
-
-    }
 
     /*
      * 注册bean定义，需要给定唯一bean的名称和bean的定义,放到bean定义集合中

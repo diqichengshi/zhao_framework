@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements BeanFactory {
     protected final Log logger = LogFactory.getLog(getClass());
+
     private BeanFactory parentBeanFactory;
     /**
      * Names of beans that are currently in creation
@@ -122,8 +123,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                     }
                 }
 
-                // Create bean instance.
-                //单例，开始创建bean
+                //单例,开始创建bean
                 if (mbd.isSingleton()) {
                     //getSingleton方法比较简单，不进行分析了，依次做了以下功能：
                     //1.创建前各个状态位校验，正在销毁，不是正在创建状态，抛出异常
@@ -144,16 +144,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                         }
                     });
                     bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
-                }
-                //todo
-                else if (mbd.isPrototype()) {
+                } else if (mbd.isPrototype()) {
                     // It's a prototype -> create a new instance.
                     Object prototypeInstance = null;
                     try {
                         //设置当前线程在create此bean
                         beforePrototypeCreation(beanName);
                         //和单例一个方法，后面会分析到
-                        prototypeInstance = createBean(beanName, mbd, args);
+                        prototypeInstance = createBean(beanName, mbd, args); // 由子类实现
                     } finally {
                         afterPrototypeCreation(beanName);  //移除当前创建
                     }
@@ -171,7 +169,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                             public Object getObject() throws BeansException {
                                 beforePrototypeCreation(beanName);
                                 try {
-                                    return createBean(beanName, mbd, args);
+                                    return createBean(beanName, mbd, args); // 由子类实现
                                 } finally {
                                     afterPrototypeCreation(beanName);
                                 }
@@ -179,10 +177,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                         });
                         bean = getObjectForBeanInstance(scopedInstance, name, beanName, mbd);
                     } catch (IllegalStateException ex) {
-                        throw new BeansException(beanName +
-                                "Scope '" + scopeName + "' is not active for the current thread; " +
-                                "consider defining a scoped proxy for this bean if you intend to refer to it from a singleton",
-                                ex);
+                        throw new BeansException(beanName + "当前线程不支持'" + scopeName + "'作用域 ", ex);
                     }
                 }
             } catch (BeansException ex) {
@@ -387,6 +382,35 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
     public BeanFactory getParentBeanFactory() {
         return this.parentBeanFactory;
+    }
+    @Override
+    public boolean containsBean(String name) {
+        String beanName = name;
+        if (containsSingleton(beanName) || containsBeanDefinition(beanName)) {
+            return (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(name));
+        }
+        // Not found -> check parent.
+        BeanFactory parentBeanFactory = getParentBeanFactory();
+        return (parentBeanFactory != null && parentBeanFactory.containsBean(name));
+    }
+
+    public boolean isFactoryBean(String name) {
+        String beanName = name;
+
+        Object beanInstance = getSingleton(beanName, false);
+        if (beanInstance != null) {
+            return (beanInstance instanceof FactoryBean);
+        } else if (containsSingleton(beanName)) {
+            return false;
+        }
+
+        Class<?> beanType = beanInstance.getClass();
+        return (beanType != null && FactoryBean.class.isAssignableFrom(beanType));
+    }
+
+    protected boolean isFactoryBean(String beanName, BeanDefinition mbd) {
+        Class<?> beanType = mbd.getBeanClass();
+        return (beanType != null && FactoryBean.class.isAssignableFrom(beanType));
     }
 
     /**

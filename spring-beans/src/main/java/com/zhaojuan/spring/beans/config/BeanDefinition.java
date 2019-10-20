@@ -2,6 +2,8 @@ package com.zhaojuan.spring.beans.config;
 
 import com.zhaojuan.spring.beans.MutablePropertyValues;
 
+import java.util.List;
+
 public interface BeanDefinition {
     final static String SINGLETION = "singleton";
 
@@ -19,5 +21,9 @@ public interface BeanDefinition {
 
     public String[] getDependsOn();
 
+    public void setDependsOn(List<String> refList);
+
     MutablePropertyValues getPropertyValues();
+
+    public int getResolvedAutowireMode();
 }

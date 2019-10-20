@@ -32,6 +32,21 @@ public class MutablePropertyValues implements PropertyValues {
                 (propertyValueList != null ? propertyValueList : new ArrayList<PropertyValue>());
     }
 
+    public MutablePropertyValues(PropertyValues original) {
+        // We can optimize this because it's all new:
+        // There is no replacement of existing property values.
+        if (original != null) {
+            PropertyValue[] pvs = original.getPropertyValues();
+            this.propertyValueList = new ArrayList<PropertyValue>(pvs.length);
+            for (PropertyValue pv : pvs) {
+                this.propertyValueList.add(new PropertyValue(pv));
+            }
+        }
+        else {
+            this.propertyValueList = new ArrayList<PropertyValue>(0);
+        }
+    }
+
     public List<PropertyValue> getPropertyValueList() {
         return this.propertyValueList;
     }

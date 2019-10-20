@@ -1,5 +1,7 @@
 package com.zhaojuan.spring.beans;
 
+import java.beans.PropertyDescriptor;
+
 public interface BeanWrapper {
     /**
      * 返回包装对象
@@ -15,4 +17,7 @@ public interface BeanWrapper {
      * 设置配置属性
      */
     void setPropertyValues(PropertyValues pvs) throws BeansException, NoSuchFieldException;
+
+    PropertyDescriptor getPropertyDescriptor(String propertyName) throws BeanCreationException;
+
 }

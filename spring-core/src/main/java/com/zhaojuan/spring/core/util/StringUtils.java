@@ -64,6 +64,9 @@ public abstract class StringUtils {
 
     private static final char EXTENSION_SEPARATOR = '.';
 
+    public static boolean isNotEmpty(Object str) {
+        return !isEmpty(str);
+    }
     public static boolean isEmpty(Object str) {
         return (str == null || "".equals(str));
     }

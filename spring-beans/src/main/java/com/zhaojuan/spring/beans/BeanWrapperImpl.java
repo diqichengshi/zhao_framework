@@ -2,6 +2,7 @@ package com.zhaojuan.spring.beans;
 
 import com.zhaojuan.spring.core.util.Assert;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -26,7 +27,16 @@ public class BeanWrapperImpl implements BeanWrapper {
     public Class<?> getWrappedClass() {
         return object.getClass();
     }
-
+    @Override
+    public PropertyDescriptor getPropertyDescriptor(String propertyName) throws BeanCreationException {
+        BeanWrapperImpl nestedBw = (BeanWrapperImpl) getPropertyAccessorForPropertyPath(propertyName);
+        String finalPath = getFinalPath(nestedBw, propertyName);
+        PropertyDescriptor pd = nestedBw.getCachedIntrospectionResults().getPropertyDescriptor(finalPath);
+        if (pd == null) {
+            throw new BeanCreationException(" No property '" + propertyName + "' found");
+        }
+        return pd;
+    }
     /**
      * 设置配置属性
      */
@@ -50,8 +60,12 @@ public class BeanWrapperImpl implements BeanWrapper {
                     int intFieldValue = Integer.parseInt(pv.getValue().toString());
                     field.set(object, intFieldValue);
                 }
-                //判断该成员属性是否为String类型
-                if ("java.lang.String".equals(fieldTypeName)) {
+                //判断该成员属性是否为String,对象类型
+                if ("java.lang.String".equals(fieldTypeName) ) {
+                    //为该成员属性赋值
+                    field.set(object, pv.getValue());
+                }
+                if ("java.lang.Object".equals(fieldTypeName)  ) {
                     //为该成员属性赋值
                     field.set(object, pv.getValue());
                 }
