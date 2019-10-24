@@ -1,4 +1,4 @@
-package com.zhaojuan.spring.test.service;
+package com.zhaojuan.springframework.test.service;
 
 public interface OrderService {
     void save();

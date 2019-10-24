@@ -1,8 +1,8 @@
-package com.zhaojuan.spring.test;
+package com.zhaojuan.springframework.test;
 
+import com.zhaojuan.springframework.test.entity.Role;
+import com.zhaojuan.springframework.test.entity.User;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import com.zhaojuan.spring.test.entity.Role;
-import com.zhaojuan.spring.test.entity.User;
 
 public class TestXmlApplication {
     public static void main(String[] args) throws Exception {

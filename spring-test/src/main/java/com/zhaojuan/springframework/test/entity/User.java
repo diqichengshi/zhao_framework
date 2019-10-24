@@ -1,4 +1,4 @@
-package com.zhaojuan.spring.test.entity;
+package com.zhaojuan.springframework.test.entity;
 
 public class User {
     private Integer id;

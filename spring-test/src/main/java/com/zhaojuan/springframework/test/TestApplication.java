@@ -1,7 +1,8 @@
-package com.zhaojuan.spring.test;
+package com.zhaojuan.springframework.test;
 
+
+import com.zhaojuan.springframework.test.service.ProductService;
 import org.springframework.context.support.AnnotationApplicationContext;
-import com.zhaojuan.spring.test.service.ProductService;
 
 public class TestApplication {
     public static void main(String[] args) throws Exception {

@@ -1,9 +1,9 @@
-package com.zhaojuan.spring.test.service.impl;
+package com.zhaojuan.springframework.test.service.impl;
 
+import com.zhaojuan.springframework.test.service.OrderService;
+import com.zhaojuan.springframework.test.service.ProductService;
 import org.springframework.beans.annotation.Autowired;
 import org.springframework.beans.annotation.Service;
-import com.zhaojuan.spring.test.service.OrderService;
-import com.zhaojuan.spring.test.service.ProductService;
 
 @Service(value = "productService")
 public class ProductServiceImpl implements ProductService {
