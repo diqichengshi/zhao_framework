@@ -8,6 +8,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -53,6 +54,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     private BeanWrapper createBeanInstance(String beanName, BeanDefinition bd) {
+        // Make sure bean class is actually resolved at this point.
+        Class<?> beanClass = bd.getBeanClass();
+
+        if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) ) {
+            throw new BeanCreationException(beanName
+                    +"Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
+        }
+
         return instantiateBean(beanName, bd);
     }
 
@@ -70,6 +79,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 autowireByName(beanName, mbd, bw, newPvs);
             }
 
+            // 此处逻辑复杂,不进行实现
             // Add property values based on autowire by type if applicable.
             if (mbd.getResolvedAutowireMode() == GenericBeanDefinition.AUTOWIRE_BY_TYPE) {
                 autowireByType(beanName, mbd, bw, newPvs);
@@ -86,7 +96,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      */
     protected void autowireByName(String beanName, BeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
         // 解析出非简单属性
-        String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
+        String[] propertyNames = mbd.getDependsOn();
         for (String propertyName : propertyNames) {
             if (containsBean(propertyName)) {
                 Object bean = getBean(propertyName);
@@ -112,22 +122,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     /**
-     * 解析出非简单属性
-     */
-    protected String[] unsatisfiedNonSimpleProperties(BeanDefinition mbd, BeanWrapper bw) {
-        Set<String> result = new TreeSet<String>();
-        PropertyValues pvs = mbd.getPropertyValues();
-        PropertyDescriptor[] pds = bw.getPropertyDescriptors();
-        for (PropertyDescriptor pd : pds) {
-            if (pd.getWriteMethod() != null && !pvs.contains(pd.getName()) &&
-                    !BeanUtils.isSimpleProperty(pd.getPropertyType())) {
-                result.add(pd.getName());
-            }
-        }
-        return StringUtils.toStringArray(result);
-    }
-
-    /**
      * 对象的属性赋值
      */
     protected void applyPropertyValues(String beanName, BeanDefinition mbd, BeanWrapper bw, PropertyValues pvs) {
@@ -146,8 +140,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             }
         }
 
-        List<PropertyValue> original = mpvs.getPropertyValueList();
-
+        List<PropertyValue> original = mpvs.getPropertyValueList(); // 获取bean的属性列表
 
         BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, beanName, mbd);
 
@@ -165,7 +158,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 Object convertedValue = resolvedValue;
                 boolean convertible = !PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);
                 if (convertible) {
-                    convertedValue=((BeanWrapperImpl) bw).convertForProperty(resolvedValue, propertyName); // 进行属性转换
+                    convertedValue=((BeanWrapperImpl) bw).convertForProperty(propertyName,resolvedValue); // 进行属性转换 TODO 重要方法
                 }
                 // Possibly store converted value in merged bean definition,
                 // in order to avoid re-conversion for every created bean instance.
@@ -192,7 +185,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         // Set our (possibly massaged) deep copy.
         try {
-            bw.setPropertyValues(new MutablePropertyValues(deepCopy));
+            bw.setPropertyValues(new MutablePropertyValues(deepCopy)); // bean的属性赋值
         }
         catch (BeansException ex) {
             throw new BeanCreationException(beanName+"Error setting property values", ex);

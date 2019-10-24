@@ -2,7 +2,7 @@ package org.springframework.beans;
 
 import java.beans.PropertyDescriptor;
 
-public interface BeanWrapper {
+public interface BeanWrapper extends PropertyAccessor {
     /**
      * 返回包装对象
      */
@@ -12,11 +12,6 @@ public interface BeanWrapper {
      * 返回包装对象的CLass
      */
     Class<?> getWrappedClass();
-
-    /**
-     * 设置配置属性
-     */
-    void setPropertyValues(PropertyValues pvs) throws BeansException;
     /**
      * Obtain the PropertyDescriptors for the wrapped object
      * (as determined by standard JavaBeans introspection).

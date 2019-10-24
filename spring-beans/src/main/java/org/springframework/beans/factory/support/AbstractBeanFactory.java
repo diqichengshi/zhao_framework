@@ -196,9 +196,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
      */
     protected BeanWrapper instantiateBean(final String beanName, final BeanDefinition bd) {
         try {
-            Object beanInstance;
-
-            beanInstance = bd.getBeanClass().newInstance();
+            Object beanInstance = bd.getBeanClass().newInstance();
             BeanWrapper bw = new BeanWrapperImpl(beanInstance);
             initBeanWrapper(bw); // 初始化BeanWrapper
             return bw;

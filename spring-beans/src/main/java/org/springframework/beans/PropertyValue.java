@@ -7,9 +7,15 @@ public class PropertyValue {
 
     private final Object value;
 
+    private Object source;
+
+    private boolean optional = false;
+
     private boolean converted = false;
 
     private Object convertedValue;
+
+    volatile Boolean conversionNecessary;
 
     public PropertyValue(String name, Object value) {
         this.name = name;
@@ -41,7 +47,13 @@ public class PropertyValue {
         return this.value;
     }
 
+    public void setOptional(boolean optional) {
+        this.optional = optional;
+    }
 
+    public boolean isOptional() {
+        return this.optional;
+    }
     /**
      * Return whether this holder contains a converted value already ({@code true}),
      * or whether the value still needs to be converted ({@code false}).
@@ -57,4 +69,26 @@ public class PropertyValue {
         this.converted = true;
         this.convertedValue = value;
     }
+
+    /**
+     * Return the converted value of the constructor argument,
+     * after processed type conversion.
+     */
+    public synchronized Object getConvertedValue() {
+        return this.convertedValue;
+    }
+
+    /**
+     * Return the original PropertyValue instance for this value holder.
+     * @return the original PropertyValue (either a source of this
+     * value holder or this value holder itself).
+     */
+    public PropertyValue getOriginalPropertyValue() {
+        PropertyValue original = this;
+        while (original.source instanceof PropertyValue && original.source != original) {
+            original = (PropertyValue) original.source;
+        }
+        return original;
+    }
+
 }
