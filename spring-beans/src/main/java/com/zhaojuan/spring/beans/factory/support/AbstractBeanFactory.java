@@ -7,9 +7,9 @@ import com.zhaojuan.spring.beans.factory.BeanFactory;
 import com.zhaojuan.spring.beans.factory.BeanFactoryUtils;
 import com.zhaojuan.spring.beans.factory.FactoryBean;
 import com.zhaojuan.spring.beans.factory.ObjectFactory;
-import com.zhaojuan.spring.core.util.Assert;
-import com.zhaojuan.spring.core.util.ClassUtils;
-import com.zhaojuan.spring.core.util.ReflectionUtils;
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

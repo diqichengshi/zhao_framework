@@ -1,6 +1,6 @@
 package com.zhaojuan.spring.beans;
 
-import com.zhaojuan.spring.core.util.ObjectUtils;
+import org.springframework.util.ObjectUtils;
 
 public class BeansException extends RuntimeException {
     /**

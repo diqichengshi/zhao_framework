@@ -1,6 +1,6 @@
 package com.zhaojuan.spring.beans;
 
-import com.zhaojuan.spring.core.util.Assert;
+import org.springframework.util.Assert;
 
 public class PropertyValue {
     private final String name;

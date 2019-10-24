@@ -1,11 +1,8 @@
 package com.zhaojuan.spring.beans;
 
 import com.zhaojuan.spring.beans.config.BeanDefinition;
-import com.zhaojuan.spring.beans.factory.support.AbstractAutowireCapableBeanFactory;
-import com.zhaojuan.spring.beans.factory.support.AbstractBeanFactory;
-import com.zhaojuan.spring.beans.factory.support.BeanDefinitionRegistry;
-import com.zhaojuan.spring.beans.factory.support.GenericBeanDefinition;
-import com.zhaojuan.spring.core.util.StringUtils;
+import com.zhaojuan.spring.beans.factory.support.*;
+import org.springframework.util.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -169,6 +166,7 @@ public class XmlBeanFactory extends AbstractAutowireCapableBeanFactory implement
         }
         beanDefinitionMap.put(beanName, beanDefinition);
     }
+
 
     public BeanDefinition getBeanDefinition(String beanName) {
         return beanDefinitionMap.get(beanName);

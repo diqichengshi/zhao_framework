@@ -1,6 +1,6 @@
 package com.zhaojuan.spring.beans;
 
-import com.zhaojuan.spring.core.util.Assert;
+import org.springframework.util.Assert;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -12,6 +12,8 @@ public class BeanWrapperImpl implements BeanWrapper {
      * 被包装的对账
      */
     private Object object;
+
+    private CachedIntrospectionResults cachedIntrospectionResults;
 
     public BeanWrapperImpl(Object beanInstance) {
         this.object = beanInstance;
@@ -27,16 +29,7 @@ public class BeanWrapperImpl implements BeanWrapper {
     public Class<?> getWrappedClass() {
         return object.getClass();
     }
-    @Override
-    public PropertyDescriptor getPropertyDescriptor(String propertyName) throws BeanCreationException {
-        BeanWrapperImpl nestedBw = (BeanWrapperImpl) getPropertyAccessorForPropertyPath(propertyName);
-        String finalPath = getFinalPath(nestedBw, propertyName);
-        PropertyDescriptor pd = nestedBw.getCachedIntrospectionResults().getPropertyDescriptor(finalPath);
-        if (pd == null) {
-            throw new BeanCreationException(" No property '" + propertyName + "' found");
-        }
-        return pd;
-    }
+
     /**
      * 设置配置属性
      */
@@ -81,4 +74,19 @@ public class BeanWrapperImpl implements BeanWrapper {
         }
     }
 
+    @Override
+    public PropertyDescriptor[] getPropertyDescriptors() {
+        return getCachedIntrospectionResults().getPropertyDescriptors();
+    }
+    /**
+     * Obtain a lazily initializted CachedIntrospectionResults instance
+     * for the wrapped object.
+     */
+    private CachedIntrospectionResults getCachedIntrospectionResults() {
+        Assert.state(getWrappedInstance() != null, "BeanWrapper does not hold a bean instance");
+        if (this.cachedIntrospectionResults == null) {
+            this.cachedIntrospectionResults = CachedIntrospectionResults.forClass(getWrappedClass());
+        }
+        return this.cachedIntrospectionResults;
+    }
 }

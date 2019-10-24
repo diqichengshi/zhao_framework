@@ -3,7 +3,7 @@ package com.zhaojuan.spring.beans.factory.support;
 import com.zhaojuan.spring.beans.BeanCreationException;
 import com.zhaojuan.spring.beans.config.SingletonBeanRegistry;
 import com.zhaojuan.spring.beans.factory.ObjectFactory;
-import com.zhaojuan.spring.core.util.Assert;
+import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

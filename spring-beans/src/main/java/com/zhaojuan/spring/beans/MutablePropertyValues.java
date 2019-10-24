@@ -1,6 +1,6 @@
 package com.zhaojuan.spring.beans;
 
-import com.zhaojuan.spring.core.util.StringUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 

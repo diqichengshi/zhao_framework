@@ -6,8 +6,8 @@ import com.zhaojuan.spring.beans.config.BeanDefinition;
 import com.zhaojuan.spring.beans.factory.BeanFactory;
 import com.zhaojuan.spring.beans.factory.support.AbstractBeanFactory;
 import com.zhaojuan.spring.beans.factory.support.BeanDefinitionRegistry;
-import com.zhaojuan.spring.core.util.ClassUtils;
-import com.zhaojuan.spring.core.util.StringUtils;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -29,13 +29,13 @@ public class AnnotationBeanFactory extends AbstractBeanFactory implements BeanFa
     }
 
     private void initBeans() {
-        // 1.扫包
+       /* // 1.扫包
         List<Class<?>> classes = ClassUtils.getClasses(packageName);
         // 2.判断是否有注解
         ConcurrentHashMap<String, Object> findClassExistAnnotation = findClassExistAnnotation(classes);
         if (findClassExistAnnotation == null || findClassExistAnnotation.isEmpty()) {
             throw new RuntimeException("该包下没有这个注解");
-        }
+        }*/
     }
 
     private void initAttributes() throws Exception {
@@ -69,8 +69,8 @@ public class AnnotationBeanFactory extends AbstractBeanFactory implements BeanFa
                 if (StringUtils.isEmpty(beanId)) {
                     beanId = StringUtils.toLowerCaseFirstOne(clazz.getSimpleName());// 获取当前类名
                 }
-                Object newInstance = ClassUtils.newInstance(clazz);
-                beans.put(beanId, newInstance);
+             /*   Object newInstance = ClassUtils.newInstance(clazz);
+                beans.put(beanId, newInstance);*/
             }
         }
         return beans;

@@ -17,7 +17,10 @@ public interface BeanWrapper {
      * 设置配置属性
      */
     void setPropertyValues(PropertyValues pvs) throws BeansException, NoSuchFieldException;
-
-    PropertyDescriptor getPropertyDescriptor(String propertyName) throws BeanCreationException;
-
+    /**
+     * Obtain the PropertyDescriptors for the wrapped object
+     * (as determined by standard JavaBeans introspection).
+     * @return the PropertyDescriptors for the wrapped object
+     */
+    PropertyDescriptor[] getPropertyDescriptors();
 }
