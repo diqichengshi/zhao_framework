@@ -18,11 +18,32 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
     /**
      * 实现抽象类的方法
+     * 这个类的中心方法: 创建一个bean实例，
+     * 填充bean实例,应用后处理器等。
+     *
+     * @see #doCreateBean
      */
     protected Object createBean(final String beanName, final BeanDefinition mbd, final Object[] args) {
-        return doCreateBean(beanName, mbd, args);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Creating instance of bean '" + beanName + "'");
+        }
+        Object beanInstance = doCreateBean(beanName, mbd, args);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Finished creating instance of bean '" + beanName + "'");
+        }
+        return beanInstance;
     }
 
+    /**
+     * 实际创建指定的bean。已进行预创建处理
+     *
+     * @param beanName bean的名称
+     * @param mbd      合并bean定义
+     * @param args     用于构造函数或工厂方法调用的显式参数
+     * @返回bean的新实例
+     * @如果无法创建bean，则抛出BeanCreationException
+     * @see #instantiateBean
+     */
     protected Object doCreateBean(final String beanName, final BeanDefinition mbd, final Object[] args) {
         // Instantiate the bean.
         BeanWrapper instanceWrapper = null;
@@ -33,10 +54,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         //获取bean和class对象
         final Object bean = (instanceWrapper != null ? instanceWrapper.getWrappedInstance() : null);
         Class<?> beanType = (instanceWrapper != null ? instanceWrapper.getWrappedClass() : null);
-        // Initialize the bean instance.
+
+        // 初始化Bean实例
         Object exposedObject = bean;
         try {
-            //属性填充，重点方法二
+            //属性填充，自动注入,重点方法二
             populateBean(beanName, mbd, instanceWrapper);
             if (exposedObject != null) {
                 //实现InitializingBean接口的方法回调，重点方法三
@@ -57,21 +79,21 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // Make sure bean class is actually resolved at this point.
         Class<?> beanClass = bd.getBeanClass();
 
-        if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) ) {
+        if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers())) {
             throw new BeanCreationException(beanName
-                    +"Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
+                    + "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
         }
 
         return instantiateBean(beanName, bd);
     }
 
     /**
-     * 属性填充
+     * 普通属性填充和自动注入
      */
     public void populateBean(String beanName, BeanDefinition mbd, BeanWrapper bw) {
         PropertyValues pvs = mbd.getPropertyValues();
 
-        if (mbd.getResolvedAutowireMode() == GenericBeanDefinition.AUTOWIRE_BY_NAME||
+        if (mbd.getResolvedAutowireMode() == GenericBeanDefinition.AUTOWIRE_BY_NAME ||
                 mbd.getResolvedAutowireMode() == GenericBeanDefinition.AUTOWIRE_BY_TYPE) {
             MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
             // Add property values based on autowire by name if applicable.
@@ -136,7 +158,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 bw.setPropertyValues(mpvs);
                 return;
             } catch (BeansException ex) {
-                throw new BeanCreationException(beanName+ "Error setting property values", ex);
+                throw new BeanCreationException(beanName + "Error setting property values", ex);
             }
         }
 
@@ -150,15 +172,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         for (PropertyValue pv : original) {
             if (pv.isConverted()) {
                 deepCopy.add(pv);
-            }
-            else {
+            } else {
                 String propertyName = pv.getName();
                 Object originalValue = pv.getValue();
                 Object resolvedValue = valueResolver.resolveValueIfNecessary(pv, originalValue);
                 Object convertedValue = resolvedValue;
                 boolean convertible = !PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);
                 if (convertible) {
-                    convertedValue=((BeanWrapperImpl) bw).convertForProperty(propertyName,resolvedValue); // 进行属性转换 TODO 重要方法
+                    convertedValue = ((BeanWrapperImpl) bw).convertForProperty(propertyName, resolvedValue); // 进行属性转换 TODO 重要方法
                 }
                 // Possibly store converted value in merged bean definition,
                 // in order to avoid re-conversion for every created bean instance.
@@ -167,13 +188,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                         pv.setConvertedValue(convertedValue);
                     }
                     deepCopy.add(pv);
-                }
-                else if (convertible  &&
+                } else if (convertible &&
                         !(convertedValue instanceof Collection || ObjectUtils.isArray(convertedValue))) {
                     pv.setConvertedValue(convertedValue);
                     deepCopy.add(pv);
-                }
-                else {
+                } else {
                     resolveNecessary = true;
                     deepCopy.add(new PropertyValue(pv, convertedValue));
                 }
@@ -186,9 +205,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // Set our (possibly massaged) deep copy.
         try {
             bw.setPropertyValues(new MutablePropertyValues(deepCopy)); // bean的属性赋值
-        }
-        catch (BeansException ex) {
-            throw new BeanCreationException(beanName+"Error setting property values", ex);
+        } catch (BeansException ex) {
+            throw new BeanCreationException(beanName + "Error setting property values", ex);
         }
     }
 

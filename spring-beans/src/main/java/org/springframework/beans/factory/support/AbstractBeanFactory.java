@@ -57,6 +57,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
     }
 
+    /**
+     *返回指定be an的实例，该实例可以是共享的，也可以是独立的。
+     *@param name要检索的bean的名称
+     *@param required type要检索的bean的必需类型
+     *@param args 使用显式参数创建bean实例时要使用的参数 （仅用于创建新实例而不是检索现有实例）
+     *@返回bean的实例
+     *@如果无法创建bean，则抛出BeansException
+     */
     private <T> T doGetBean(String name, final Class<T> requiredType, final Object[] args, boolean typeCheckOnly) throws BeansException {
         String beanName = name;
         Assert.notNull(beanName, "beanName不能为空");
