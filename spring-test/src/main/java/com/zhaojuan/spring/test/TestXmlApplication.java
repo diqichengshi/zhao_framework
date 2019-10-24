@@ -1,10 +1,8 @@
 package com.zhaojuan.spring.test;
 
-import com.zhaojuan.spring.context.support.AnnotationApplicationContext;
-import com.zhaojuan.spring.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.zhaojuan.spring.test.entity.Role;
 import com.zhaojuan.spring.test.entity.User;
-import com.zhaojuan.spring.test.service.ProductService;
 
 public class TestXmlApplication {
     public static void main(String[] args) throws Exception {

@@ -1,6 +1,6 @@
 package com.zhaojuan.spring.test;
 
-import com.zhaojuan.spring.context.support.AnnotationApplicationContext;
+import org.springframework.context.support.AnnotationApplicationContext;
 import com.zhaojuan.spring.test.service.ProductService;
 
 public class TestApplication {

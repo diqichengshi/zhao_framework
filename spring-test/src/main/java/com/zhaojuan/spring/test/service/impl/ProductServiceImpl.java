@@ -1,7 +1,7 @@
 package com.zhaojuan.spring.test.service.impl;
 
-import com.zhaojuan.spring.beans.annotation.Autowired;
-import com.zhaojuan.spring.beans.annotation.Service;
+import org.springframework.beans.annotation.Autowired;
+import org.springframework.beans.annotation.Service;
 import com.zhaojuan.spring.test.service.OrderService;
 import com.zhaojuan.spring.test.service.ProductService;
 
