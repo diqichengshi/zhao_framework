@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans>
-    <bean id="user" class="zhaojuan.springframework.test.entity.User" scope="singleton">
+    <bean id="user" class="com.zhaojuan.springframework.test.entity.User" scope="singleton">
         <property name="id" value="1"/>
         <property name="name" value="张三"/>
         <property name="password" value="12456"/>
         <property name="role" ref="role"/>
     </bean>
-    <bean id="role" class="zhaojuan.springframework.test.entity.Role" scope="prototype">
+    <bean id="role" class="com.zhaojuan.springframework.test.entity.Role" scope="singleton">
         <property name="id" value="2"/>
         <property name="name" value="李四"/>
     </bean>

@@ -1,6 +1,6 @@
 package org.springframework.beans.factory.support;
 
-import org.springframework.beans.BeanCreationException;
+import org.springframework.beans.exception.BeanCreationException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 

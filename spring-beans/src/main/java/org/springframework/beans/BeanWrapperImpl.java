@@ -1,33 +1,32 @@
 package org.springframework.beans;
 
+import org.springframework.beans.exception.InvalidPropertyException;
+import org.springframework.beans.exception.TypeMismatchException;
+import org.springframework.core.MethodParameter;
+import org.springframework.core.convert.Property;
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.util.Assert;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.util.List;
 
-public class BeanWrapperImpl implements BeanWrapper {
+public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements BeanWrapper {
     private String beanName;
-    /**
-     * 被包装的对账
-     */
-    private Object object;
+
 
     private CachedIntrospectionResults cachedIntrospectionResults;
 
     public BeanWrapperImpl(Object beanInstance) {
-        this.object = beanInstance;
-        Assert.notNull(object, "target object must not be null");
+       super(beanInstance);
     }
 
-    @Override
     public Object getWrappedInstance() {
-        return object;
+        return super.getWrappedInstance();
     }
 
-    @Override
     public Class<?> getWrappedClass() {
-        return object.getClass();
+        return super.getWrappedClass();
     }
 
     /**
@@ -35,7 +34,8 @@ public class BeanWrapperImpl implements BeanWrapper {
      */
     @Override
     public void setPropertyValues(PropertyValues pvs) throws BeansException {
-        Class<?> cls = object.getClass();
+        Object object=getWrappedInstance();
+        Class<?> cls = getWrappedInstance().getClass();
         List<PropertyValue> list = pvs.getPropertyValueList();
 
         for (int i = 0; i < list.size(); i++) {
@@ -74,6 +74,35 @@ public class BeanWrapperImpl implements BeanWrapper {
         }
     }
 
+    /**
+     * Convert the given value for the specified property to the latter's type.
+     * <p>This method is only intended for optimizations in a BeanFactory.
+     * Use the {@code convertIfNecessary} methods for programmatic conversion.
+     * @param value the value to convert
+     * @param propertyName the target property
+     * (note that nested or indexed properties are not supported here)
+     * @return the new value, possibly the result of type conversion
+     * @throws TypeMismatchException if type conversion failed
+     */
+    public Object convertForProperty(Object value, String propertyName) throws TypeMismatchException {
+        CachedIntrospectionResults cachedIntrospectionResults = getCachedIntrospectionResults();
+        PropertyDescriptor pd = cachedIntrospectionResults.getPropertyDescriptor(propertyName);
+        if (pd == null) {
+            throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
+                    "No property '" + propertyName + "' found");
+        }
+        TypeDescriptor td = cachedIntrospectionResults.getTypeDescriptor(pd);
+        if (td == null) {
+            td = cachedIntrospectionResults.addTypeDescriptor(pd, new TypeDescriptor(property(pd)));
+        }
+        return convertForProperty(propertyName, null, value, td);
+    }
+
+    private Property property(PropertyDescriptor pd) {
+        GenericTypeAwarePropertyDescriptor gpd = (GenericTypeAwarePropertyDescriptor) pd;
+        return new Property(gpd.getBeanClass(), gpd.getReadMethod(), gpd.getWriteMethod(), gpd.getName());
+    }
+
     @Override
     public PropertyDescriptor[] getPropertyDescriptors() {
         return getCachedIntrospectionResults().getPropertyDescriptors();
@@ -89,4 +118,5 @@ public class BeanWrapperImpl implements BeanWrapper {
         }
         return this.cachedIntrospectionResults;
     }
+
 }

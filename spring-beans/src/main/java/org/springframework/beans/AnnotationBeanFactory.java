@@ -3,6 +3,7 @@ package org.springframework.beans;
 import org.springframework.beans.annotation.Autowired;
 import org.springframework.beans.annotation.Service;
 import org.springframework.beans.config.BeanDefinition;
+import org.springframework.beans.exception.BeanCreationException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;

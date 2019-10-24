@@ -6,7 +6,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.BeanCreationException;
+import org.springframework.beans.exception.BeanCreationException;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
@@ -37,7 +37,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
      * Map from scope identifier String to corresponding Scope
      */
     private final Map<String, Scope> scopes = new LinkedHashMap<String, Scope>(8);
-
     /*
      * 获得bean的门面方法
      * 采用构造器来创建对象
@@ -201,7 +200,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
             beanInstance = bd.getBeanClass().newInstance();
             BeanWrapper bw = new BeanWrapperImpl(beanInstance);
-            initBeanWrapper(bw);
+            initBeanWrapper(bw); // 初始化BeanWrapper
             return bw;
         } catch (Throwable ex) {
             ex.printStackTrace();

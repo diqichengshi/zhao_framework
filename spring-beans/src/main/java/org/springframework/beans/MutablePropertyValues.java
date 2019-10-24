@@ -10,6 +10,8 @@ public class MutablePropertyValues implements PropertyValues {
 
     private Set<String> processedProperties;
 
+    private volatile boolean converted = false;
+
     public MutablePropertyValues() {
         this.propertyValueList = new ArrayList<PropertyValue>(0);
     }
@@ -210,6 +212,21 @@ public class MutablePropertyValues implements PropertyValues {
         }
     }
 
+    /**
+     * Mark this holder as containing converted values only
+     * (i.e. no runtime resolution needed anymore).
+     */
+    public void setConverted() {
+        this.converted = true;
+    }
+
+    /**
+     * Return whether this holder contains converted values only ({@code true}),
+     * or whether the values still need to be converted ({@code false}).
+     */
+    public boolean isConverted() {
+        return this.converted;
+    }
 
     @Override
     public boolean equals(Object other) {

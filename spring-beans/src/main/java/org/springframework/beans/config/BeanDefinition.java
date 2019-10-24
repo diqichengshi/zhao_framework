@@ -9,6 +9,10 @@ public interface BeanDefinition {
 
     final static String PROTOTYPE = "prototype";
 
+    public String getBeanName();
+
+    public void setBeanName(String beanName);
+
     Class<?> getBeanClass();
 
     String getScope();
@@ -25,5 +29,8 @@ public interface BeanDefinition {
 
     MutablePropertyValues getPropertyValues();
 
+    public void setAutowireMode(int autowireMode);
+
     public int getResolvedAutowireMode();
+
 }

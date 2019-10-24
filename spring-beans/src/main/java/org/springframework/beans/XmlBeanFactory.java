@@ -62,51 +62,10 @@ public class XmlBeanFactory extends AbstractAutowireCapableBeanFactory implement
             List<Element> beanElements = rootElement.elements("bean");
             //遍历元素集合
             for (Element beanElement : beanElements) {
-                GenericBeanDefinition bd = new GenericBeanDefinition();
-                //获取bean的id值，该值用于作为key存储于Map集合中
-                String beanId = beanElement.attributeValue("id");
-                //获取bean的scope值
-                String beanScope = beanElement.attributeValue("scope");
-                //如果beanScope不等于null，将bean的scope值存入map中方便后续使用
-                if (beanScope != null) {
-                    bd.setScope(beanScope);
-                }
-                //获取bean的class路径
-                String beanClassPath = beanElement.attributeValue("class");
-                //利用反射技术根据获得的beanClass路径得到类定义对象
-                Class<?> cls = Class.forName(beanClassPath);
-                //如果反射获取的类定义对象不为null，则放入工厂中方便创建其实例对象
-                if (cls != null) {
-                    bd.setBeanClass(cls);
-                }
-                List<Element> propElements = beanElement.elements("property");
-                //如果property元素集合为null，调用putInMap方法将对象放进Map中
-                if (propElements == null) {
-                    return;
-                }
-                List<PropertyValue> pvs = new ArrayList<>();
-                List<String> refList = new ArrayList<>();
-                //遍历property元素集合
-                for (Element propElement : propElements) {
-                    //获取每个元素的name属性值和value属性值
-                    String fieldName = propElement.attributeValue("name");
-                    String fieldValue = propElement.attributeValue("value");
-                    if (StringUtils.isNotEmpty(fieldValue)){
-                        PropertyValue pv = new PropertyValue(fieldName, fieldValue);
-                        pvs.add(pv);
-                    }else {
-                        String ref = propElement.attributeValue("ref");
-                        refList.add(ref); // 需要依赖注入的属性
-                        PropertyValue pv = new PropertyValue(fieldName, ref);
-                        pvs.add(pv);
-                    }
 
-                }
-                MutablePropertyValues mpvs = new MutablePropertyValues(pvs);
-                bd.setPropertyValues(mpvs);
-                bd.setDependsOn(refList);
-                // bd.setInitMethodName("init");
-                registerBeanDefinition(beanId, bd); // 注册BeanDefinition
+                BeanDefinition bd =parseBeanDefinitionElement(beanElement);
+                bd.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_NAME); // 根据name自动装配
+                registerBeanDefinition(bd.getBeanName(), bd); // 注册BeanDefinition
 
             }
         } catch (Exception e) {
@@ -114,46 +73,51 @@ public class XmlBeanFactory extends AbstractAutowireCapableBeanFactory implement
             throw new RuntimeException(e.getMessage());
         }
     }
-
-    /**
-     * 实现抽象类的方法
-     */
-    protected Object createBean(final String beanName, final BeanDefinition mbd, final Object[] args) {
-        return doCreateBean(beanName, mbd, args);
-    }
-
-    protected Object doCreateBean(final String beanName, final BeanDefinition mbd, final Object[] args) {
-        // Instantiate the bean.
-        BeanWrapper instanceWrapper = null;
-        if (instanceWrapper == null) {
-            //这个是主要方法一，生成wrapper下面分析
-            instanceWrapper = createBeanInstance(beanName, mbd);
+    public BeanDefinition parseBeanDefinitionElement(Element beanElement ) throws ClassNotFoundException {
+        GenericBeanDefinition bd = new GenericBeanDefinition();
+        //获取bean的id值，该值用于作为key存储于Map集合中
+        String beanId = beanElement.attributeValue("id");
+        bd.setBeanName(beanId);
+        //获取bean的scope值
+        String beanScope = beanElement.attributeValue("scope");
+        //如果beanScope不等于null，将bean的scope值存入map中方便后续使用
+        if (beanScope != null) {
+            bd.setScope(beanScope);
         }
-        //获取bean和class对象
-        final Object bean = (instanceWrapper != null ? instanceWrapper.getWrappedInstance() : null);
-        Class<?> beanType = (instanceWrapper != null ? instanceWrapper.getWrappedClass() : null);
-        // Initialize the bean instance.
-        Object exposedObject = bean;
-        try {
-            //属性填充，重点方法二
-            populateBean(beanName, mbd, instanceWrapper);
-            if (exposedObject != null) {
-                //实现InitializingBean接口的方法回调，重点方法三
-                exposedObject = initializeBean(beanName, exposedObject, mbd);
-            }
-        } catch (Throwable ex) {
-            ex.printStackTrace();
-            if (ex instanceof BeansException) {
-                throw (BeansException) ex;
-            } else {
-                throw new BeansException(beanName + "Initialization of bean failed", ex);
-            }
+        //获取bean的class路径
+        String beanClassPath = beanElement.attributeValue("class");
+        //利用反射技术根据获得的beanClass路径得到类定义对象
+        Class<?> cls = Class.forName(beanClassPath);
+        //如果反射获取的类定义对象不为null，则放入工厂中方便创建其实例对象
+        if (cls != null) {
+            bd.setBeanClass(cls);
         }
-        return exposedObject;
-    }
+        List<Element> propElements = beanElement.elements("property");
+        //如果property元素集合为null，调用putInMap方法将对象放进Map中
+        if (propElements != null) {
+            List<PropertyValue> pvs = new ArrayList<>();
+            List<String> refList = new ArrayList<>();
+            //遍历property元素集合
+            for (Element propElement : propElements) {
+                //获取每个元素的name属性值和value属性值
+                String fieldName = propElement.attributeValue("name");
+                String fieldValue = propElement.attributeValue("value");
+                if (StringUtils.isNotEmpty(fieldValue)){
+                    PropertyValue pv = new PropertyValue(fieldName, fieldValue);
+                    pvs.add(pv);
+                }else {
+                    String ref = propElement.attributeValue("ref");
+                    refList.add(ref); // 需要依赖注入的属性
+                    PropertyValue pv = new PropertyValue(fieldName, ref);
+                    pvs.add(pv);
+                }
+            }
+            MutablePropertyValues mpvs = new MutablePropertyValues(pvs);
 
-    private BeanWrapper createBeanInstance(String beanName, BeanDefinition bd) {
-        return instantiateBean(beanName, bd);
+            bd.setPropertyValues(mpvs);
+            bd.setDependsOn(refList);
+        }
+        return bd;
     }
 
 

@@ -1,10 +1,12 @@
 package org.springframework.beans;
 
+import org.springframework.beans.exception.FatalBeanException;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.util.ConcurrentReferenceHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.StringUtils;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -15,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
+ * 缓存内省结果
  * 缓存java beans的内部类
  *Java类的信息。不打算由应用程序代码直接使用
  */
@@ -126,6 +129,23 @@ public class CachedIntrospectionResults {
         return pds;
     }
 
+    Class<?> getBeanClass() {
+        return this.beanInfo.getBeanDescriptor().getBeanClass();
+    }
+
+    PropertyDescriptor getPropertyDescriptor(String name) {
+        PropertyDescriptor pd = this.propertyDescriptorCache.get(name);
+        if (pd == null && StringUtils.hasLength(name)) {
+            // Same lenient fallback checking as in PropertyTypeDescriptor...
+            pd = this.propertyDescriptorCache.get(name.substring(0, 1).toLowerCase() + name.substring(1));
+            if (pd == null) {
+                pd = this.propertyDescriptorCache.get(name.substring(0, 1).toUpperCase() + name.substring(1));
+            }
+        }
+        return (pd == null || pd instanceof GenericTypeAwarePropertyDescriptor ? pd :
+                buildGenericTypeAwarePropertyDescriptor(getBeanClass(), pd));
+    }
+
     private PropertyDescriptor buildGenericTypeAwarePropertyDescriptor(Class<?> beanClass, PropertyDescriptor pd) {
         try {
             return new GenericTypeAwarePropertyDescriptor(beanClass, pd.getName(), pd.getReadMethod(),
@@ -135,9 +155,12 @@ public class CachedIntrospectionResults {
             throw new FatalBeanException("Failed to re-introspect class [" + beanClass.getName() + "]", ex);
         }
     }
-
-    Class<?> getBeanClass() {
-        return this.beanInfo.getBeanDescriptor().getBeanClass();
+    TypeDescriptor addTypeDescriptor(PropertyDescriptor pd, TypeDescriptor td) {
+        TypeDescriptor existing = this.typeDescriptorCache.putIfAbsent(pd, td);
+        return (existing != null ? existing : td);
     }
 
+    TypeDescriptor getTypeDescriptor(PropertyDescriptor pd) {
+        return this.typeDescriptorCache.get(pd);
+    }
 }
