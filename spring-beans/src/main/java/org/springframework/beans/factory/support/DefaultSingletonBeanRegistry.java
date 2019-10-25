@@ -2,6 +2,7 @@ package org.springframework.beans.factory.support;
 
 import org.springframework.beans.exception.BeanCreationException;
 import org.springframework.beans.config.SingletonBeanRegistry;
+import org.springframework.beans.exception.BeanCreationNotAllowedException;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
@@ -11,7 +12,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
+
     protected static final Object NULL_OBJECT = new Object();
+
     protected final Log logger = LogFactory.getLog(getClass());
 
     /**
@@ -124,7 +127,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
             Object singletonObject = this.singletonObjects.get(beanName);
             if (singletonObject == null) {
                 if (this.singletonsCurrentlyInDestruction) {
-                    throw new BeanCreationException(beanName +
+                    throw new BeanCreationNotAllowedException(beanName,
                             "Singleton bean creation not allowed while the singletons of this factory are in destruction " +
                             "(Do not request a bean from a BeanFactory in a destroy method implementation!)");
                 }

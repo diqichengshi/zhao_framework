@@ -3,11 +3,9 @@ package org.springframework.beans.factory.support;
 import org.springframework.beans.config.BeanDefinition;
 import org.springframework.beans.*;
 import org.springframework.beans.exception.BeanCreationException;
-import org.springframework.core.MethodParameter;
+import org.springframework.beans.exception.BeansException;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
@@ -62,14 +60,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             populateBean(beanName, mbd, instanceWrapper);
             if (exposedObject != null) {
                 //实现InitializingBean接口的方法回调，重点方法三
-                exposedObject = initializeBean(beanName, exposedObject, mbd);
+                exposedObject = initializeBean(beanName, exposedObject, mbd); // 执行Bean的初始化方法
             }
         } catch (Throwable ex) {
             ex.printStackTrace();
-            if (ex instanceof BeansException) {
-                throw (BeansException) ex;
+            if (ex instanceof BeanCreationException) {
+                throw (BeanCreationException) ex;
             } else {
-                throw new BeansException(beanName + "Initialization of bean failed", ex);
+                throw new BeanCreationException(beanName + "Initialization of bean failed", ex);
             }
         }
         return exposedObject;
@@ -84,7 +82,46 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                     + "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
         }
 
-        return instantiateBean(beanName, bd);
+        return instantiateBean(beanName, bd); // 实例化BeanWrpper
+    }
+
+
+    /**
+     * 实例化BeanWrpper
+     */
+    protected BeanWrapper instantiateBean(final String beanName, final BeanDefinition bd) {
+        try {
+            Object beanInstance = bd.getBeanClass().newInstance();
+            BeanWrapper bw = new BeanWrapperImpl(beanInstance);
+            initBeanWrapper(bw); // 初始化BeanWrapper
+            return bw;
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+            throw new BeanCreationException(beanName + " Instantiation of bean failed", ex);
+        }
+    }
+
+    /**
+     * 执行Bean的初始化方法
+     */
+    protected Object initializeBean(final String beanName, final Object bean, BeanDefinition mbd) {
+
+        Object wrappedBean = bean;
+        // 前置处理器处理  TODO
+        /*if (mbd == null ) {
+            wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
+        }*/
+
+        try {
+            invokeInitMethods(beanName, wrappedBean, mbd);
+        } catch (Throwable ex) {
+            throw new BeanCreationException(beanName + "Invocation of init method failed", ex);
+        }
+        // 后置处理器处理  TODO
+        /*if (mbd == null ) {
+            wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
+        }*/
+        return wrappedBean;
     }
 
     /**

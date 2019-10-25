@@ -1,6 +1,6 @@
 package org.springframework.context;
 
-import org.springframework.beans.BeansException;
+import org.springframework.beans.exception.BeansException;
 
 public interface ApplicationContext {
     /**

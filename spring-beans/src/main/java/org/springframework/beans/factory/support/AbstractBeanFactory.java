@@ -2,6 +2,8 @@ package org.springframework.beans.factory.support;
 
 import org.springframework.beans.config.BeanDefinition;
 import org.springframework.beans.config.Scope;
+import org.springframework.beans.exception.BeanCurrentlyInCreationException;
+import org.springframework.beans.exception.BeanIsNotAFactoryException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.FactoryBean;
@@ -9,7 +11,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.exception.BeanCreationException;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.BeansException;
+import org.springframework.beans.exception.BeansException;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -93,7 +95,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
             // We're assumably within a circular reference.
             //当前线程正在创建Prototype类型bean，抛异常
             if (isPrototypeCurrentlyInCreation(beanName)) {
-                throw new BeansException(beanName + "正在创建中");
+                throw new BeanCurrentlyInCreationException(beanName + "正在创建中");
             }
 
             // Check if bean definition exists in this factory.
@@ -187,7 +189,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                         });
                         bean = getObjectForBeanInstance(scopedInstance, name, beanName, mbd);
                     } catch (IllegalStateException ex) {
-                        throw new BeansException(beanName + "当前线程不支持'" + scopeName + "'作用域 ", ex);
+                        throw new BeanCreationException(beanName + "当前线程不支持'" + scopeName + "'作用域 ", ex);
                     }
                 }
             } catch (BeansException ex) {
@@ -200,45 +202,18 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     }
 
     /**
-     * 实例化bean
-     */
-    protected BeanWrapper instantiateBean(final String beanName, final BeanDefinition bd) {
-        try {
-            Object beanInstance = bd.getBeanClass().newInstance();
-            BeanWrapper bw = new BeanWrapperImpl(beanInstance);
-            initBeanWrapper(bw); // 初始化BeanWrapper
-            return bw;
-        } catch (Throwable ex) {
-            ex.printStackTrace();
-            throw new BeansException(beanName + " Instantiation of bean failed", ex);
-        }
-    }
-
-    /**
      * 初始化BeanWrapper,此处暂不处理
+     * Initialize the given BeanWrapper with the custom editors registered
+     * with this factory. To be called for BeanWrappers that will create
+     * and populate bean instances.
+     * <p>The default implementation delegates to {@link #registerCustomEditors}.
+     * Can be overridden in subclasses.
+     * @param bw the BeanWrapper to initialize
      */
-    private void initBeanWrapper(BeanWrapper bw) {
+    protected void initBeanWrapper(BeanWrapper bw) {
     }
 
-    protected Object initializeBean(final String beanName, final Object bean, BeanDefinition mbd) {
 
-        Object wrappedBean = bean;
-        // 前置处理器处理  TODO
-        /*if (mbd == null ) {
-            wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
-        }*/
-
-        try {
-            invokeInitMethods(beanName, wrappedBean, mbd);
-        } catch (Throwable ex) {
-            throw new BeansException(beanName + "Invocation of init method failed", ex);
-        }
-        // 后置处理器处理  TODO
-        /*if (mbd == null ) {
-            wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
-        }*/
-        return wrappedBean;
-    }
 
     /**
      * 调用初始化方法
@@ -296,7 +271,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
         // Don't let calling code try to dereference the factory if the bean isn't a factory.
         if (BeanFactoryUtils.isFactoryDereference(name) && !(beanInstance instanceof FactoryBean)) {
-            throw new BeanCreationException(name + "不是一个FactoryBean");
+            throw new BeanIsNotAFactoryException(name + "不是一个FactoryBean",beanInstance.getClass());
         }
 
         // Now we have the bean instance, which may be a normal bean or a FactoryBean.

@@ -1,6 +1,7 @@
 package org.springframework.beans;
 
 import org.springframework.beans.config.BeanDefinition;
+import org.springframework.beans.exception.BeanDefinitionStoreException;
 import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
@@ -124,11 +125,11 @@ public class XmlBeanFactory extends AbstractAutowireCapableBeanFactory implement
     /*
      * 注册bean定义，需要给定唯一bean的名称和bean的定义,放到bean定义集合中
      */
-    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws Exception {
+    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
         Objects.requireNonNull(beanName, "beanName不能为空");
         Objects.requireNonNull(beanDefinition, "beanDefinition不能为空");
         if (beanDefinitionMap.containsKey(beanName)) {
-            throw new Exception("已存在【" + beanName + "】的bean定义" + getBeanDefinition(beanName));
+            throw new BeanDefinitionStoreException("已存在【" + beanName + "】的bean定义" + getBeanDefinition(beanName));
         }
         beanDefinitionMap.put(beanName, beanDefinition);
     }

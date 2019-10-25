@@ -1,12 +1,6 @@
 package org.springframework.beans.factory.support;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.config.BeanDefinition;
-import org.springframework.beans.exception.BeanCreationException;
-import org.springframework.beans.factory.BeanFactoryUtils;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ObjectUtils;
 
 public class BeanDefinitionValueResolver {
     private final AbstractBeanFactory beanFactory;
@@ -26,7 +20,6 @@ public class BeanDefinitionValueResolver {
      */
     public BeanDefinitionValueResolver(
             AbstractBeanFactory beanFactory, String beanName, BeanDefinition beanDefinition) {
-
         this.beanFactory = beanFactory;
         this.beanName = beanName;
         this.beanDefinition = beanDefinition;

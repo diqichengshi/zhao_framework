@@ -12,10 +12,8 @@ import org.springframework.lang.UsesJava8;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import javax.swing.plaf.basic.BasicColorChooserUI;
 import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.security.PrivilegedActionException;

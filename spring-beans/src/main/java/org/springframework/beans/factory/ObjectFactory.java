@@ -1,6 +1,6 @@
 package org.springframework.beans.factory;
 
-import org.springframework.beans.BeansException;
+import org.springframework.beans.exception.BeansException;
 
 public interface ObjectFactory<T> {
 

@@ -1,9 +1,6 @@
 package org.springframework.beans;
 
-import org.springframework.beans.exception.NotWritablePropertyException;
-import org.springframework.beans.exception.NullValueInNestedPathException;
-import org.springframework.beans.exception.PropertyAccessException;
-import org.springframework.beans.exception.PropertyBatchUpdateException;
+import org.springframework.beans.exception.*;
 
 import java.util.Arrays;
 import java.util.LinkedList;

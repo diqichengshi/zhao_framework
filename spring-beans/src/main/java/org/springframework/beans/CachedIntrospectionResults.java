@@ -1,5 +1,6 @@
 package org.springframework.beans;
 
+import org.springframework.beans.exception.BeansException;
 import org.springframework.beans.exception.FatalBeanException;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.io.support.SpringFactoriesLoader;

@@ -16,9 +16,7 @@
 
 package org.springframework.beans;
 
-import java.util.Map;
-
-import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.beans.exception.BeansException;
 
 /**
  * Common interface for classes that can access named properties
