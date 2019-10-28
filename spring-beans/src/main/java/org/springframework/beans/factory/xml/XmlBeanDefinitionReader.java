@@ -58,6 +58,7 @@ public class XmlBeanDefinitionReader {
             throw new RuntimeException(e.getMessage());
         }
     }
+
     public BeanDefinition parseBeanDefinitionElement(Element beanElement ) throws ClassNotFoundException {
         GenericBeanDefinition bd = new GenericBeanDefinition();
         //获取bean的id值，该值用于作为key存储于Map集合中
