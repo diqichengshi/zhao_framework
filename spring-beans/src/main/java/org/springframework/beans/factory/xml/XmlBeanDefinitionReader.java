@@ -1,43 +1,26 @@
-package org.springframework.beans;
+package org.springframework.beans.factory.xml;
 
-import org.springframework.beans.config.BeanDefinition;
-import org.springframework.beans.exception.BeanDefinitionStoreException;
-import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
-import org.springframework.util.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.springframework.beans.MutablePropertyValues;
+import org.springframework.beans.PropertyValue;
+import org.springframework.beans.config.BeanDefinition;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
+import org.springframework.util.StringUtils;
 
 import java.io.InputStream;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
-public class XmlBeanFactory extends AbstractAutowireCapableBeanFactory implements BeanDefinitionRegistry {
+public class XmlBeanDefinitionReader {
+    DefaultListableBeanFactory beanFactory;
+    private String xmlPath;
 
-    /**
-     * 存储beanElement对象容器
-     */
-    private Map<String, Element> beanElementMap;
-    /**
-     * 存储bean的scope属性容器
-     */
-    private Map<String, String> beanScopeMap;
-
-    private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
-
-    /**
-     * 有参的构造方法，在创建此类实例时需要指定xml文件路径
-     */
-    public XmlBeanFactory(String xmlPath) {
-        // 初始化容器
-        beanElementMap = new ConcurrentHashMap<String, Element>();
-        beanScopeMap = new ConcurrentHashMap<String, String>();
-        // 解析xml文件
-        loadBeanDefinitions(xmlPath);
+    public XmlBeanDefinitionReader(DefaultListableBeanFactory beanFactory) {
+        this.beanFactory=beanFactory;
     }
-
 
     /**
      * 初始化方法，在创建ClassPathXmlApplicationContext对象时初始化容器，
@@ -46,7 +29,8 @@ public class XmlBeanFactory extends AbstractAutowireCapableBeanFactory implement
      *
      * @param xmlPath 配置文件路径
      */
-    private void loadBeanDefinitions(String xmlPath) {
+    public void loadBeanDefinitions(String xmlPath) {
+        this.xmlPath=xmlPath;
         /*
          * 使用dom4j技术读取xml文档
          * 首先创建SAXReader对象
@@ -66,7 +50,7 @@ public class XmlBeanFactory extends AbstractAutowireCapableBeanFactory implement
 
                 BeanDefinition bd =parseBeanDefinitionElement(beanElement);
                 bd.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_NAME); // 根据name自动装配
-                registerBeanDefinition(bd.getBeanName(), bd); // 注册BeanDefinition
+                beanFactory.registerBeanDefinition(bd.getBeanName(), bd); // 注册BeanDefinition
 
             }
         } catch (Exception e) {
@@ -119,28 +103,6 @@ public class XmlBeanFactory extends AbstractAutowireCapableBeanFactory implement
             bd.setDependsOn(refList);
         }
         return bd;
-    }
-
-
-    /*
-     * 注册bean定义，需要给定唯一bean的名称和bean的定义,放到bean定义集合中
-     */
-    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
-        Objects.requireNonNull(beanName, "beanName不能为空");
-        Objects.requireNonNull(beanDefinition, "beanDefinition不能为空");
-        if (beanDefinitionMap.containsKey(beanName)) {
-            throw new BeanDefinitionStoreException("已存在【" + beanName + "】的bean定义" + getBeanDefinition(beanName));
-        }
-        beanDefinitionMap.put(beanName, beanDefinition);
-    }
-
-
-    public BeanDefinition getBeanDefinition(String beanName) {
-        return beanDefinitionMap.get(beanName);
-    }
-
-    public boolean containsBeanDefinition(String beanName) {
-        return beanDefinitionMap.containsKey(beanName);
     }
 
 }
