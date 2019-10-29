@@ -48,13 +48,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         BeanWrapper instanceWrapper = null;
         if (instanceWrapper == null) {
             //这个是主要方法一，生成wrapper下面分析
+            // instanceWrapper 是一个被包装过了的 bean，它里面的属性还未赋实际值
             instanceWrapper = createBeanInstance(beanName, mbd);
         }
         //获取bean和class对象
         final Object bean = (instanceWrapper != null ? instanceWrapper.getWrappedInstance() : null);
         Class<?> beanType = (instanceWrapper != null ? instanceWrapper.getWrappedClass() : null);
 
-        // Allow post-processors to modify the merged bean definition.
+        // 这一步的作用就是将所有的后置处理器拿出来，并且把名字叫beanName的类中的变量都封装到InjectionMetadata
+        // 的injectedElements集合里面，目的是以后从中获取，挨个创建实例，通过反射注入到相应类中
         synchronized (mbd.postProcessingLock) {
             if (!mbd.postProcessed) {
                 // 将所有的后置处理器拿出来,并且把名字叫做beanName的类中的变量封装到InjectionMetadata中
@@ -257,6 +259,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
     }
 
+    /**
+     * 这一步的作用就是将所有的后置处理器拿出来，并且把名字叫beanName的类中的变量都封装到InjectionMetadata
+     * 的injectedElements集合里面，目的是以后从中获取，挨个创建实例，通过反射注入到相应类中
+     */
     protected void applyMergedBeanDefinitionPostProcessors(RootBeanDefinition mbd, Class<?> beanType, String beanName)
             throws BeansException {
 
@@ -267,8 +273,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                     bdp.postProcessMergedBeanDefinition(mbd, beanType, beanName);
                 }
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new BeanCreationException(beanName,
                     "Post-processing failed of bean type [" + beanType + "] failed", ex);
         }
