@@ -95,6 +95,11 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
         this.dependsOn = temp;
     }
 
+    @Override
+    public void setDependsOn(String[] dependsOn) {
+        this.dependsOn = dependsOn;
+    }
+
     public MutablePropertyValues getPropertyValues() {
         return propertyValues;
     }

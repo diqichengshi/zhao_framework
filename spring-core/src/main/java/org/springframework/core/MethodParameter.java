@@ -468,18 +468,9 @@ public class MethodParameter {
 	 * {@link #initParameterNameDiscovery ParameterNameDiscoverer}
 	 * has been set to begin with)
 	 */
-	/*public String getParameterName() {
-		ParameterNameDiscoverer discoverer = this.parameterNameDiscoverer;
-		if (discoverer != null) {
-			String[] parameterNames = (this.method != null ?
-					discoverer.getParameterNames(this.method) : discoverer.getParameterNames(this.constructor));
-			if (parameterNames != null) {
-				this.parameterName = parameterNames[this.parameterIndex];
-			}
-			this.parameterNameDiscoverer = null;
-		}
+	public String getParameterName() {
 		return this.parameterName;
-	}*/
+	}
 
 
 	/**

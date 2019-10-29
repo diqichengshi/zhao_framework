@@ -1,17 +1,17 @@
 package org.springframework.beans.factory.support;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.config.BeanDefinition;
+import org.springframework.beans.config.BeanPostProcessor;
 import org.springframework.beans.config.Scope;
-import org.springframework.beans.exception.BeanCurrentlyInCreationException;
-import org.springframework.beans.exception.BeanIsNotAFactoryException;
+import org.springframework.beans.exception.*;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.exception.BeanCreationException;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.exception.BeansException;
+import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -39,6 +39,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
      * Map from scope identifier String to corresponding Scope
      */
     private final Map<String, Scope> scopes = new LinkedHashMap<String, Scope>(8);
+    /**
+     * BeanPostProcessors to apply in createBean
+     */
+    private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
+
     /*
      * 获得bean的门面方法
      * 采用构造器来创建对象
@@ -60,12 +65,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     }
 
     /**
-     *返回指定be an的实例，该实例可以是共享的，也可以是独立的。
-     *@param name要检索的bean的名称
-     *@param required type要检索的bean的必需类型
-     *@param args 使用显式参数创建bean实例时要使用的参数 （仅用于创建新实例而不是检索现有实例）
-     *@返回bean的实例
-     *@如果无法创建bean，则抛出BeansException
+     * 返回指定be an的实例，该实例可以是共享的，也可以是独立的。
+     *
+     * @param name要检索的bean的名称
+     * @param required        type要检索的bean的必需类型
+     * @param args            使用显式参数创建bean实例时要使用的参数 （仅用于创建新实例而不是检索现有实例）
+     * @返回bean的实例
+     * @如果无法创建bean，则抛出BeansException
      */
     private <T> T doGetBean(String name, final Class<T> requiredType, final Object[] args, boolean typeCheckOnly) throws BeansException {
         String beanName = name;
@@ -119,7 +125,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
             }
 
             try {
-                final BeanDefinition mbd = getBeanDefinition(beanName);
+                final RootBeanDefinition mbd = getMergedBeanDefinition(beanName);
                 // 保证当前bean所依赖的bean的初始化
                 String[] dependsOn = mbd.getDependsOn();
                 if (dependsOn != null) {
@@ -208,17 +214,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
      * and populate bean instances.
      * <p>The default implementation delegates to {@link #registerCustomEditors}.
      * Can be overridden in subclasses.
+     *
      * @param bw the BeanWrapper to initialize
      */
     protected void initBeanWrapper(BeanWrapper bw) {
     }
 
-
-
     /**
      * 调用初始化方法
      */
-    protected void invokeInitMethods(String beanName, final Object bean, BeanDefinition mbd)
+    protected void invokeInitMethods(String beanName, final Object bean, RootBeanDefinition mbd)
             throws Throwable {
 
         if (mbd != null) {
@@ -232,7 +237,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     /**
      * 调用自定义的初始化方法
      */
-    protected void invokeCustomInitMethod(String beanName, final Object bean, BeanDefinition mbd) throws Throwable {
+    protected void invokeCustomInitMethod(String beanName, final Object bean, RootBeanDefinition mbd) throws Throwable {
         String initMethodName = mbd.getInitMethodName();
         final Method initMethod = ClassUtils.getMethodIfAvailable(bean.getClass(), initMethodName);
         if (initMethod == null) {
@@ -267,11 +272,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
      * @return the object to expose for the bean
      */
     protected Object getObjectForBeanInstance(
-            Object beanInstance, String name, String beanName, BeanDefinition mbd) {
+            Object beanInstance, String name, String beanName, RootBeanDefinition mbd) {
 
         // Don't let calling code try to dereference the factory if the bean isn't a factory.
         if (BeanFactoryUtils.isFactoryDereference(name) && !(beanInstance instanceof FactoryBean)) {
-            throw new BeanIsNotAFactoryException(name + "不是一个FactoryBean",beanInstance.getClass());
+            throw new BeanIsNotAFactoryException(name + "不是一个FactoryBean", beanInstance.getClass());
         }
 
         // Now we have the bean instance, which may be a normal bean or a FactoryBean.
@@ -366,6 +371,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     public BeanFactory getParentBeanFactory() {
         return this.parentBeanFactory;
     }
+
     @Override
     public boolean containsBean(String name) {
         String beanName = name;
@@ -396,6 +402,111 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         return (beanType != null && FactoryBean.class.isAssignableFrom(beanType));
     }
 
+    protected RootBeanDefinition getMergedBeanDefinition(String beanName) {
+        final BeanDefinition bd = getBeanDefinition(beanName);
+        RootBeanDefinition mbd = new RootBeanDefinition();
+        BeanUtils.copyProperties(bd, mbd);
+        mbd.setDependsOn(bd.getDependsOn());
+        return mbd;
+    }
+
+    public List<BeanPostProcessor> getBeanPostProcessors() {
+        return this.beanPostProcessors;
+    }
+
+    @Override
+    public boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException {
+        String beanName = name;
+
+        // Check manually registered singletons.
+        Object beanInstance = getSingleton(beanName, false);
+        if (beanInstance != null) {
+            if (beanInstance instanceof FactoryBean) {
+                if (!BeanFactoryUtils.isFactoryDereference(name)) {
+                    Class<?> type = ((FactoryBean) beanInstance).getObjectType();
+                    return (type != null && typeToMatch.isAssignableFrom(type));
+                }
+                else {
+                    return typeToMatch.isInstance(beanInstance);
+                }
+            }
+            else {
+                return (!BeanFactoryUtils.isFactoryDereference(name) && typeToMatch.isInstance(beanInstance));
+            }
+        }
+        else if (containsSingleton(beanName) && !containsBeanDefinition(beanName)) {
+            // null instance registered
+            return false;
+        }
+
+        else {
+            // No singleton instance found -> check bean definition.
+            BeanFactory parentBeanFactory = getParentBeanFactory();
+            if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
+                // No bean definition found in this factory -> delegate to parent.
+                return parentBeanFactory.isTypeMatch(name, typeToMatch);
+            }
+
+            // Retrieve corresponding bean definition.
+            RootBeanDefinition mbd = getMergedBeanDefinition(beanName);
+
+            Class<?> classToMatch = typeToMatch.getClass();
+            Class<?>[] typesToMatch = (FactoryBean.class == classToMatch ?
+                    new Class<?>[] {classToMatch} : new Class<?>[] {FactoryBean.class, classToMatch});
+
+
+
+            Class<?> beanType =typeToMatch.getClass();
+            if (beanType == null) {
+                return false;
+            }
+
+            // Check bean class whether we're dealing with a FactoryBean.
+            if (FactoryBean.class.isAssignableFrom(beanType)) {
+                if (!BeanFactoryUtils.isFactoryDereference(name)) {
+                    // If it's a FactoryBean, we want to look at what it creates, not the factory class.
+                    beanType = getTypeForFactoryBean(beanName, mbd);
+                    if (beanType == null) {
+                        return false;
+                    }
+                }
+            }
+            else if (BeanFactoryUtils.isFactoryDereference(name)) {
+                // Special case: A SmartInstantiationAwareBeanPostProcessor returned a non-FactoryBean
+                // type but we nevertheless are being asked to dereference a FactoryBean...
+                // Let's check the original bean class and proceed with it if it is a FactoryBean.
+                if (beanType == null || !FactoryBean.class.isAssignableFrom(beanType)) {
+                    return false;
+                }
+            }
+
+            return typeToMatch.isAssignableFrom(beanType);
+        }
+    }
+
+
+    protected Class<?> getTypeForFactoryBean(String beanName, RootBeanDefinition mbd) {
+        if (!mbd.isSingleton()) {
+            return null;
+        }
+        try {
+            FactoryBean<?> factoryBean = doGetBean(FACTORY_BEAN_PREFIX + beanName, FactoryBean.class, null, true);
+            return factoryBean.getObjectType();
+        }
+        catch (BeanCreationException ex) {
+            if (ex instanceof BeanCurrentlyInCreationException) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Bean currently in creation on FactoryBean type check: " + ex);
+                }
+            }
+            else {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Bean creation exception on FactoryBean type check: " + ex);
+                }
+            }
+            return null;
+        }
+    }
     /**
      * 抽象方法宫子类实现
      */
@@ -403,5 +514,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
     protected abstract boolean containsBeanDefinition(String beanName);
 
-    protected abstract Object createBean(String beanName, BeanDefinition mbd, Object[] args) throws BeanCreationException;
+    protected abstract Object createBean(String beanName, RootBeanDefinition mbd, Object[] args) throws BeanCreationException;
+
 }

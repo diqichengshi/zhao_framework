@@ -12,4 +12,6 @@ public interface BeanFactory {
     Object getBean(String name, Object... args) throws BeansException;
 
     public boolean containsBean(String name);
+
+    public boolean isTypeMatch(String name, Class<?> typeToMatch);
 }

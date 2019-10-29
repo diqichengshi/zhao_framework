@@ -2,6 +2,7 @@ package org.springframework.beans.factory.support;
 
 import org.springframework.beans.config.BeanDefinition;
 import org.springframework.beans.*;
+import org.springframework.beans.config.BeanPostProcessor;
 import org.springframework.beans.exception.BeanCreationException;
 import org.springframework.beans.exception.BeansException;
 import org.springframework.util.ObjectUtils;
@@ -21,7 +22,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      *
      * @see #doCreateBean
      */
-    protected Object createBean(final String beanName, final BeanDefinition mbd, final Object[] args) {
+    protected Object createBean(final String beanName, final RootBeanDefinition mbd, final Object[] args) {
         if (logger.isDebugEnabled()) {
             logger.debug("Creating instance of bean '" + beanName + "'");
         }
@@ -42,7 +43,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @如果无法创建bean，则抛出BeanCreationException
      * @see #instantiateBean
      */
-    protected Object doCreateBean(final String beanName, final BeanDefinition mbd, final Object[] args) {
+    protected Object doCreateBean(final String beanName, final RootBeanDefinition mbd, final Object[] args) {
         // Instantiate the bean.
         BeanWrapper instanceWrapper = null;
         if (instanceWrapper == null) {
@@ -52,6 +53,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         //获取bean和class对象
         final Object bean = (instanceWrapper != null ? instanceWrapper.getWrappedInstance() : null);
         Class<?> beanType = (instanceWrapper != null ? instanceWrapper.getWrappedClass() : null);
+
+        // Allow post-processors to modify the merged bean definition.
+        synchronized (mbd.postProcessingLock) {
+            if (!mbd.postProcessed) {
+                // 将所有的后置处理器拿出来,并且把名字叫做beanName的类中的变量封装到InjectionMetadata中
+                applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
+                mbd.postProcessed = true;
+            }
+        }
 
         // 初始化Bean实例
         Object exposedObject = bean;
@@ -73,23 +83,23 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         return exposedObject;
     }
 
-    private BeanWrapper createBeanInstance(String beanName, BeanDefinition bd) {
+    private BeanWrapper createBeanInstance(String beanName, RootBeanDefinition mbd) {
         // Make sure bean class is actually resolved at this point.
-        Class<?> beanClass = bd.getBeanClass();
+        Class<?> beanClass = mbd.getBeanClass();
 
         if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers())) {
             throw new BeanCreationException(beanName
                     + "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
         }
 
-        return instantiateBean(beanName, bd); // 实例化BeanWrpper
+        return instantiateBean(beanName, mbd); // 实例化BeanWrpper
     }
 
 
     /**
      * 实例化BeanWrpper
      */
-    protected BeanWrapper instantiateBean(final String beanName, final BeanDefinition bd) {
+    protected BeanWrapper instantiateBean(final String beanName, final RootBeanDefinition bd) {
         try {
             Object beanInstance = bd.getBeanClass().newInstance();
             BeanWrapper bw = new BeanWrapperImpl(beanInstance);
@@ -104,7 +114,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     /**
      * 执行Bean的初始化方法
      */
-    protected Object initializeBean(final String beanName, final Object bean, BeanDefinition mbd) {
+    protected Object initializeBean(final String beanName, final Object bean, RootBeanDefinition mbd) {
 
         Object wrappedBean = bean;
         // 前置处理器处理  TODO
@@ -127,7 +137,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     /**
      * 普通属性填充和自动注入
      */
-    public void populateBean(String beanName, BeanDefinition mbd, BeanWrapper bw) {
+    public void populateBean(String beanName, RootBeanDefinition mbd, BeanWrapper bw) {
         PropertyValues pvs = mbd.getPropertyValues();
 
         if (mbd.getResolvedAutowireMode() == GenericBeanDefinition.AUTOWIRE_BY_NAME ||
@@ -153,7 +163,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     /**
      * 根据名称自动装配
      */
-    protected void autowireByName(String beanName, BeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
+    protected void autowireByName(String beanName, RootBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
         // 解析出非简单属性
         String[] propertyNames = mbd.getDependsOn();
         for (String propertyName : propertyNames) {
@@ -177,7 +187,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     /**
      * autowireByType太复杂.不做实现
      */
-    protected void autowireByType(String beanName, BeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
+    protected void autowireByType(String beanName, RootBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
     }
 
     /**
@@ -244,6 +254,23 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             bw.setPropertyValues(new MutablePropertyValues(deepCopy)); // bean的属性赋值
         } catch (BeansException ex) {
             throw new BeanCreationException(beanName + "Error setting property values", ex);
+        }
+    }
+
+    protected void applyMergedBeanDefinitionPostProcessors(RootBeanDefinition mbd, Class<?> beanType, String beanName)
+            throws BeansException {
+
+        try {
+            for (BeanPostProcessor bp : getBeanPostProcessors()) {
+                if (bp instanceof MergedBeanDefinitionPostProcessor) {
+                    MergedBeanDefinitionPostProcessor bdp = (MergedBeanDefinitionPostProcessor) bp;
+                    bdp.postProcessMergedBeanDefinition(mbd, beanType, beanName);
+                }
+            }
+        }
+        catch (Exception ex) {
+            throw new BeanCreationException(beanName,
+                    "Post-processing failed of bean type [" + beanType + "] failed", ex);
         }
     }
 
