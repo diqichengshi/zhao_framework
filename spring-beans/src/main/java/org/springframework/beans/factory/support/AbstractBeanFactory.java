@@ -44,6 +44,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
      */
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
 
+    private boolean hasInstantiationAwareBeanPostProcessors;
+
     /*
      * 获得bean的门面方法
      * 采用构造器来创建对象
@@ -506,6 +508,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
             }
             return null;
         }
+    }
+    protected boolean hasInstantiationAwareBeanPostProcessors() {
+        return this.hasInstantiationAwareBeanPostProcessors;
     }
     /**
      * 抽象方法宫子类实现

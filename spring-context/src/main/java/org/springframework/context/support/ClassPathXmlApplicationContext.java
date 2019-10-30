@@ -33,4 +33,8 @@ public class ClassPathXmlApplicationContext extends AbstractRefreshableApplicati
         reader.loadBeanDefinitions(configLocations);
     }
 
+    @Override
+    public boolean isTypeMatch(String name, Class<?> typeToMatch) {
+        return getBeanFactory().isTypeMatch(name,typeToMatch);
+    }
 }

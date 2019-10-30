@@ -5,7 +5,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.exception.BeanCreationException;
+import org.springframework.beans.exception.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.DependencyDescriptor;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessorAdapter;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.MergedBeanDefinitionPostProcessor;
@@ -24,8 +28,14 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-
-public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitionPostProcessor {
+/**
+ * 它间接实现 InstantiationAwareBeanPostProcessor，就具备了实例化前后 (而不是初始化前后) 管理对象的能力，
+ * 实现了 BeanPostProcessor，具有初始化前后管理对象的能力，
+ * 实现 BeanFactoryAware，具备随时拿到 BeanFactory 的能力，
+ * 也就是说，这个 AutowiredAnnotationBeanPostProcessor 具备一切后置处理器的能力。
+ */
+public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBeanPostProcessorAdapter
+        implements MergedBeanDefinitionPostProcessor, BeanFactoryAware {
 
     protected final Log logger = LogFactory.getLog(getClass());
 
@@ -41,6 +51,29 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
 
     private DefaultListableBeanFactory beanFactory;
 
+    public AutowiredAnnotationBeanPostProcessor() {
+        this.autowiredAnnotationTypes.add(Autowired.class);
+        this.autowiredAnnotationTypes.add(Value.class);
+        try {
+            this.autowiredAnnotationTypes.add((Class<? extends Annotation>)
+                    ClassUtils.forName("javax.inject.Inject", AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));
+            logger.info("JSR-330 'javax.inject.Inject' annotation found and supported for autowiring");
+        }
+        catch (ClassNotFoundException ex) {
+            // JSR-330 API not available - simply skip.
+        }
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        if (!(beanFactory instanceof DefaultListableBeanFactory)) {
+            throw new IllegalArgumentException(
+                    "AutowiredAnnotationBeanPostProcessor requires a DefaultListableBeanFactory");
+        }
+
+        this.beanFactory = (DefaultListableBeanFactory) beanFactory;
+    }
+
     /**
      * 并且把名字叫做beanName的类中的变量封装到InjectionMetadata中
      */
@@ -52,6 +85,26 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
         }
     }
 
+    /**
+     * 首先找到需要注入的哪些元数据
+     */
+    @Override
+    public PropertyValues postProcessPropertyValues(
+            PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName) throws BeansException {
+        // 首先找到需要注入的哪些元数据，然后metadata.inject(注入)，注入方法点进去，来到InjectionMetadata的inject方法，
+        // 在一个 for循环里面依次执行element.inject (target, beanName, pvs)，来对属性进行注入。
+        InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), pvs);
+        try {
+            metadata.inject(bean, beanName, pvs);
+        } catch (Throwable ex) {
+            throw new BeanCreationException(beanName, "Injection of autowired dependencies failed", ex);
+        }
+        return pvs;
+    }
+
+    /**
+     * 首先找到需要注入的哪些元数据
+     */
     private InjectionMetadata findAutowiringMetadata(String beanName, Class<?> clazz, PropertyValues pvs) {
         // Fall back to class name as cache key, for backwards compatibility with custom callers.
         String cacheKey = (StringUtils.hasLength(beanName) ? beanName : clazz.getName());
@@ -67,8 +120,7 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
                     try {
                         metadata = buildAutowiringMetadata(clazz);
                         this.injectionMetadataCache.put(cacheKey, metadata);
-                    }
-                    catch (NoClassDefFoundError err) {
+                    } catch (NoClassDefFoundError err) {
                         throw new IllegalStateException("Failed to introspect bean class [" + clazz.getName() +
                                 "] for autowiring metadata: could not find class that it depends on", err);
                     }
@@ -148,11 +200,13 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
         }
         return null;
     }
+
     /**
      * Determine if the annotated field or method requires its dependency.
      * <p>A 'required' dependency means that autowiring should fail when no beans
      * are found. Otherwise, the autowiring process will simply bypass the field
      * or method when no beans are found.
+     *
      * @param ann the Autowired annotation
      * @return whether the annotation indicates that a dependency is required
      */
@@ -160,6 +214,7 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
         return (!ann.containsKey(this.requiredParameterName) ||
                 this.requiredParameterValue == ann.getBoolean(this.requiredParameterName));
     }
+
     /**
      * Register the specified bean as dependent on the autowired beans.
      */
@@ -176,6 +231,7 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
             }
         }
     }
+
     /**
      * Resolve the specified cached method argument or field value.
      */
@@ -191,6 +247,7 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
             return cachedArgument;
         }
     }
+
     //==========================================================================
     //============================内部类定义=====================================
     //==========================================================================
@@ -218,8 +275,7 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
                 Object value;
                 if (this.cached) {
                     value = resolvedCachedArgument(beanName, this.cachedFieldValue);
-                }
-                else {
+                } else {
                     DependencyDescriptor desc = new DependencyDescriptor(field, this.required);
                     desc.setContainingClass(bean.getClass());
                     Set<String> autowiredBeanNames = new LinkedHashSet<String>(1);
@@ -237,8 +293,7 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
                                         }
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 this.cachedFieldValue = null;
                             }
                             this.cached = true;
@@ -249,8 +304,7 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
                     ReflectionUtils.makeAccessible(field);
                     field.set(bean, value);
                 }
-            }
-            catch (Throwable ex) {
+            } catch (Throwable ex) {
                 throw new BeanCreationException("Could not autowire field: " + field, ex);
             }
         }
@@ -284,8 +338,7 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
                 if (this.cached) {
                     // Shortcut for avoiding synchronization...
                     arguments = resolveCachedArguments(beanName);
-                }
-                else {
+                } else {
                     Class<?>[] paramTypes = method.getParameterTypes();
                     arguments = new Object[paramTypes.length];
                     DependencyDescriptor[] descriptors = new DependencyDescriptor[paramTypes.length];
@@ -321,8 +374,7 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
                                         }
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 this.cachedMethodArguments = null;
                             }
                             this.cached = true;
@@ -333,11 +385,9 @@ public class AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitio
                     ReflectionUtils.makeAccessible(method);
                     method.invoke(bean, arguments);
                 }
-            }
-            catch (InvocationTargetException ex) {
+            } catch (InvocationTargetException ex) {
                 throw ex.getTargetException();
-            }
-            catch (Throwable ex) {
+            } catch (Throwable ex) {
                 throw new BeanCreationException("Could not autowire method: " + method, ex);
             }
         }

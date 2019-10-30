@@ -2,7 +2,7 @@ package org.springframework.beans.factory.support;
 
 import org.springframework.beans.config.BeanPostProcessor;
 
-public interface MergedBeanDefinitionPostProcessor  extends BeanPostProcessor {
+public interface MergedBeanDefinitionPostProcessor extends BeanPostProcessor {
     /**
      * Post-process the given merged bean definition for the specified bean.
      * @param beanDefinition the merged bean definition for the bean

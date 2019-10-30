@@ -3,4 +3,7 @@
 
 
 参考文章
-@Autowired 注解原理分析：https://www.zhangjianbing.com/archives/9/
+1.参考 [Autowired注解原理分析][@Autowired注解原理分析] 。
+
+[@Autowired注解原理分析]: https://www.zhangjianbing.com/archives/9/
+
