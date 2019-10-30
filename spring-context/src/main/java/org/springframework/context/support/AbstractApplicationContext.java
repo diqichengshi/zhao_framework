@@ -3,8 +3,11 @@ package org.springframework.context.support;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.CachedIntrospectionResults;
+import org.springframework.beans.config.BeanDefinition;
+import org.springframework.beans.exception.BeanDefinitionStoreException;
 import org.springframework.beans.exception.BeansException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.ResolvableType;
@@ -196,10 +199,32 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         assertBeanFactoryActive();
         return getBeanFactory().containsBean(name);
     }
+    //---------------------------------------------------------------------
+    // 实现BeanDefinitionRegistry接口的方法
+    //---------------------------------------------------------------------
+   /* @Override
+    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
+
+    }
+
+    @Override
+    public BeanDefinition getBeanDefinition(String beanName) {
+        return getBeanFactory().getBeanDefinition(beanName);
+    }
+*/
+    @Override
+    public boolean containsBeanDefinition(String beanName) {
+        return getBeanFactory().containsBeanDefinition(beanName);
+    }
+
+    @Override
+    public int getBeanDefinitionCount() {
+        return getBeanFactory().getBeanDefinitionCount();
+    }
     /**
      * 抽象方法由子类实现
      */
-    public abstract BeanFactory getBeanFactory() throws IllegalStateException;
+    public abstract ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException;
 
     protected abstract void refreshBeanFactory() throws BeansException, IllegalStateException;
 

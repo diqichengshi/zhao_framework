@@ -1,15 +1,17 @@
 package org.springframework.context.support;
 
 import org.springframework.beans.config.BeanDefinition;
+import org.springframework.beans.exception.BeanDefinitionStoreException;
 import org.springframework.beans.exception.BeansException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContextException;
 
 import java.io.IOException;
 
-public abstract class AbstractRefreshableApplicationContext extends AbstractApplicationContext implements BeanDefinitionRegistry {
+public abstract class AbstractRefreshableApplicationContext extends AbstractApplicationContext {
     private DefaultListableBeanFactory beanFactory;
     private final Object beanFactoryMonitor = new Object();
 
@@ -18,7 +20,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
     }
 
     @Override
-    public BeanFactory getBeanFactory() throws IllegalStateException {
+    public ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException {
         return this.beanFactory;
     }
 
@@ -53,23 +55,13 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
         }
     }
 
-    //---------------------------------------------------------------------
-    // 实现BeanDefinitionRegistry接口的方法
-    //---------------------------------------------------------------------
-    @Override
-    public void registerBeanDefinition(String beanName, BeanDefinition hkBeanDefinition) throws Exception {
 
-    }
 
     @Override
-    public BeanDefinition getBeanDefinition(String beanName) {
-        return beanFactory.getBeanDefinition(beanName);
+    public boolean isTypeMatch(String name, Class<?> typeToMatch) {
+        return beanFactory.isTypeMatch(name,typeToMatch);
     }
 
-    @Override
-    public boolean containsBeanDefinition(String beanName) {
-        return beanFactory.containsBeanDefinition(beanName);
-    }
 
     /**
      * Load bean definitions into the given bean factory, typically through

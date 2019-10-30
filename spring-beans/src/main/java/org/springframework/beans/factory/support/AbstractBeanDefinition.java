@@ -10,22 +10,18 @@ import java.util.Objects;
 import java.util.Set;
 
 public abstract class AbstractBeanDefinition implements BeanDefinition {
+    public static final int DEPENDENCY_CHECK_NONE = 0;
     public static final int AUTOWIRE_NO = AutowireCapableBeanFactory.AUTOWIRE_NO;
-
     public static final int AUTOWIRE_BY_NAME = AutowireCapableBeanFactory.AUTOWIRE_BY_NAME;
-
     public static final int AUTOWIRE_BY_TYPE = AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;
-
     public static final int AUTOWIRE_CONSTRUCTOR = AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
-
-    @Deprecated
     public static final int AUTOWIRE_AUTODETECT = AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT;
 
     private String beanName;
 
     private Class<?> beanClass;
 
-    private String scope = BeanDefinition.SINGLETION;
+    private String scope = BeanDefinition.SCOPE_SINGLETON;
 
     private String initMethodName;
 
@@ -67,12 +63,12 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
 
     @Override
     public boolean isSingleton() {
-        return Objects.equals(scope, BeanDefinition.SINGLETION);
+        return Objects.equals(scope, BeanDefinition.SCOPE_SINGLETON);
     }
 
     @Override
     public boolean isPrototype() {
-        return Objects.equals(scope, BeanDefinition.PROTOTYPE);
+        return Objects.equals(scope, BeanDefinition.SCOPE_PROTOTYPE);
     }
 
     @Override
@@ -135,5 +131,17 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
         return AUTOWIRE_BY_NAME;
     }
 
-
+    /**
+     * Apply the provided default values to this bean.
+     * @param defaults the defaults to apply
+     */
+    public void applyDefaults(BeanDefinitionDefaults defaults) {
+        // setLazyInit(defaults.isLazyInit());
+        setAutowireMode(defaults.getAutowireMode());
+        // setDependencyCheck(defaults.getDependencyCheck());
+        setInitMethodName(defaults.getInitMethodName());
+        // setEnforceInitMethod(false);
+        // setDestroyMethodName(defaults.getDestroyMethodName());
+        // setEnforceDestroyMethod(false);
+    }
 }

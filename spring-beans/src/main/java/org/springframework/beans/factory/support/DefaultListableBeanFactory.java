@@ -12,6 +12,7 @@ import org.springframework.beans.exception.NoSuchBeanDefinitionException;
 import org.springframework.beans.exception.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.core.OrderComparator;
 import org.springframework.util.ObjectUtils;
@@ -21,7 +22,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory{
+public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements ConfigurableListableBeanFactory {
 
     private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
 
@@ -48,17 +49,6 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         }
         beanDefinitionMap.put(beanName, beanDefinition);
     }
-
-    @Override
-    public BeanDefinition getBeanDefinition(String beanName) {
-        return beanDefinitionMap.get(beanName);
-    }
-
-    @Override
-    public boolean containsBeanDefinition(String beanName) {
-        return beanDefinitionMap.containsKey(beanName);
-    }
-
 
     /**
      * 获取依赖属性
@@ -195,4 +185,17 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         return this.dependencyComparator;
     }
 
+    @Override
+    public BeanDefinition getBeanDefinition(String beanName) {
+        return beanDefinitionMap.get(beanName);
+    }
+
+    @Override
+    public boolean containsBeanDefinition(String beanName) {
+        return beanDefinitionMap.containsKey(beanName);
+    }
+
+    public int getBeanDefinitionCount() {
+        return beanDefinitionMap.size();
+    }
 }

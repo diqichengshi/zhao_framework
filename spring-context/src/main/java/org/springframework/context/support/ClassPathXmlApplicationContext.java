@@ -1,5 +1,7 @@
 package org.springframework.context.support;
 
+import org.springframework.beans.config.BeanDefinition;
+import org.springframework.beans.exception.BeanDefinitionStoreException;
 import org.springframework.beans.exception.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -33,8 +35,9 @@ public class ClassPathXmlApplicationContext extends AbstractRefreshableApplicati
         reader.loadBeanDefinitions(configLocations);
     }
 
-    @Override
+    /*@Override
     public boolean isTypeMatch(String name, Class<?> typeToMatch) {
         return getBeanFactory().isTypeMatch(name,typeToMatch);
-    }
+    }*/
+
 }

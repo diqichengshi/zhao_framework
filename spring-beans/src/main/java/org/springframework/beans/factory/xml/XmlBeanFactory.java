@@ -28,4 +28,5 @@ public class XmlBeanFactory extends DefaultListableBeanFactory implements BeanDe
         super();
         reader.loadBeanDefinitions(xmlPath); // 解析xml
     }
+
 }

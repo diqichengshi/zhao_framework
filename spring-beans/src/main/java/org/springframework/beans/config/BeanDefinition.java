@@ -1,5 +1,6 @@
 package org.springframework.beans.config;
 
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.MutablePropertyValues;
 
 import java.util.List;
@@ -10,13 +11,13 @@ public interface BeanDefinition {
      * <p>Note that extended bean factories might support further scopes.
      * @see #setScope
      */
-    final static String SINGLETION = "singleton";
+    final static String SCOPE_SINGLETON = "singleton";
     /**
      * Scope identifier for the standard prototype scope: "prototype".
      * <p>Note that extended bean factories might support further scopes.
      * @see #setScope
      */
-    final static String PROTOTYPE = "prototype";
+    final static String SCOPE_PROTOTYPE = "prototype";
 
     public String getBeanName();
 
@@ -25,6 +26,8 @@ public interface BeanDefinition {
     Class<?> getBeanClass();
 
     String getScope();
+
+    void setScope(String scope);
 
     boolean isSingleton();
 
