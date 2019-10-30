@@ -3,7 +3,7 @@ package com.zhaojuan.springframework.test.service.impl;
 import com.zhaojuan.springframework.test.service.OrderService;
 import com.zhaojuan.springframework.test.service.ProductService;
 import org.springframework.beans.annotation.Autowired;
-import org.springframework.beans.annotation.Service;
+import org.springframework.stereotype.Service;
 
 @Service(value = "productService")
 public class ProductServiceImpl implements ProductService {
