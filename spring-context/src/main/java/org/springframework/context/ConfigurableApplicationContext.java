@@ -4,5 +4,8 @@ import org.springframework.beans.exception.BeansException;
 
 public interface ConfigurableApplicationContext extends ApplicationContext{
 
+    String CONFIG_LOCATION_DELIMITERS = ",; \t\n";
+
     public void refresh() throws BeansException, IllegalStateException;
+
 }

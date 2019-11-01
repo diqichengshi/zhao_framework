@@ -8,12 +8,14 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.EnvironmentCapable;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.util.Assert;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateComponentProvider {
+
     private final BeanDefinitionRegistry registry;
 
     private BeanDefinitionDefaults beanDefinitionDefaults = new BeanDefinitionDefaults();
@@ -55,7 +57,26 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
         }
         return new StandardEnvironment();
     }
-
+    /**
+     * Set the defaults to use for detected beans.
+     * @see BeanDefinitionDefaults
+     */
+    public void setBeanDefinitionDefaults(BeanDefinitionDefaults beanDefinitionDefaults) {
+        this.beanDefinitionDefaults =
+                (beanDefinitionDefaults != null ? beanDefinitionDefaults : new BeanDefinitionDefaults());
+    }
+    public void setAutowireCandidatePatterns(String... autowireCandidatePatterns) {
+        this.autowireCandidatePatterns = autowireCandidatePatterns;
+    }
+    public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
+        this.beanNameGenerator = (beanNameGenerator != null ? beanNameGenerator : new AnnotationBeanNameGenerator());
+    }
+    public void setScopeMetadataResolver(ScopeMetadataResolver scopeMetadataResolver) {
+        this.scopeMetadataResolver = (scopeMetadataResolver != null ? scopeMetadataResolver : new AnnotationScopeMetadataResolver());
+    }
+    public void setScopedProxyMode(ScopedProxyMode scopedProxyMode) {
+        this.scopeMetadataResolver = new AnnotationScopeMetadataResolver(scopedProxyMode);
+    }
     /**
      * Perform a scan within the specified base packages.
      *
@@ -79,7 +100,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
         Assert.notEmpty(basePackages, "At least one base package must be specified");
         Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<BeanDefinitionHolder>();
         for (String basePackage : basePackages) {
-            // 扫描包下有Spring Component注解,并且生成BeanDefinition
+            // 扫描包下的Component注解,并且生成BeanDefinition
             Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
             for (BeanDefinition candidate : candidates) {
                 // // 设置scope,默认是singleton
@@ -128,8 +149,8 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
             return false;
         }
         throw new ConflictingBeanDefinitionException("Annotation-specified bean name '" + beanName +
-                "' for bean class [" + beanDefinition.getBeanName() + "] conflicts with existing, " +
-                "non-compatible bean definition of same name and class [" + existingDef.getBeanName() + "]");
+                "' for bean class [" + beanDefinition.getBeanClassName() + "] conflicts with existing, " +
+                "non-compatible bean definition of same name and class [" + existingDef.getBeanClassName() + "]");
     }
 
     protected boolean isCompatible(BeanDefinition newDefinition, BeanDefinition existingDefinition) {

@@ -51,7 +51,7 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
             AnnotatedGenericBeanDefinition annDef = (AnnotatedGenericBeanDefinition) definition;
             AnnotationAttributes attributes = AnnotationConfigUtils.attributesFor(annDef.getMetadata(), this.scopeAnnotationType);
             if (attributes != null) {
-                metadata.setScopeName(attributes.getAliasedString("value", this.scopeAnnotationType, definition.getBeanClass()));
+                metadata.setScopeName(attributes.getAliasedString("value", this.scopeAnnotationType, definition.getSource()));
                 ScopedProxyMode proxyMode = attributes.getEnum("proxyMode");
                 if (proxyMode == null || proxyMode == ScopedProxyMode.DEFAULT) {
                     proxyMode = this.defaultProxyMode;

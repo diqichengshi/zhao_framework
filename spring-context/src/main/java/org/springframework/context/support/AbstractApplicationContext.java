@@ -11,14 +11,17 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.util.ObjectUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class AbstractApplicationContext implements ConfigurableApplicationContext {
+public abstract class AbstractApplicationContext extends DefaultResourceLoader implements ConfigurableApplicationContext {
     protected final Log logger = LogFactory.getLog(getClass());
     private String displayName = ObjectUtils.identityToString(this);
-
+    private ConfigurableEnvironment environment;
     private final Object startupShutdownMonitor = new Object();
     private long startupDate;
     private final AtomicBoolean active = new AtomicBoolean();
@@ -27,7 +30,23 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     public AbstractApplicationContext() {
     }
 
+    public String getDisplayName() {
+        return this.displayName;
+    }
+
+    public ConfigurableEnvironment getEnvironment() {
+        if (this.environment == null) {
+            this.environment = createEnvironment();
+        }
+        return this.environment;
+    }
+
+    protected ConfigurableEnvironment createEnvironment() {
+        return new StandardEnvironment();
+    }
+
     /**
+     * 获取BeanFactory配置清单
      * 此处进行精简
      */
     @Override
@@ -101,6 +120,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      * @see #getBeanFactory()
      */
     protected BeanFactory obtainFreshBeanFactory() {
+        // TODO 刷新工厂,为空测创建,并加载XML,抽象方法由子类实现
         refreshBeanFactory();
         BeanFactory beanFactory = getBeanFactory();
         if (logger.isDebugEnabled()) {
@@ -159,9 +179,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         // CachedIntrospectionResults.clearClassLoader(getClassLoader());
     }
 
-    public String getDisplayName() {
-        return this.displayName;
-    }
     protected void assertBeanFactoryActive() {
         if (!this.active.get()) {
             if (this.closed.get()) {
@@ -199,6 +216,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         assertBeanFactoryActive();
         return getBeanFactory().containsBean(name);
     }
+
+    @Override
+    public boolean isTypeMatch(String name, Class<?> typeToMatch) {
+        assertBeanFactoryActive();
+        return getBeanFactory().isTypeMatch(name, typeToMatch);
+    }
+
     //---------------------------------------------------------------------
     // 实现BeanDefinitionRegistry接口的方法
     //---------------------------------------------------------------------
@@ -225,7 +249,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      * 抽象方法由子类实现
      */
     public abstract ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException;
-
+    /**
+     * 抽象方法由子类实现
+     * TODO BeanFactory的刷新,以及bean的解析
+     */
     protected abstract void refreshBeanFactory() throws BeansException, IllegalStateException;
 
 }

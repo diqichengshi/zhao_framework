@@ -2,7 +2,9 @@ package org.springframework.beans;
 
 import org.springframework.util.Assert;
 
-public class PropertyValue {
+import java.io.Serializable;
+
+public class PropertyValue extends BeanMetadataAttributeAccessor implements Serializable {
     private final String name;
 
     private final Object value;

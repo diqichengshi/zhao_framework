@@ -5,6 +5,7 @@ import org.springframework.beans.*;
 import org.springframework.beans.config.BeanPostProcessor;
 import org.springframework.beans.exception.BeanCreationException;
 import org.springframework.beans.exception.BeansException;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.util.ObjectUtils;
 
@@ -18,9 +19,28 @@ import java.util.concurrent.ConcurrentMap;
  * 自动装配以及属性设置
  */
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory {
-
+    private BeanFactory parentBeanFactory;
     private final Set<Class<?>> ignoredDependencyTypes = new HashSet<Class<?>>();
     private final Set<Class<?>> ignoredDependencyInterfaces = new HashSet<Class<?>>();
+
+    public AbstractAutowireCapableBeanFactory() {
+        super();
+        /*ignoreDependencyInterface(BeanNameAware.class);
+        ignoreDependencyInterface(BeanFactoryAware.class);
+        ignoreDependencyInterface(BeanClassLoaderAware.class);*/
+    }
+
+    public AbstractAutowireCapableBeanFactory(BeanFactory parentBeanFactory) {
+        this();
+        setParentBeanFactory(parentBeanFactory);
+    }
+
+    public void setParentBeanFactory(BeanFactory parentBeanFactory) {
+        if (this.parentBeanFactory != null && this.parentBeanFactory != parentBeanFactory) {
+            throw new IllegalStateException("Already associated with parent BeanFactory: " + this.parentBeanFactory);
+        }
+        this.parentBeanFactory = parentBeanFactory;
+    }
 
     /**
      * 实现抽象类的方法
@@ -75,7 +95,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 初始化Bean实例
         Object exposedObject = bean;
         try {
-            //属性填充，自动注入,重点方法二
+            //TODO 属性填充,自动注入,重点方法二
             populateBean(beanName, mbd, instanceWrapper);
             if (exposedObject != null) {
                 //实现InitializingBean接口的方法回调，重点方法三
@@ -126,7 +146,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     protected Object initializeBean(final String beanName, final Object bean, RootBeanDefinition mbd) {
 
         Object wrappedBean = bean;
-        // 前置处理器处理  TODO
+        // TODO 前置处理器处理
         /*if (mbd == null ) {
             wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
         }*/
@@ -136,7 +156,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         } catch (Throwable ex) {
             throw new BeanCreationException(beanName + "Invocation of init method failed", ex);
         }
-        // 后置处理器处理  TODO
+        // TODO 后置处理器处理
         /*if (mbd == null ) {
             wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
         }*/
@@ -287,7 +307,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 Object convertedValue = resolvedValue;
                 boolean convertible = !PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);
                 if (convertible) {
-                    convertedValue = ((BeanWrapperImpl) bw).convertForProperty(propertyName, resolvedValue); // 进行属性转换 TODO 重要方法
+                    // TODO 重要方法 进行属性转换
+                    convertedValue = ((BeanWrapperImpl) bw).convertForProperty(propertyName, resolvedValue);
                 }
                 // Possibly store converted value in merged bean definition,
                 // in order to avoid re-conversion for every created bean instance.

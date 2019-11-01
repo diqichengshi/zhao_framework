@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements ConfigurableListableBeanFactory {
+public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements ConfigurableListableBeanFactory,BeanDefinitionRegistry {
 
     private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
 
@@ -36,7 +36,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     public DefaultListableBeanFactory() {
         super();
     }
-
+    public DefaultListableBeanFactory(BeanFactory parentBeanFactory) {
+        super(parentBeanFactory);
+    }
 
     /*
      * 注册bean定义，需要给定唯一bean的名称和bean的定义,放到bean定义集合中

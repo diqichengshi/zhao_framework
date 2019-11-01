@@ -400,7 +400,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     }
 
     protected boolean isFactoryBean(String beanName, BeanDefinition mbd) {
-        Class<?> beanType = mbd.getBeanClass();
+        Class<?> beanType = mbd.getClass();
+        // predictBeanType(beanName, mbd, FactoryBean.class);
         return (beanType != null && FactoryBean.class.isAssignableFrom(beanType));
     }
 
@@ -414,6 +415,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
     public List<BeanPostProcessor> getBeanPostProcessors() {
         return this.beanPostProcessors;
+    }
+
+    public boolean isBeanNameInUse(String beanName) {
+        return isAlias(beanName) || containsLocalBean(beanName) || hasDependentBean(beanName);
     }
 
     @Override
@@ -509,9 +514,20 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
             return null;
         }
     }
+
     protected boolean hasInstantiationAwareBeanPostProcessors() {
         return this.hasInstantiationAwareBeanPostProcessors;
     }
+
+    protected String transformedBeanName(String name) {
+        return BeanFactoryUtils.transformedBeanName(name);
+    }
+    public boolean containsLocalBean(String name) {
+        String beanName = transformedBeanName(name);
+        return ((containsSingleton(beanName) || containsBeanDefinition(beanName)) &&
+                (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(beanName)));
+    }
+
     /**
      * 抽象方法宫子类实现
      */

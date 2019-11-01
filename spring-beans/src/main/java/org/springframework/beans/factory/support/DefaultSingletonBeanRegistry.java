@@ -4,6 +4,7 @@ import org.springframework.beans.exception.BeanCreationException;
 import org.springframework.beans.config.SingletonBeanRegistry;
 import org.springframework.beans.exception.BeanCreationNotAllowedException;
 import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.core.SimpleAliasRegistry;
 import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,7 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
+public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements SingletonBeanRegistry {
 
     protected static final Object NULL_OBJECT = new Object();
 
@@ -193,6 +194,10 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
      */
     public boolean isSingletonCurrentlyInCreation(String beanName) {
         return this.singletonsCurrentlyInCreation.contains(beanName);
+    }
+
+    protected boolean hasDependentBean(String beanName) {
+        return this.dependentBeanMap.containsKey(beanName);
     }
 
     /**

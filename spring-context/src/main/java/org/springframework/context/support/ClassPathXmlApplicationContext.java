@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
 
-public class ClassPathXmlApplicationContext extends AbstractRefreshableApplicationContext {
+public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContext {
     final String configLocations;
     /**
      * 有参的构造方法，在创建此类实例时需要指定xml文件路径
@@ -28,16 +28,5 @@ public class ClassPathXmlApplicationContext extends AbstractRefreshableApplicati
             refresh();
         }
     }
-
-    @Override
-    protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
-        XmlBeanDefinitionReader reader=new XmlBeanDefinitionReader(beanFactory);
-        reader.loadBeanDefinitions(configLocations);
-    }
-
-    /*@Override
-    public boolean isTypeMatch(String name, Class<?> typeToMatch) {
-        return getBeanFactory().isTypeMatch(name,typeToMatch);
-    }*/
 
 }

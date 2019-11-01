@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationContextException;
 import java.io.IOException;
 
 public abstract class AbstractRefreshableApplicationContext extends AbstractApplicationContext {
+
     private DefaultListableBeanFactory beanFactory;
     private final Object beanFactoryMonitor = new Object();
 

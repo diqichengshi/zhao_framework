@@ -5,10 +5,14 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.config.BeanDefinition;
 import org.springframework.beans.exception.BeanDefinitionStoreException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
+import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.EnvironmentCapable;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
@@ -25,7 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public class ClassPathScanningCandidateComponentProvider {
+public class ClassPathScanningCandidateComponentProvider implements EnvironmentCapable, ResourceLoaderAware {
     static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
 
     protected final Log logger = LogFactory.getLog(getClass());
@@ -59,6 +63,49 @@ public class ClassPathScanningCandidateComponentProvider {
         }
         Assert.notNull(environment, "Environment must not be null");
         this.environment = environment;
+    }
+
+
+    @Override
+    public void setResourceLoader(ResourceLoader resourceLoader) {
+        this.resourcePatternResolver = ResourcePatternUtils.getResourcePatternResolver(resourceLoader);
+        this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
+    }
+    /**
+     * Set the Environment to use when resolving placeholders and evaluating
+     * {@link Conditional @Conditional}-annotated component classes.
+     * <p>The default is a {@link StandardEnvironment}.
+     * @param environment the Environment to use
+     */
+    public void setEnvironment(Environment environment) {
+        Assert.notNull(environment, "Environment must not be null");
+        this.environment = environment;
+    }
+
+
+
+    @Override
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    /**
+     * Set the resource pattern to use when scanning the classpath.
+     * This value will be appended to each base package name.
+     * @see #findCandidateComponents(String)
+     * @see #DEFAULT_RESOURCE_PATTERN
+     */
+    public void setResourcePattern(String resourcePattern) {
+        Assert.notNull(resourcePattern, "'resourcePattern' must not be null");
+        this.resourcePattern = resourcePattern;
+    }
+
+    public void addIncludeFilter(TypeFilter includeFilter) {
+        this.includeFilters.add(includeFilter);
+    }
+
+    public void addExcludeFilter(TypeFilter excludeFilter) {
+        this.excludeFilters.add(0, excludeFilter);
     }
 
     /**
@@ -146,5 +193,12 @@ public class ClassPathScanningCandidateComponentProvider {
 
     protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
         return (beanDefinition.getMetadata().isConcrete() && beanDefinition.getMetadata().isIndependent());
+    }
+
+    /**
+     * Return the ResourceLoader that this component provider uses.
+     */
+    public final ResourceLoader getResourceLoader() {
+        return this.resourcePatternResolver;
     }
 }
