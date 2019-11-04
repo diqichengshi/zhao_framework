@@ -19,6 +19,8 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
 
     volatile Boolean conversionNecessary;
 
+    transient volatile Object resolvedTokens;
+
     public PropertyValue(String name, Object value) {
         this.name = name;
         this.value = value;

@@ -9,11 +9,14 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
+import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
@@ -26,6 +29,7 @@ import java.util.*;
  * 自动装配以及属性设置
  */
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
+
     private InstantiationStrategy instantiationStrategy = new CglibSubclassingInstantiationStrategy();
     private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
     private BeanFactory parentBeanFactory;
@@ -311,7 +315,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      */
     protected void autowireByName(String beanName, RootBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
         // 解析出非简单属性
-        String[] propertyNames = mbd.getDependsOn();
+        String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
         for (String propertyName : propertyNames) {
             if (containsBean(propertyName)) {
                 Object bean = getBean(propertyName);
@@ -336,7 +340,27 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     protected void autowireByType(String beanName, RootBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
     }
 
-
+    /**
+     * Return an array of non-simple bean properties that are unsatisfied.
+     * These are probably unsatisfied references to other beans in the
+     * factory. Does not include simple properties like primitives or Strings.
+     * @param mbd the merged bean definition the bean was created with
+     * @param bw the BeanWrapper the bean was created with
+     * @return an array of bean property names
+     * @see org.springframework.beans.BeanUtils#isSimpleProperty
+     */
+    protected String[] unsatisfiedNonSimpleProperties(AbstractBeanDefinition mbd, BeanWrapper bw) {
+        Set<String> result = new TreeSet<String>();
+        PropertyValues pvs = mbd.getPropertyValues();
+        PropertyDescriptor[] pds = bw.getPropertyDescriptors();
+        for (PropertyDescriptor pd : pds) {
+            if (pd.getWriteMethod() != null && !isExcludedFromDependencyCheck(pd) && !pvs.contains(pd.getName()) &&
+                    !BeanUtils.isSimpleProperty(pd.getPropertyType())) {
+                result.add(pd.getName());
+            }
+        }
+        return StringUtils.toStringArray(result);
+    }
     protected PropertyDescriptor[] filterPropertyDescriptorsForDependencyCheck(BeanWrapper bw) {
         List<PropertyDescriptor> pds =
                 new LinkedList<PropertyDescriptor>(Arrays.asList(bw.getPropertyDescriptors()));
@@ -363,21 +387,35 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         if (pvs == null || pvs.isEmpty()) {
             return;
         }
+        MutablePropertyValues mpvs = null;
+        List<PropertyValue> original;
 
-        MutablePropertyValues mpvs = (MutablePropertyValues) pvs;
-
-        if (mpvs.isConverted()) {
-            try {
-                bw.setPropertyValues(mpvs);
-                return;
-            } catch (BeansException ex) {
-                throw new BeanCreationException(beanName + "Error setting property values", ex);
+        if (pvs instanceof MutablePropertyValues) {
+            mpvs = (MutablePropertyValues) pvs;
+            if (mpvs.isConverted()) {
+                // Shortcut: use the pre-converted values as-is.
+                try {
+                    bw.setPropertyValues(mpvs);
+                    return;
+                }
+                catch (BeansException ex) {
+                    throw new BeanCreationException(
+                            mbd.getResourceDescription(), beanName, "Error setting property values", ex);
+                }
             }
+            original = mpvs.getPropertyValueList();
+        }
+        else {
+            original = Arrays.asList(pvs.getPropertyValues());
         }
 
-        List<PropertyValue> original = mpvs.getPropertyValueList(); // 获取bean的属性列表
+        TypeConverter converter = getCustomTypeConverter();
+        if (converter == null) {
+            converter = bw;
+        }
+        BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, beanName, mbd, converter);
 
-        BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, beanName, mbd);
+        // BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, beanName, mbd);
 
         // Create a deep copy, resolving any references for values.
         List<PropertyValue> deepCopy = new ArrayList<PropertyValue>(original.size());
@@ -393,7 +431,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 boolean convertible = !PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);
                 if (convertible) {
                     // TODO 重要方法 进行属性转换
-                    convertedValue = ((BeanWrapperImpl) bw).convertForProperty(propertyName, resolvedValue);
+                    convertedValue = convertForProperty(resolvedValue, propertyName, bw, converter);
                 }
                 // Possibly store converted value in merged bean definition,
                 // in order to avoid re-conversion for every created bean instance.
@@ -402,11 +440,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                         pv.setConvertedValue(convertedValue);
                     }
                     deepCopy.add(pv);
-                } else if (convertible &&
+                } else if (convertible && originalValue instanceof TypedStringValue &&
+                        !((TypedStringValue) originalValue).isDynamic() &&
                         !(convertedValue instanceof Collection || ObjectUtils.isArray(convertedValue))) {
                     pv.setConvertedValue(convertedValue);
                     deepCopy.add(pv);
-                } else {
+                }
+                 else {
                     resolveNecessary = true;
                     deepCopy.add(new PropertyValue(pv, convertedValue));
                 }
@@ -423,7 +463,16 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             throw new BeanCreationException(beanName + "Error setting property values", ex);
         }
     }
-
+    private Object convertForProperty(Object value, String propertyName, BeanWrapper bw, TypeConverter converter) {
+        if (converter instanceof BeanWrapperImpl) {
+            return ((BeanWrapperImpl) converter).convertForProperty(value, propertyName);
+        }
+        else {
+            PropertyDescriptor pd = bw.getPropertyDescriptor(propertyName);
+            MethodParameter methodParam = BeanUtils.getWriteMethodParameter(pd);
+            return converter.convertIfNecessary(value, pd.getPropertyType(), methodParam);
+        }
+    }
     /**
      * 执行Bean的初始化方法
      */

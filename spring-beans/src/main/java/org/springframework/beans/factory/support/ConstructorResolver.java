@@ -36,7 +36,6 @@ import org.springframework.util.StringUtils;
 
 public class ConstructorResolver {
 
-
     private final AbstractAutowireCapableBeanFactory beanFactory;
 
 
@@ -551,9 +550,10 @@ public class ConstructorResolver {
     private int resolveConstructorArguments(String beanName, RootBeanDefinition mbd, BeanWrapper bw,
                                             ConstructorArgumentValues cargs, ConstructorArgumentValues resolvedValues) {
 
-
+        TypeConverter converter = (this.beanFactory.getCustomTypeConverter() != null ?
+                this.beanFactory.getCustomTypeConverter() : bw);
         BeanDefinitionValueResolver valueResolver =
-                new BeanDefinitionValueResolver(this.beanFactory, beanName, mbd);
+                new BeanDefinitionValueResolver(this.beanFactory, beanName, mbd, converter);
 
         int minNrOfArgs = cargs.getArgumentCount();
 
@@ -708,10 +708,13 @@ public class ConstructorResolver {
     private Object[] resolvePreparedArguments(
             String beanName, RootBeanDefinition mbd, BeanWrapper bw, Member methodOrCtor, Object[] argsToResolve) {
 
+        TypeConverter converter = (this.beanFactory.getCustomTypeConverter() != null ?
+                this.beanFactory.getCustomTypeConverter() : bw);
+
         Class<?>[] paramTypes = (methodOrCtor instanceof Method ?
                 ((Method) methodOrCtor).getParameterTypes() : ((Constructor<?>) methodOrCtor).getParameterTypes());
         BeanDefinitionValueResolver valueResolver =
-                new BeanDefinitionValueResolver(this.beanFactory, beanName, mbd);
+                new BeanDefinitionValueResolver(this.beanFactory, beanName, mbd,converter);
         Object[] resolvedArgs = new Object[argsToResolve.length];
         for (int argIndex = 0; argIndex < argsToResolve.length; argIndex++) {
             Object argValue = argsToResolve[argIndex];

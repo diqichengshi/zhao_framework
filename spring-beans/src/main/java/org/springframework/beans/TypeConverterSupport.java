@@ -13,6 +13,11 @@ public class TypeConverterSupport extends PropertyEditorRegistrySupport implemen
     TypeConverterDelegate typeConverterDelegate;
 
     @Override
+    public <T> T convertIfNecessary(Object value, Class<T> requiredType) throws TypeMismatchException {
+        return doConvert(value, requiredType, null, null);
+    }
+
+    @Override
     public <T> T convertIfNecessary(Object value, Class<T> requiredType, MethodParameter methodParam) throws TypeMismatchException {
         return doConvert(value, requiredType, methodParam, null);
     }

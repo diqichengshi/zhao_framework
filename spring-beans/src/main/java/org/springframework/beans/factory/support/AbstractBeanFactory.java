@@ -1,6 +1,7 @@
 package org.springframework.beans.factory.support;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.TypeConverter;
 import org.springframework.beans.config.BeanDefinition;
 import org.springframework.beans.config.BeanPostProcessor;
 import org.springframework.beans.config.Scope;
@@ -25,6 +26,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     private BeanFactory parentBeanFactory;
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
     private ClassLoader tempClassLoader;
+    private TypeConverter typeConverter;
     private BeanExpressionResolver beanExpressionResolver;
     /**
      * Names of beans that are currently in creation
@@ -361,12 +363,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         }
     }
 
-
-    //-----------------------------------------------------------------------------------
-    // Implementation of BeanFactory interface结束
-    //-----------------------------------------------------------------------------------
-
-
     //-----------------------------------------------------------------------------------
     // Implementation of HierarchicalBeanFactory interface开始
     //-----------------------------------------------------------------------------------
@@ -389,6 +385,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     public Scope getRegisteredScope(String scopeName) {
         Assert.notNull(scopeName, "Scope identifier must not be null");
         return this.scopes.get(scopeName);
+    }
+    protected TypeConverter getCustomTypeConverter() {
+        return this.typeConverter;
     }
     //-----------------------------------------------------------------------------------
     // Implementation of HierarchicalBeanFactory interface结束

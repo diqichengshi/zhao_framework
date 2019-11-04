@@ -158,7 +158,6 @@ class TypeConverterDelegate {
     @SuppressWarnings("unchecked")
     public <T> T convertIfNecessary(String propertyName, Object oldValue, Object newValue,
                                     Class<T> requiredType, TypeDescriptor typeDescriptor) throws IllegalArgumentException {
-
         // Custom editor for this type?
         PropertyEditor editor = this.propertyEditorRegistry.findCustomEditor(requiredType, propertyName);
 

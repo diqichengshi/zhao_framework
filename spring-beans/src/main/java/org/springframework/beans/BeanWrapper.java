@@ -1,5 +1,7 @@
 package org.springframework.beans;
 
+import org.springframework.beans.exception.InvalidPropertyException;
+
 import java.beans.PropertyDescriptor;
 
 public interface BeanWrapper extends PropertyAccessor, TypeConverter {
@@ -18,4 +20,14 @@ public interface BeanWrapper extends PropertyAccessor, TypeConverter {
      * @return the PropertyDescriptors for the wrapped object
      */
     PropertyDescriptor[] getPropertyDescriptors();
+    /**
+     * Obtain the property descriptor for a specific property
+     * of the wrapped object.
+     * @param propertyName the property to obtain the descriptor for
+     * (may be a nested path, but no indexed/mapped property)
+     * @return the property descriptor for the specified property
+     * @throws InvalidPropertyException if there is no such property
+     */
+    PropertyDescriptor getPropertyDescriptor(String propertyName) throws InvalidPropertyException;
+
 }

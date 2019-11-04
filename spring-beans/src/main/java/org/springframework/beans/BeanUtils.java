@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.exception.FatalBeanException;
+import org.springframework.core.MethodParameter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ConcurrentReferenceHashMap;
@@ -524,7 +525,20 @@ public abstract class BeanUtils {
                 URI.class == clazz || URL.class == clazz ||
                 Locale.class == clazz || Class.class == clazz);
     }
-
+    /**
+     * Obtain a new MethodParameter object for the write method of the
+     * specified property.
+     * @param pd the PropertyDescriptor for the property
+     * @return a corresponding MethodParameter object
+     */
+    public static MethodParameter getWriteMethodParameter(PropertyDescriptor pd) {
+        if (pd instanceof GenericTypeAwarePropertyDescriptor) {
+            return new MethodParameter(((GenericTypeAwarePropertyDescriptor) pd).getWriteMethodParameter());
+        }
+        else {
+            return new MethodParameter(pd.getWriteMethod(), 0);
+        }
+    }
 
     /**
      * Copy the property values of the given source bean into the target bean.

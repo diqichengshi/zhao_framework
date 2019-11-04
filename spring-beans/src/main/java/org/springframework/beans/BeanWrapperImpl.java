@@ -51,7 +51,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
      * @return the new value, possibly the result of type conversion
      * @throws TypeMismatchException if type conversion failed
      */
-    public Object convertForProperty(String propertyName, Object value) throws TypeMismatchException {
+    public Object convertForProperty(Object value,String propertyName) throws TypeMismatchException {
         CachedIntrospectionResults cachedIntrospectionResults = getCachedIntrospectionResults();
         PropertyDescriptor pd = cachedIntrospectionResults.getPropertyDescriptor(propertyName);
         if (pd == null) {
@@ -73,6 +73,18 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
     @Override
     public PropertyDescriptor[] getPropertyDescriptors() {
         return getCachedIntrospectionResults().getPropertyDescriptors();
+    }
+
+    @Override
+    public PropertyDescriptor getPropertyDescriptor(String propertyName) throws InvalidPropertyException {
+        BeanWrapperImpl nestedBw = (BeanWrapperImpl) getPropertyAccessorForPropertyPath(propertyName);
+        String finalPath = getFinalPath(nestedBw, propertyName);
+        PropertyDescriptor pd = nestedBw.getCachedIntrospectionResults().getPropertyDescriptor(finalPath);
+        if (pd == null) {
+            throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
+                    "No property '" + propertyName + "' found");
+        }
+        return pd;
     }
 
     /**

@@ -4,6 +4,7 @@ import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.MethodParameter;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.beans.IntrospectionException;
@@ -97,6 +98,31 @@ public class GenericTypeAwarePropertyDescriptor extends PropertyDescriptor {
     @Override
     public Method getWriteMethod() {
         return this.writeMethod;
+    }
+
+    public MethodParameter getWriteMethodParameter() {
+        return this.writeMethodParameter;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof GenericTypeAwarePropertyDescriptor)) {
+            return false;
+        }
+        GenericTypeAwarePropertyDescriptor otherPd = (GenericTypeAwarePropertyDescriptor) other;
+        // return (getBeanClass().equals(otherPd.getBeanClass())  PropertyDescriptorUtils.equals(this, otherPd));
+        return getBeanClass().equals(otherPd.getBeanClass());
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = getBeanClass().hashCode();
+        hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(getReadMethod());
+        hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(getWriteMethod());
+        return hashCode;
     }
 
 }

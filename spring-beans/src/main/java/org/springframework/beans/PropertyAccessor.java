@@ -51,6 +51,36 @@ public interface PropertyAccessor {
 	char PROPERTY_KEY_SUFFIX_CHAR = ']';
 
 
+	/**
+	 * Set the specified value as current property value.
+	 * @param pv an object containing the new property value
+	 * @throws InvalidPropertyException if there is no such property or
+	 * if the property isn't writable
+	 * @throws PropertyAccessException if the property was valid but the
+	 * accessor method failed or a type mismatch occured
+	 */
+	void setPropertyValue(PropertyValue pv) throws BeansException;
+
+	/**
+	 * The preferred way to perform a batch update.
+	 * <p>Note that performing a batch update differs from performing a single update,
+	 * in that an implementation of this class will continue to update properties
+	 * if a <b>recoverable</b> error (such as a type mismatch, but <b>not</b> an
+	 * invalid field name or the like) is encountered, throwing a
+	 * {@link PropertyBatchUpdateException} containing all the individual errors.
+	 * This exception can be examined later to see all binding errors.
+	 * Properties that were successfully updated remain changed.
+	 * <p>Does not allow unknown fields or invalid fields.
+	 * @param pvs PropertyValues to set on the target object
+	 * @throws InvalidPropertyException if there is no such property or
+	 * if the property isn't writable
+	 * @throws PropertyBatchUpdateException if one or more PropertyAccessExceptions
+	 * occured for specific properties during the batch update. This exception bundles
+	 * all individual PropertyAccessExceptions. All other properties will have been
+	 * successfully updated.
+	 * @see #setPropertyValues(PropertyValues, boolean, boolean)
+	 */
+	void setPropertyValue(String propertyName, Object value) throws BeansException;
 
 	/**
 	 * The preferred way to perform a batch update.
@@ -72,10 +102,25 @@ public interface PropertyAccessor {
 	 * @see #setPropertyValues(PropertyValues, boolean, boolean)
 	 */
 	void setPropertyValues(PropertyValues pvs) throws BeansException;
-
-	void setPropertyValue(PropertyValue pv) throws BeansException;
-
-	void setPropertyValue(String propertyName, Object value) throws BeansException;
-
-
+	/**
+	 * Perform a batch update with full control over behavior.
+	 * <p>Note that performing a batch update differs from performing a single update,
+	 * in that an implementation of this class will continue to update properties
+	 * if a <b>recoverable</b> error (such as a type mismatch, but <b>not</b> an
+	 * invalid field name or the like) is encountered, throwing a
+	 * {@link PropertyBatchUpdateException} containing all the individual errors.
+	 * This exception can be examined later to see all binding errors.
+	 * Properties that were successfully updated remain changed.
+	 * @param pvs PropertyValues to set on the target object
+	 * @param ignoreUnknown should we ignore unknown properties (not found in the bean)
+	 * @param ignoreInvalid should we ignore invalid properties (found but not accessible)
+	 * @throws InvalidPropertyException if there is no such property or
+	 * if the property isn't writable
+	 * @throws PropertyBatchUpdateException if one or more PropertyAccessExceptions
+	 * occured for specific properties during the batch update. This exception bundles
+	 * all individual PropertyAccessExceptions. All other properties will have been
+	 * successfully updated.
+	 */
+	void setPropertyValues(PropertyValues pvs, boolean ignoreUnknown, boolean ignoreInvalid)
+			throws BeansException;
 }
