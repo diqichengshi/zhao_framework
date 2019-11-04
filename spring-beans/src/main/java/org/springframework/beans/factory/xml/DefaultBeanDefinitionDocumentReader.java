@@ -2,7 +2,7 @@ package org.springframework.beans.factory.xml;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.exception.BeanDefinitionStoreException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
@@ -250,7 +250,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
         if (bdHolder != null) {
             bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
             try {
-                // TODO 相缓存中加入解析完的BeanDefinition
+                // TODO 向缓存中加入解析完的BeanDefinition
                 // Register the final decorated instance.
                 BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
             }

@@ -1,12 +1,9 @@
 package org.springframework.context.support;
 
-import org.springframework.beans.config.BeanDefinition;
-import org.springframework.beans.exception.BeanDefinitionStoreException;
-import org.springframework.beans.exception.BeansException;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextException;
 
 import java.io.IOException;
@@ -20,6 +17,13 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
         this.beanFactory = new DefaultListableBeanFactory();
     }
 
+    /**
+     * Create a new AbstractRefreshableApplicationContext with the given parent context.
+     * @param parent the parent context
+     */
+    public AbstractRefreshableApplicationContext(ApplicationContext parent) {
+        super(parent);
+    }
     @Override
     public ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException {
         return this.beanFactory;

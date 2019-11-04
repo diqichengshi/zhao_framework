@@ -1,33 +1,23 @@
 package org.springframework.beans.factory.xml;
 
-import org.dom4j.io.SAXReader;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.MutablePropertyValues;
-import org.springframework.beans.PropertyValue;
-import org.springframework.beans.config.BeanDefinition;
-import org.springframework.beans.exception.BeanDefinitionStoreException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.parsing.*;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.util.xml.SimpleSaxErrorHandler;
 import org.springframework.util.xml.XmlValidationModeDetector;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 import org.xml.sax.*;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader{

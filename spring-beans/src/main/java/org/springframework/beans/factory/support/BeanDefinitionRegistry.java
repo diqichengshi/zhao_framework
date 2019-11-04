@@ -1,7 +1,7 @@
 package org.springframework.beans.factory.support;
 
 import org.springframework.beans.config.BeanDefinition;
-import org.springframework.beans.exception.BeanDefinitionStoreException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 
 public interface BeanDefinitionRegistry {
 

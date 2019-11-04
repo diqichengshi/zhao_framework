@@ -1,6 +1,11 @@
 package org.springframework.beans.config;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.TypeConverter;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.DependencyDescriptor;
+
+import java.util.Set;
 
 public interface AutowireCapableBeanFactory extends BeanFactory {
     /**
@@ -48,4 +53,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      */
     @Deprecated
     int AUTOWIRE_AUTODETECT = 4;
+
+    Object resolveDependency(DependencyDescriptor descriptor, String beanName,
+                             Set<String> autowiredBeanNames/*, TypeConverter typeConverter*/) throws BeansException;
+
 }

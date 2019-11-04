@@ -1,5 +1,7 @@
 package org.springframework.beans.exception;
 
+import org.springframework.beans.BeansException;
+
 public class FatalBeanException extends BeansException {
 
     /**

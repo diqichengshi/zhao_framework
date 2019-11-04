@@ -2,7 +2,6 @@ package org.springframework.beans;
 
 import org.springframework.beans.exception.InvalidPropertyException;
 import org.springframework.beans.exception.NotWritablePropertyException;
-import org.springframework.beans.exception.TypeMismatchException;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.Property;
@@ -15,16 +14,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.util.List;
 
 public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements BeanWrapper {
-    private String beanName;
 
+    private String beanName;
 
     private CachedIntrospectionResults cachedIntrospectionResults;
 
+    public BeanWrapperImpl() {
+        this(true);
+    }
     public BeanWrapperImpl(Object beanInstance) {
         super(beanInstance); // typeConverterDelegate赋值
     }

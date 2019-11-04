@@ -1,6 +1,6 @@
 package org.springframework.beans.factory.xml;
 
-import org.springframework.beans.exception.BeanDefinitionStoreException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 

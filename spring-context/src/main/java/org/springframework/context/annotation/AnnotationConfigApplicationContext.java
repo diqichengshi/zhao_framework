@@ -1,10 +1,5 @@
 package org.springframework.context.annotation;
 
-import org.springframework.beans.config.BeanDefinition;
-import org.springframework.beans.exception.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.util.Assert;
 

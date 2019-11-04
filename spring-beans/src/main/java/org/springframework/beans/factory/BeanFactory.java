@@ -1,6 +1,7 @@
 package org.springframework.beans.factory;
 
-import org.springframework.beans.exception.BeansException;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.exception.NoSuchBeanDefinitionException;
 
 public interface BeanFactory {
     String FACTORY_BEAN_PREFIX = "&";
@@ -14,4 +15,6 @@ public interface BeanFactory {
     public boolean containsBean(String name);
 
     public boolean isTypeMatch(String name, Class<?> typeToMatch);
+
+    Class<?> getType(String name) throws NoSuchBeanDefinitionException;
 }

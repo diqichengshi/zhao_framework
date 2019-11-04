@@ -1,5 +1,7 @@
 package org.springframework.beans.exception;
 
+import org.springframework.beans.BeansException;
+
 public class BeanNotOfRequiredTypeException extends BeansException {
 
     /** The name of the instance that was of the wrong type */

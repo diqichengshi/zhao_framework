@@ -1,24 +1,16 @@
 package org.springframework.beans.factory.support;
 
-import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-import org.springframework.beans.MutablePropertyValues;
-import org.springframework.beans.PropertyValue;
 import org.springframework.beans.config.BeanDefinition;
-import org.springframework.beans.exception.BeanDefinitionStoreException;
-import org.springframework.beans.exception.BeansException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.exception.NoSuchBeanDefinitionException;
 import org.springframework.beans.exception.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.core.OrderComparator;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
-import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 

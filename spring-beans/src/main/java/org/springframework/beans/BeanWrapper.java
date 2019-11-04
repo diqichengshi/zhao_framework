@@ -2,7 +2,7 @@ package org.springframework.beans;
 
 import java.beans.PropertyDescriptor;
 
-public interface BeanWrapper extends PropertyAccessor {
+public interface BeanWrapper extends PropertyAccessor, TypeConverter {
     /**
      * 返回包装对象
      */

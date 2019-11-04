@@ -17,6 +17,8 @@
 package org.springframework.beans.exception;
 
 
+import org.springframework.beans.TypeMismatchException;
+
 import java.beans.PropertyChangeEvent;
 
 /**

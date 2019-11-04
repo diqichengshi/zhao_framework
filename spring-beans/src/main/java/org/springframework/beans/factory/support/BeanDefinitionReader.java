@@ -1,6 +1,6 @@
 package org.springframework.beans.factory.support;
 
-import org.springframework.beans.exception.BeanDefinitionStoreException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
@@ -57,6 +57,19 @@ public interface BeanDefinitionReader {
      * @throws BeanDefinitionStoreException in case of loading or parsing errors
      */
     int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException;
+    /**
+     * Load bean definitions from the specified resource location.
+     * <p>The location can also be a location pattern, provided that the
+     * ResourceLoader of this bean definition reader is a ResourcePatternResolver.
+     * @param location the resource location, to be loaded with the ResourceLoader
+     * (or ResourcePatternResolver) of this bean definition reader
+     * @return the number of bean definitions found
+     * @throws BeanDefinitionStoreException in case of loading or parsing errors
+     * @see #getResourceLoader()
+     * @see #loadBeanDefinitions(org.springframework.core.io.Resource)
+     * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
+     */
+    int loadBeanDefinitions(String location) throws BeanDefinitionStoreException;
 
     /**
      * Load bean definitions from the specified resource locations.

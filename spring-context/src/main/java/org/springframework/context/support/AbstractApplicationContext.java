@@ -2,16 +2,15 @@ package org.springframework.context.support;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.CachedIntrospectionResults;
-import org.springframework.beans.config.BeanDefinition;
-import org.springframework.beans.exception.BeanDefinitionStoreException;
-import org.springframework.beans.exception.BeansException;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.exception.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.util.ObjectUtils;
@@ -20,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractApplicationContext extends DefaultResourceLoader implements ConfigurableApplicationContext {
     protected final Log logger = LogFactory.getLog(getClass());
+    private ApplicationContext parent;
     private String displayName = ObjectUtils.identityToString(this);
     private ConfigurableEnvironment environment;
     private final Object startupShutdownMonitor = new Object();
@@ -29,7 +29,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
     public AbstractApplicationContext() {
     }
-
+    public AbstractApplicationContext(ApplicationContext parent) {
+        this();
+        setParent(parent);
+    }
     public String getDisplayName() {
         return this.displayName;
     }
@@ -39,6 +42,15 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
             this.environment = createEnvironment();
         }
         return this.environment;
+    }
+    public void setParent(ApplicationContext parent) {
+        this.parent = parent;
+        if (parent != null) {
+            Environment parentEnvironment = parent.getEnvironment();
+            if (parentEnvironment instanceof ConfigurableEnvironment) {
+                getEnvironment().merge((ConfigurableEnvironment) parentEnvironment);
+            }
+        }
     }
 
     protected ConfigurableEnvironment createEnvironment() {
@@ -223,19 +235,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         return getBeanFactory().isTypeMatch(name, typeToMatch);
     }
 
-    //---------------------------------------------------------------------
-    // 实现BeanDefinitionRegistry接口的方法
-    //---------------------------------------------------------------------
-   /* @Override
-    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
-
-    }
-
     @Override
-    public BeanDefinition getBeanDefinition(String beanName) {
-        return getBeanFactory().getBeanDefinition(beanName);
+    public Class<?> getType(String name) throws NoSuchBeanDefinitionException {
+        return getBeanFactory().getType(name);
     }
-*/
+
     @Override
     public boolean containsBeanDefinition(String beanName) {
         return getBeanFactory().containsBeanDefinition(beanName);

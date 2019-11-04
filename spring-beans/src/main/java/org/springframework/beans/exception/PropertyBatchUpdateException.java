@@ -1,5 +1,6 @@
 package org.springframework.beans.exception;
 
+import org.springframework.beans.BeansException;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 

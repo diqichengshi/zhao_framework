@@ -1,6 +1,6 @@
 package org.springframework.beans.factory.config;
 
-import org.springframework.beans.exception.BeansException;
+import org.springframework.beans.BeansException;
 
 public abstract class InstantiationAwareBeanPostProcessorAdapter implements InstantiationAwareBeanPostProcessor {
     @Override

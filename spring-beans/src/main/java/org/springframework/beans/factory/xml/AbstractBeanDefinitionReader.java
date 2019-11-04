@@ -2,7 +2,7 @@ package org.springframework.beans.factory.xml;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.exception.BeanDefinitionStoreException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.support.BeanDefinitionReader;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanNameGenerator;
@@ -151,6 +151,11 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
     }
 
     @Override
+    public int loadBeanDefinitions(String location) throws BeanDefinitionStoreException {
+        return loadBeanDefinitions(location, null);
+    }
+
+    @Override
     public int loadBeanDefinitions(String... locations) throws BeanDefinitionStoreException {
         Assert.notNull(locations, "Location array must not be null");
         int counter = 0;
@@ -159,6 +164,4 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
         }
         return counter;
     }
-
-
 }

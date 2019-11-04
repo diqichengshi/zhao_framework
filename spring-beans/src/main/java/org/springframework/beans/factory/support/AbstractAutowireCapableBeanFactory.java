@@ -1,24 +1,33 @@
 package org.springframework.beans.factory.support;
 
+import org.springframework.beans.config.AutowireCapableBeanFactory;
 import org.springframework.beans.config.BeanDefinition;
 import org.springframework.beans.*;
 import org.springframework.beans.config.BeanPostProcessor;
-import org.springframework.beans.exception.BeanCreationException;
-import org.springframework.beans.exception.BeansException;
+import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
+import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.ReflectionUtils;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * 自动装配以及属性设置
  */
-public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory {
+public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
+    private InstantiationStrategy instantiationStrategy = new CglibSubclassingInstantiationStrategy();
+    private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
     private BeanFactory parentBeanFactory;
     private final Set<Class<?>> ignoredDependencyTypes = new HashSet<Class<?>>();
     private final Set<Class<?>> ignoredDependencyInterfaces = new HashSet<Class<?>>();
@@ -41,7 +50,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
         this.parentBeanFactory = parentBeanFactory;
     }
-
+    protected InstantiationStrategy getInstantiationStrategy() {
+        return this.instantiationStrategy;
+    }
+    protected ParameterNameDiscoverer getParameterNameDiscoverer() {
+        return this.parameterNameDiscoverer;
+    }
     /**
      * 实现抽象类的方法
      * 这个类的中心方法: 创建一个bean实例，
@@ -76,7 +90,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         if (instanceWrapper == null) {
             //这个是主要方法一，生成wrapper下面分析
             // instanceWrapper 是一个被包装过了的 bean，它里面的属性还未赋实际值
-            instanceWrapper = createBeanInstance(beanName, mbd);
+            instanceWrapper = createBeanInstance(beanName, mbd, args);
         }
         //获取bean和class对象
         final Object bean = (instanceWrapper != null ? instanceWrapper.getWrappedInstance() : null);
@@ -112,16 +126,84 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         return exposedObject;
     }
 
-    private BeanWrapper createBeanInstance(String beanName, RootBeanDefinition mbd) {
-        // Make sure bean class is actually resolved at this point.
-        Class<?> beanClass = mbd.getBeanClass();
 
-        if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers())) {
-            throw new BeanCreationException(beanName
-                    + "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
+    /**
+     * 这一步的作用就是将所有的后置处理器拿出来，并且把名字叫beanName的类中的变量都封装到InjectionMetadata
+     * 的injectedElements集合里面，目的是以后从中获取，挨个创建实例，通过反射注入到相应类中
+     */
+    protected void applyMergedBeanDefinitionPostProcessors(RootBeanDefinition mbd, Class<?> beanType, String beanName)
+            throws BeansException {
+
+        try {
+            for (BeanPostProcessor bp : getBeanPostProcessors()) {
+                if (bp instanceof MergedBeanDefinitionPostProcessor) {
+                    MergedBeanDefinitionPostProcessor bdp = (MergedBeanDefinitionPostProcessor) bp;
+                    bdp.postProcessMergedBeanDefinition(mbd, beanType, beanName);
+                }
+            }
+        } catch (Exception ex) {
+            throw new BeanCreationException(beanName,
+                    "Post-processing failed of bean type [" + beanType + "] failed", ex);
+        }
+    }
+
+
+    private BeanWrapper createBeanInstance(String beanName, RootBeanDefinition mbd, Object[] args) {
+        // Make sure bean class is actually resolved at this point.
+        Class<?> beanClass = resolveBeanClass(mbd, beanName);
+
+        if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) && !mbd.isNonPublicAccessAllowed()) {
+            throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+                    "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
         }
 
+        // Shortcut when re-creating the same bean...
+        boolean resolved = false;
+        boolean autowireNecessary = false;
+        if (args == null) {
+            synchronized (mbd.constructorArgumentLock) {
+                if (mbd.resolvedConstructorOrFactoryMethod != null) {
+                    resolved = true;
+                    autowireNecessary = mbd.constructorArgumentsResolved;
+                }
+            }
+        }
+
+        if (resolved) {
+            if (autowireNecessary) {
+                return autowireConstructor(beanName, mbd, null, null);
+            }
+            else {
+                return instantiateBean(beanName, mbd);
+            }
+        }
+
+        // Need to determine the constructor...
+        Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
+        if (ctors != null ||
+                mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_CONSTRUCTOR ||
+                mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args))  {
+            return autowireConstructor(beanName, mbd, ctors, args);
+        }
+
+        // No special handling: simply use no-arg constructor.
         return instantiateBean(beanName, mbd); // 实例化BeanWrpper
+    }
+    protected Constructor<?>[] determineConstructorsFromBeanPostProcessors(Class<?> beanClass, String beanName)
+            throws BeansException {
+
+        if (beanClass != null && hasInstantiationAwareBeanPostProcessors()) {
+            for (BeanPostProcessor bp : getBeanPostProcessors()) {
+                if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
+                    SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
+                    Constructor<?>[] ctors = ibp.determineCandidateConstructors(beanClass, beanName);
+                    if (ctors != null) {
+                        return ctors;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 
@@ -140,27 +222,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
     }
 
-    /**
-     * 执行Bean的初始化方法
-     */
-    protected Object initializeBean(final String beanName, final Object bean, RootBeanDefinition mbd) {
+    protected BeanWrapper autowireConstructor(
+            String beanName, RootBeanDefinition mbd, Constructor<?>[] ctors, Object[] explicitArgs) {
 
-        Object wrappedBean = bean;
-        // TODO 前置处理器处理
-        /*if (mbd == null ) {
-            wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
-        }*/
-
-        try {
-            invokeInitMethods(beanName, wrappedBean, mbd);
-        } catch (Throwable ex) {
-            throw new BeanCreationException(beanName + "Invocation of init method failed", ex);
-        }
-        // TODO 后置处理器处理
-        /*if (mbd == null ) {
-            wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
-        }*/
-        return wrappedBean;
+        return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs);
     }
 
     /**
@@ -271,6 +336,26 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     protected void autowireByType(String beanName, RootBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
     }
 
+
+    protected PropertyDescriptor[] filterPropertyDescriptorsForDependencyCheck(BeanWrapper bw) {
+        List<PropertyDescriptor> pds =
+                new LinkedList<PropertyDescriptor>(Arrays.asList(bw.getPropertyDescriptors()));
+        for (Iterator<PropertyDescriptor> it = pds.iterator(); it.hasNext();) {
+            PropertyDescriptor pd = it.next();
+            if (isExcludedFromDependencyCheck(pd)) {
+                it.remove();
+            }
+        }
+        return pds.toArray(new PropertyDescriptor[pds.size()]);
+    }
+
+    protected boolean isExcludedFromDependencyCheck(PropertyDescriptor pd) {
+        return (AutowireUtils.isExcludedFromDependencyCheck(pd) ||
+                this.ignoredDependencyTypes.contains(pd.getPropertyType()) ||
+                AutowireUtils.isSetterDefinedInInterface(pd, this.ignoredDependencyInterfaces));
+    }
+
+
     /**
      * 对象的属性赋值
      */
@@ -340,40 +425,67 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     /**
-     * 这一步的作用就是将所有的后置处理器拿出来，并且把名字叫beanName的类中的变量都封装到InjectionMetadata
-     * 的injectedElements集合里面，目的是以后从中获取，挨个创建实例，通过反射注入到相应类中
+     * 执行Bean的初始化方法
      */
-    protected void applyMergedBeanDefinitionPostProcessors(RootBeanDefinition mbd, Class<?> beanType, String beanName)
-            throws BeansException {
+    protected Object initializeBean(final String beanName, final Object bean, RootBeanDefinition mbd) {
+
+        Object wrappedBean = bean;
+        // TODO 前置处理器处理
+        /*if (mbd == null ) {
+            wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
+        }*/
 
         try {
-            for (BeanPostProcessor bp : getBeanPostProcessors()) {
-                if (bp instanceof MergedBeanDefinitionPostProcessor) {
-                    MergedBeanDefinitionPostProcessor bdp = (MergedBeanDefinitionPostProcessor) bp;
-                    bdp.postProcessMergedBeanDefinition(mbd, beanType, beanName);
-                }
+            invokeInitMethods(beanName, wrappedBean, mbd);
+        } catch (Throwable ex) {
+            throw new BeanCreationException(beanName + "Invocation of init method failed", ex);
+        }
+        // TODO 后置处理器处理
+        /*if (mbd == null ) {
+            wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
+        }*/
+        return wrappedBean;
+    }
+
+    /**
+     * 调用初始化方法
+     */
+    protected void invokeInitMethods(String beanName, final Object bean, RootBeanDefinition mbd)
+            throws Throwable {
+
+        if (mbd != null) {
+            String initMethodName = mbd.getInitMethodName();
+            if (initMethodName != null && !"afterPropertiesSet".equals(initMethodName)) {
+                invokeCustomInitMethod(beanName, bean, mbd);
             }
-        } catch (Exception ex) {
-            throw new BeanCreationException(beanName,
-                    "Post-processing failed of bean type [" + beanType + "] failed", ex);
         }
     }
 
-    protected PropertyDescriptor[] filterPropertyDescriptorsForDependencyCheck(BeanWrapper bw) {
-        List<PropertyDescriptor> pds =
-                new LinkedList<PropertyDescriptor>(Arrays.asList(bw.getPropertyDescriptors()));
-        for (Iterator<PropertyDescriptor> it = pds.iterator(); it.hasNext();) {
-            PropertyDescriptor pd = it.next();
-            if (isExcludedFromDependencyCheck(pd)) {
-                it.remove();
+    /**
+     * 调用自定义的初始化方法
+     */
+    protected void invokeCustomInitMethod(String beanName, final Object bean, RootBeanDefinition mbd) throws Throwable {
+        String initMethodName = mbd.getInitMethodName();
+        final Method initMethod = ClassUtils.getMethodIfAvailable(bean.getClass(), initMethodName);
+        if (initMethod == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("No default init method named '" + initMethodName +
+                        "' found on bean with name '" + beanName + "'");
             }
+            // Ignore non-existent default lifecycle methods.
+            return;
         }
-        return pds.toArray(new PropertyDescriptor[pds.size()]);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Invoking init method  '" + initMethodName + "' on bean with name '" + beanName + "'");
+        }
+
+        try {
+            ReflectionUtils.makeAccessible(initMethod);
+            initMethod.invoke(bean);
+        } catch (InvocationTargetException ex) {
+            throw ex.getTargetException();
+        }
     }
 
-    protected boolean isExcludedFromDependencyCheck(PropertyDescriptor pd) {
-        return (AutowireUtils.isExcludedFromDependencyCheck(pd) ||
-                this.ignoredDependencyTypes.contains(pd.getPropertyType()) ||
-                AutowireUtils.isSetterDefinedInInterface(pd, this.ignoredDependencyInterfaces));
-    }
 }

@@ -16,8 +16,6 @@
 
 package org.springframework.beans;
 
-import org.springframework.beans.exception.BeansException;
-
 /**
  * Common interface for classes that can access named properties
  * (such as bean properties of an object or fields in an object)

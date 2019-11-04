@@ -1,17 +1,22 @@
 package org.springframework.context.support;
 
-import org.springframework.beans.exception.BeansException;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.ResourceEntityResolver;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.StandardEnvironment;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 
 public abstract class AbstractXmlApplicationContext extends AbstractRefreshableConfigApplicationContext{
 
+    public AbstractXmlApplicationContext() {
+    }
+
+    public AbstractXmlApplicationContext(ApplicationContext parent) {
+        super(parent);
+    }
     @Override
     protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
         XmlBeanDefinitionReader beanDefinitionReader=new XmlBeanDefinitionReader(beanFactory);

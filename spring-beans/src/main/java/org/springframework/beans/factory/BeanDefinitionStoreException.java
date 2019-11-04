@@ -1,4 +1,6 @@
-package org.springframework.beans.exception;
+package org.springframework.beans.factory;
+
+import org.springframework.beans.exception.FatalBeanException;
 
 public class BeanDefinitionStoreException extends FatalBeanException {
 

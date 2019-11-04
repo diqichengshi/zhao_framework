@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class AbstractPropertyAccessor extends PropertyEditorRegistrySupport implements PropertyAccessor{
+public abstract class AbstractPropertyAccessor extends TypeConverterSupport implements PropertyAccessor{
 
     private boolean extractOldValueForEditor = false;
 

@@ -1,6 +1,6 @@
 package org.springframework.beans.factory.support;
 
-import org.springframework.beans.exception.BeanCreationException;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.config.SingletonBeanRegistry;
 import org.springframework.beans.exception.BeanCreationNotAllowedException;
 import org.springframework.beans.factory.ObjectFactory;
@@ -172,6 +172,14 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
         }
     }
 
+    protected void onSuppressedException(Exception ex) {
+        synchronized (this.singletonObjects) {
+            if (this.suppressedExceptions != null) {
+                this.suppressedExceptions.add(ex);
+            }
+        }
+    }
+
     protected void addSingleton(String beanName, Object singletonObject) {
         synchronized (this.singletonObjects) {
             this.singletonObjects.put(beanName, (singletonObject != null ? singletonObject : NULL_OBJECT));
@@ -235,6 +243,15 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
             }
         }
         return false;
+    }
+
+    public boolean isCurrentlyInCreation(String beanName) {
+        Assert.notNull(beanName, "Bean name must not be null");
+        return (!this.inCreationCheckExclusions.contains(beanName) && isActuallyInCreation(beanName));
+    }
+
+    protected boolean isActuallyInCreation(String beanName) {
+        return isSingletonCurrentlyInCreation(beanName);
     }
 
     /**

@@ -1,4 +1,4 @@
-package org.springframework.beans.exception;
+package org.springframework.beans.factory;
 
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.util.ObjectUtils;

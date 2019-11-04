@@ -1,5 +1,7 @@
 package org.springframework.beans.exception;
 
+import org.springframework.beans.factory.BeanCreationException;
+
 public class BeanCreationNotAllowedException extends BeanCreationException {
 
     /**

@@ -1,7 +1,7 @@
 package org.springframework.beans.factory.support;
 
-import org.springframework.beans.exception.BeanCreationException;
-import org.springframework.beans.exception.BeansException;
+import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 
 import java.util.Map;
@@ -13,6 +13,23 @@ public class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
      */
     private final Map<String, Object> factoryBeanObjectCache = new ConcurrentHashMap<String, Object>(16);
 
+    /**
+     * Determine the type for the given FactoryBean.
+     * @param factoryBean the FactoryBean instance to check
+     * @return the FactoryBean's object type,
+     * or {@code null} if the type cannot be determined yet
+     */
+    protected Class<?> getTypeForFactoryBean(final FactoryBean<?> factoryBean) {
+        try {
+            return factoryBean.getObjectType();
+        }
+        catch (Throwable ex) {
+            // Thrown from the FactoryBean's getObjectType implementation.
+            logger.warn("FactoryBean threw exception from getObjectType, despite the contract saying " +
+                    "that it should return null if the type of its object cannot be determined yet", ex);
+            return null;
+        }
+    }
     protected Object getCachedObjectForFactoryBean(String beanName) {
         Object object = this.factoryBeanObjectCache.get(beanName);
         return (object != NULL_OBJECT ? object : null);

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package org.springframework.beans.exception;
+package org.springframework.beans;
 
 import java.beans.PropertyChangeEvent;
 
+import org.springframework.beans.exception.PropertyAccessException;
 import org.springframework.util.ClassUtils;
 
 /**

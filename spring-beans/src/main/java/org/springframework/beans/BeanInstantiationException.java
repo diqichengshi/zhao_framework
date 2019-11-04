@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package org.springframework.beans.exception;
+package org.springframework.beans;
+
+import org.springframework.beans.exception.FatalBeanException;
 
 /**
  * Exception thrown when instantiation of a bean failed.

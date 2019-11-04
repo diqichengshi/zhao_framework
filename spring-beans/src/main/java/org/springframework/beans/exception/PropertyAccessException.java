@@ -16,6 +16,8 @@
 
 package org.springframework.beans.exception;
 
+import org.springframework.beans.BeansException;
+
 import java.beans.PropertyChangeEvent;
 
 

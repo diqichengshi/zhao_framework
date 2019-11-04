@@ -9,8 +9,6 @@ public class BeanDefinitionValueResolver {
 
     private final BeanDefinition beanDefinition;
 
-
-
     /**
      * Create a BeanDefinitionValueResolver for the given BeanFactory and BeanDefinition.
      * @param beanFactory the BeanFactory to resolve against

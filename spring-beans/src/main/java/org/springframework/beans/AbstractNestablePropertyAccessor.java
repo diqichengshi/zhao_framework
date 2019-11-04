@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.exception.*;
 import org.springframework.core.CollectionFactory;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.ConversionException;
 import org.springframework.core.convert.ConverterNotFoundException;
@@ -14,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.security.PrivilegedActionException;
@@ -362,7 +364,6 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         }
         return false;
     }
-
 
     protected Object convertForProperty(String propertyName, Object oldValue, Object newValue, TypeDescriptor td)
             throws TypeMismatchException {
