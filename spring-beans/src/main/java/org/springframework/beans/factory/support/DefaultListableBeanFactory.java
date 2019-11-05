@@ -1,5 +1,6 @@
 package org.springframework.beans.factory.support;
 
+import org.springframework.beans.TypeConverter;
 import org.springframework.beans.config.BeanDefinition;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.BeansException;
@@ -48,8 +49,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     /**
      * 获取依赖属性
      */
+    @Override
     public Object resolveDependency(DependencyDescriptor descriptor, String beanName,
-                                    Set<String> autowiredBeanNames) throws BeansException {
+                                    Set<String> autowiredBeanNames, TypeConverter converter) throws BeansException {
         Class<?> type = descriptor.getDependencyType();
         Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
         if (matchingBeans.isEmpty()) {

@@ -4,7 +4,7 @@ import org.springframework.beans.exception.InvalidPropertyException;
 
 import java.beans.PropertyDescriptor;
 
-public interface BeanWrapper extends PropertyAccessor, TypeConverter {
+public interface BeanWrapper extends ConfigurablePropertyAccessor {
     /**
      * 返回包装对象
      */

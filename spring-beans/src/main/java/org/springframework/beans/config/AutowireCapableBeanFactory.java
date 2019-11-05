@@ -60,6 +60,6 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
     int AUTOWIRE_AUTODETECT = 4;
 
     Object resolveDependency(DependencyDescriptor descriptor, String beanName,
-                             Set<String> autowiredBeanNames/*, TypeConverter typeConverter*/) throws BeansException;
+                             Set<String> autowiredBeanNames, TypeConverter typeConverter) throws BeansException;
 
 }

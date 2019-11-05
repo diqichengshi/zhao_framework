@@ -168,6 +168,19 @@ public class BeanCreationException extends RuntimeException {
             }
         }
     }
+    public Throwable getRootCause() {
+        Throwable rootCause = null;
+        Throwable cause = getCause();
+        while (cause != null && cause != rootCause) {
+            rootCause = cause;
+            cause = cause.getCause();
+        }
+        return rootCause;
+    }
 
+    public Throwable getMostSpecificCause() {
+        Throwable rootCause = getRootCause();
+        return (rootCause != null ? rootCause : this);
+    }
 
 }

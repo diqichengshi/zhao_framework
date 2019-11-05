@@ -587,7 +587,8 @@ public class ConstructorResolver {
             boolean autowiring) throws UnsatisfiedDependencyException {
 
         String methodType = (methodOrCtor instanceof Constructor ? "constructor" : "factory method");
-        TypeConverter converter = bw;
+        TypeConverter converter = (this.beanFactory.getCustomTypeConverter() != null ?
+                this.beanFactory.getCustomTypeConverter() : bw);
 
         ArgumentsHolder args = new ArgumentsHolder(paramTypes.length);
         Set<ConstructorArgumentValues.ValueHolder> usedValueHolders =
@@ -654,7 +655,7 @@ public class ConstructorResolver {
                 }
                 try {
                     MethodParameter param = MethodParameter.forMethodOrConstructor(methodOrCtor, paramIndex);
-                    Object autowiredArgument = resolveAutowiredArgument(param, beanName, autowiredBeanNames);
+                    Object autowiredArgument = resolveAutowiredArgument(param, beanName, autowiredBeanNames,converter);
                     args.rawArguments[paramIndex] = autowiredArgument;
                     args.arguments[paramIndex] = autowiredArgument;
                     args.preparedArguments[paramIndex] = new AutowiredArgumentMarker();
@@ -696,7 +697,7 @@ public class ConstructorResolver {
             MethodParameter methodParam = MethodParameter.forMethodOrConstructor(methodOrCtor, argIndex);
             GenericTypeResolver.resolveParameterType(methodParam, methodOrCtor.getDeclaringClass());
             if (argValue instanceof AutowiredArgumentMarker) {
-                argValue = resolveAutowiredArgument(methodParam, beanName, null);
+                argValue = resolveAutowiredArgument(methodParam, beanName, null,converter);
             } else if (argValue instanceof BeanMetadataElement) {
                 argValue = valueResolver.resolveValueIfNecessary("constructor argument", argValue);
             } else if (argValue instanceof String) {
@@ -711,10 +712,10 @@ public class ConstructorResolver {
      * Template method for resolving the specified argument which is supposed to be autowired.
      */
     protected Object resolveAutowiredArgument(
-            MethodParameter param, String beanName, Set<String> autowiredBeanNames) {
+            MethodParameter param, String beanName, Set<String> autowiredBeanNames, TypeConverter typeConverter) {
         DependencyDescriptor dependencyDescriptor = new DependencyDescriptor(param, true);
         return this.beanFactory.resolveDependency(
-                dependencyDescriptor, beanName, autowiredBeanNames);
+                dependencyDescriptor, beanName, autowiredBeanNames,typeConverter);
     }
 
 

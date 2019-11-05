@@ -1,22 +1,22 @@
 package org.springframework.beans.factory.support;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.TypeConverter;
+import org.springframework.beans.*;
 import org.springframework.beans.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.config.Scope;
 import org.springframework.beans.exception.*;
 import org.springframework.beans.factory.*;
-import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.BeanExpressionContext;
 import org.springframework.beans.factory.config.BeanExpressionResolver;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.core.DecoratingClassLoader;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.beans.PropertyEditor;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,7 +26,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     private BeanFactory parentBeanFactory;
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
     private ClassLoader tempClassLoader;
+    private ConversionService conversionService;
+    private final Set<PropertyEditorRegistrar> propertyEditorRegistrars =
+            new LinkedHashSet<PropertyEditorRegistrar>(4);
     private TypeConverter typeConverter;
+    private final Map<Class<?>, Class<? extends PropertyEditor>> customEditors =
+            new HashMap<Class<?>, Class<? extends PropertyEditor>>(4);
     private BeanExpressionResolver beanExpressionResolver;
     private final ThreadLocal<Object> prototypesCurrentlyInCreation = new ThreadLocal<Object>();
     private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>(64));
@@ -373,9 +378,25 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         Assert.notNull(scopeName, "Scope identifier must not be null");
         return this.scopes.get(scopeName);
     }
-
+    public ConversionService getConversionService() {
+        return this.conversionService;
+    }
     protected TypeConverter getCustomTypeConverter() {
         return this.typeConverter;
+    }
+    @Override
+    public TypeConverter getTypeConverter() {
+        TypeConverter customConverter = getCustomTypeConverter();
+        if (customConverter != null) {
+            return customConverter;
+        }
+        else {
+            // Build default TypeConverter, registering custom editors.
+            SimpleTypeConverter typeConverter = new SimpleTypeConverter();
+            typeConverter.setConversionService(getConversionService());
+            registerCustomEditors(typeConverter);
+            return typeConverter;
+        }
     }
     //-----------------------------------------------------------------------------------
     // Implementation of HierarchicalBeanFactory interface结束
@@ -454,7 +475,43 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         }
         return beanName;
     }
-
+    protected void registerCustomEditors(PropertyEditorRegistry registry) {
+        PropertyEditorRegistrySupport registrySupport =
+                (registry instanceof PropertyEditorRegistrySupport ? (PropertyEditorRegistrySupport) registry : null);
+        if (registrySupport != null) {
+            registrySupport.useConfigValueEditors();
+        }
+        if (!this.propertyEditorRegistrars.isEmpty()) {
+            for (PropertyEditorRegistrar registrar : this.propertyEditorRegistrars) {
+                try {
+                    registrar.registerCustomEditors(registry);
+                }
+                catch (BeanCreationException ex) {
+                    Throwable rootCause = ex.getMostSpecificCause();
+                    if (rootCause instanceof BeanCurrentlyInCreationException) {
+                        BeanCreationException bce = (BeanCreationException) rootCause;
+                        if (isCurrentlyInCreation(bce.getBeanName())) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("PropertyEditorRegistrar [" + registrar.getClass().getName() +
+                                        "] failed because it tried to obtain currently created bean '" +
+                                        ex.getBeanName() + "': " + ex.getMessage());
+                            }
+                            onSuppressedException(ex);
+                            continue;
+                        }
+                    }
+                    throw ex;
+                }
+            }
+        }
+        if (!this.customEditors.isEmpty()) {
+            for (Map.Entry<Class<?>, Class<? extends PropertyEditor>> entry : this.customEditors.entrySet()) {
+                Class<?> requiredType = entry.getKey();
+                Class<? extends PropertyEditor> editorClass = entry.getValue();
+                registry.registerCustomEditor(requiredType, BeanUtils.instantiateClass(editorClass));
+            }
+        }
+    }
     /**
      * 初始化BeanWrapper,此处暂不处理
      * Initialize the given BeanWrapper with the custom editors registered
@@ -466,6 +523,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
      * @param bw the BeanWrapper to initialize
      */
     protected void initBeanWrapper(BeanWrapper bw) {
+        bw.setConversionService(getConversionService());
+        registerCustomEditors(bw);
     }
 
     protected RootBeanDefinition getMergedLocalBeanDefinition(String beanName) throws BeansException {
