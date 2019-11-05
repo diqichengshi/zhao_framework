@@ -28,8 +28,6 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
         this.autoGrowNestedPaths = autoGrowNestedPaths;
     }
 
-
-
     @Override
     public void setPropertyValues(PropertyValues pvs) throws BeansException {
         setPropertyValues(pvs, false, false);
@@ -82,7 +80,7 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
      * @throws PropertyAccessException  if the property was valid but the
      *                                  accessor method failed or a type mismatch occured
      */
-    @Override
-    public abstract void setPropertyValue(String propertyName, Object value) throws BeansException;
+   /* @Override
+    public abstract void setPropertyValue(String propertyName, Object value) throws BeansException;*/
 
 }
