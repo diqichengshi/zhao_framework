@@ -96,14 +96,22 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
      * @return the registered singleton object, or {@code null} if none found
      */
     protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+        // 获取bean
         Object singletonObject = this.singletonObjects.get(beanName);
+        //  如果该bean在创建中
         if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
             synchronized (this.singletonObjects) {
+                // 从提前曝光的集合中获取bean
                 singletonObject = this.earlySingletonObjects.get(beanName);
+                // 没找到,允许提前引用
                 if (singletonObject == null && allowEarlyReference) {
+                    // 获取factory
                     ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
                     if (singletonFactory != null) {
+                        // 通过factory获取bean
                         singletonObject = singletonFactory.getObject();
+                        // 从singletonFactories中移除,并放入earlySingletonObjects中,其实也就是从三级缓存移动到了二级缓存。
+                        // 提前曝光
                         this.earlySingletonObjects.put(beanName, singletonObject);
                         this.singletonFactories.remove(beanName);
                     }
@@ -130,7 +138,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
                 if (this.singletonsCurrentlyInDestruction) {
                     throw new BeanCreationNotAllowedException(beanName,
                             "Singleton bean creation not allowed while the singletons of this factory are in destruction " +
-                            "(Do not request a bean from a BeanFactory in a destroy method implementation!)");
+                                    "(Do not request a bean from a BeanFactory in a destroy method implementation!)");
                 }
                 if (logger.isDebugEnabled()) {
                     logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
