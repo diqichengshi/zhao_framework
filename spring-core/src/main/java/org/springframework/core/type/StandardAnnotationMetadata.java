@@ -39,7 +39,7 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
     @Override
     public Map<String, Object> getAnnotationAttributes(String annotationName) {
         return AnnotatedElementUtils.getMergedAnnotationAttributes(getIntrospectedClass(),
-                annotationName,false, this.nestedAnnotationsAsMap);
+                annotationName, false, this.nestedAnnotationsAsMap);
     }
 
     @Override
@@ -57,6 +57,7 @@ public class StandardAnnotationMetadata extends StandardClassMetadata implements
         return AnnotatedElementUtils.getAllAnnotationAttributes(getIntrospectedClass(),
                 annotationName, classValuesAsString, this.nestedAnnotationsAsMap);
     }
+
     @Override
     public boolean hasAnnotation(String annotationName) {
         Annotation[] anns = getIntrospectedClass().getAnnotations();

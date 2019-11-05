@@ -9,7 +9,7 @@ import org.springframework.beans.factory.config.BeanReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BeanComponentDefinition extends BeanDefinitionHolder  implements ComponentDefinition {
+public class BeanComponentDefinition extends BeanDefinitionHolder implements ComponentDefinition {
 
     private BeanDefinition[] innerBeanDefinitions;
 
@@ -29,11 +29,9 @@ public class BeanComponentDefinition extends BeanDefinitionHolder  implements Co
             Object value = propertyValue.getValue();
             if (value instanceof BeanDefinitionHolder) {
                 innerBeans.add(((BeanDefinitionHolder) value).getBeanDefinition());
-            }
-            else if (value instanceof BeanDefinition) {
+            } else if (value instanceof BeanDefinition) {
                 innerBeans.add((BeanDefinition) value);
-            }
-            else if (value instanceof BeanReference) {
+            } else if (value instanceof BeanReference) {
                 references.add((BeanReference) value);
             }
         }

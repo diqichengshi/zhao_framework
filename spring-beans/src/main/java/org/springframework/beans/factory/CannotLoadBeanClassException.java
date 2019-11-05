@@ -2,7 +2,7 @@ package org.springframework.beans.factory;
 
 import org.springframework.beans.exception.FatalBeanException;
 
-public class CannotLoadBeanClassException  extends FatalBeanException {
+public class CannotLoadBeanClassException extends FatalBeanException {
 
     private String resourceDescription;
 
@@ -13,11 +13,12 @@ public class CannotLoadBeanClassException  extends FatalBeanException {
 
     /**
      * Create a new CannotLoadBeanClassException.
+     *
      * @param resourceDescription description of the resource
-     * that the bean definition came from
-     * @param beanName the name of the bean requested
-     * @param beanClassName the name of the bean class
-     * @param cause the root cause
+     *                            that the bean definition came from
+     * @param beanName            the name of the bean requested
+     * @param beanClassName       the name of the bean class
+     * @param cause               the root cause
      */
     public CannotLoadBeanClassException(
             String resourceDescription, String beanName, String beanClassName, ClassNotFoundException cause) {
@@ -31,11 +32,12 @@ public class CannotLoadBeanClassException  extends FatalBeanException {
 
     /**
      * Create a new CannotLoadBeanClassException.
+     *
      * @param resourceDescription description of the resource
-     * that the bean definition came from
-     * @param beanName the name of the bean requested
-     * @param beanClassName the name of the bean class
-     * @param cause the root cause
+     *                            that the bean definition came from
+     * @param beanName            the name of the bean requested
+     * @param beanClassName       the name of the bean class
+     * @param cause               the root cause
      */
     public CannotLoadBeanClassException(
             String resourceDescription, String beanName, String beanClassName, LinkageError cause) {

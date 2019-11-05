@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader{
+public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
     /**
      * Indicates that the validation should be disabled.
      */
@@ -96,6 +96,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader{
 
     /**
      * Load bean definitions from the specified XML file.
+     *
      * @param resource the resource descriptor for the XML file
      * @return the number of bean definitions found
      * @throws BeanDefinitionStoreException in case of loading or parsing errors
@@ -104,10 +105,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader{
     public int loadBeanDefinitions(Resource resource) throws BeanDefinitionStoreException {
         return loadBeanDefinitions(new EncodedResource(resource));
     }
+
     /**
      * Load bean definitions from the specified XML file.
+     *
      * @param encodedResource the resource descriptor for the XML file,
-     * allowing to specify an encoding to use for parsing the file
+     *                        allowing to specify an encoding to use for parsing the file
      * @return the number of bean definitions found
      * @throws BeanDefinitionStoreException in case of loading or parsing errors
      */
@@ -135,16 +138,13 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader{
                 }
                 // TODO 真正加载XML的方法
                 return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
-            }
-            finally {
+            } finally {
                 inputStream.close();
             }
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new BeanDefinitionStoreException(
                     "IOException parsing XML document from " + encodedResource.getResource(), ex);
-        }
-        finally {
+        } finally {
             currentResources.remove(encodedResource);
             if (currentResources.isEmpty()) {
                 this.resourcesCurrentlyBeingLoaded.remove();
@@ -154,8 +154,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader{
 
     /**
      * Actually load bean definitions from the specified XML file.
+     *
      * @param inputSource the SAX InputSource to read from
-     * @param resource the resource descriptor for the XML file
+     * @param resource    the resource descriptor for the XML file
      * @return the number of bean definitions found
      * @throws BeanDefinitionStoreException in case of loading or parsing errors
      * @see #doLoadDocument
@@ -167,27 +168,21 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader{
             Document doc = doLoadDocument(inputSource, resource);
             // 注册BeanDefinitions
             return registerBeanDefinitions(doc, resource);
-        }
-        catch (BeanDefinitionStoreException ex) {
+        } catch (BeanDefinitionStoreException ex) {
             throw ex;
-        }
-        catch (SAXParseException ex) {
+        } catch (SAXParseException ex) {
             throw new XmlBeanDefinitionStoreException(resource.getDescription(),
                     "Line " + ex.getLineNumber() + " in XML document from " + resource + " is invalid", ex);
-        }
-        catch (SAXException ex) {
+        } catch (SAXException ex) {
             throw new XmlBeanDefinitionStoreException(resource.getDescription(),
                     "XML document from " + resource + " is invalid", ex);
-        }
-        catch (ParserConfigurationException ex) {
+        } catch (ParserConfigurationException ex) {
             throw new BeanDefinitionStoreException(resource.getDescription(),
                     "Parser configuration exception parsing XML from " + resource, ex);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new BeanDefinitionStoreException(resource.getDescription(),
                     "IOException parsing XML document from " + resource, ex);
-        }
-        catch (Throwable ex) {
+        } catch (Throwable ex) {
             throw new BeanDefinitionStoreException(resource.getDescription(),
                     "Unexpected exception parsing XML document from " + resource, ex);
         }
@@ -198,7 +193,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader{
      * Called by {@code loadBeanDefinitions}.
      * <p>Creates a new instance of the parser class and invokes
      * {@code registerBeanDefinitions} on it.
-     * @param doc the DOM document
+     *
+     * @param doc      the DOM document
      * @param resource the resource descriptor (for context information)
      * @return the number of bean definitions found
      * @throws BeanDefinitionStoreException in case of parsing errors
@@ -221,19 +217,23 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader{
         return new XmlReaderContext(resource, this.problemReporter, this.eventListener,
                 this.sourceExtractor, this, getNamespaceHandlerResolver());
     }
+
     public NamespaceHandlerResolver getNamespaceHandlerResolver() {
         if (this.namespaceHandlerResolver == null) {
             this.namespaceHandlerResolver = createDefaultNamespaceHandlerResolver();
         }
         return this.namespaceHandlerResolver;
     }
+
     protected NamespaceHandlerResolver createDefaultNamespaceHandlerResolver() {
         return new DefaultNamespaceHandlerResolver(getResourceLoader().getClassLoader());
     }
+
     /**
      * Actually load the specified document using the configured DocumentLoader.
+     *
      * @param inputSource the SAX InputSource to read from
-     * @param resource the resource descriptor for the XML file
+     * @param resource    the resource descriptor for the XML file
      * @return the DOM Document
      * @throws Exception when thrown from the DocumentLoader
      * @see #setDocumentLoader
@@ -243,6 +243,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader{
         return this.documentLoader.loadDocument(inputSource, getEntityResolver(), this.errorHandler,
                 getValidationModeForResource(resource), isNamespaceAware());
     }
+
     protected int getValidationModeForResource(Resource resource) {
         /*int validationModeToUse = getValidationMode();
         if (validationModeToUse != VALIDATION_AUTO) {
@@ -267,9 +268,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader{
     /*public void loadBeanDefinitions(String xmlPath) {
         this.xmlPath=xmlPath;
         *//*
-         * 使用dom4j技术读取xml文档
-         * 首先创建SAXReader对象
-         *//*
+     * 使用dom4j技术读取xml文档
+     * 首先创建SAXReader对象
+     *//*
         SAXReader reader = new SAXReader();
         try {
             //获取读取xml配置文件的输入流

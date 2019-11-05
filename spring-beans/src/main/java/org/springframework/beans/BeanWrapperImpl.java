@@ -24,6 +24,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
     public BeanWrapperImpl() {
         this(true);
     }
+
     public BeanWrapperImpl(Object beanInstance) {
         super(beanInstance); // typeConverterDelegate赋值
     }
@@ -51,7 +52,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
      * @return the new value, possibly the result of type conversion
      * @throws TypeMismatchException if type conversion failed
      */
-    public Object convertForProperty(Object value,String propertyName) throws TypeMismatchException {
+    public Object convertForProperty(Object value, String propertyName) throws TypeMismatchException {
         CachedIntrospectionResults cachedIntrospectionResults = getCachedIntrospectionResults();
         PropertyDescriptor pd = cachedIntrospectionResults.getPropertyDescriptor(propertyName);
         if (pd == null) {

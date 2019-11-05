@@ -14,7 +14,8 @@ public class NullValueInNestedPathException extends InvalidPropertyException {
 
     /**
      * Create a new NullValueInNestedPathException.
-     * @param beanClass the offending bean class
+     *
+     * @param beanClass    the offending bean class
      * @param propertyName the offending property
      */
     public NullValueInNestedPathException(Class<?> beanClass, String propertyName) {
@@ -23,9 +24,10 @@ public class NullValueInNestedPathException extends InvalidPropertyException {
 
     /**
      * Create a new NullValueInNestedPathException.
-     * @param beanClass the offending bean class
+     *
+     * @param beanClass    the offending bean class
      * @param propertyName the offending property
-     * @param msg the detail message
+     * @param msg          the detail message
      */
     public NullValueInNestedPathException(Class<?> beanClass, String propertyName, String msg) {
         super(beanClass, propertyName, msg);

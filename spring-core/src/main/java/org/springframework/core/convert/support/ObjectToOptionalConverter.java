@@ -37,53 +37,49 @@ import org.springframework.lang.UsesJava8;
 @UsesJava8
 final class ObjectToOptionalConverter implements ConditionalGenericConverter {
 
-	private final ConversionService conversionService;
+    private final ConversionService conversionService;
 
 
-	public ObjectToOptionalConverter(ConversionService conversionService) {
-		this.conversionService = conversionService;
-	}
+    public ObjectToOptionalConverter(ConversionService conversionService) {
+        this.conversionService = conversionService;
+    }
 
 
-	@Override
-	public Set<ConvertiblePair> getConvertibleTypes() {
-		return Collections.singleton(new ConvertiblePair(Object.class, Optional.class));
-	}
+    @Override
+    public Set<ConvertiblePair> getConvertibleTypes() {
+        return Collections.singleton(new ConvertiblePair(Object.class, Optional.class));
+    }
 
-	@Override
-	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (targetType.getResolvableType() != null) {
-			return this.conversionService.canConvert(sourceType, new GenericTypeDescriptor(targetType));
-		}
-		else {
-			return true;
-		}
-	}
+    @Override
+    public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+        if (targetType.getResolvableType() != null) {
+            return this.conversionService.canConvert(sourceType, new GenericTypeDescriptor(targetType));
+        } else {
+            return true;
+        }
+    }
 
-	@Override
-	public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (source == null) {
-			return Optional.empty();
-		}
-		else if (source instanceof Optional) {
-			return source;
-		}
-		else if (targetType.getResolvableType() == null) {
-			return Optional.of(source);
-		}
-		else {
-			Object target = this.conversionService.convert(source, sourceType, new GenericTypeDescriptor(targetType));
-			return Optional.ofNullable(target);
-		}
-	}
+    @Override
+    public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+        if (source == null) {
+            return Optional.empty();
+        } else if (source instanceof Optional) {
+            return source;
+        } else if (targetType.getResolvableType() == null) {
+            return Optional.of(source);
+        } else {
+            Object target = this.conversionService.convert(source, sourceType, new GenericTypeDescriptor(targetType));
+            return Optional.ofNullable(target);
+        }
+    }
 
 
-	@SuppressWarnings("serial")
-	private static class GenericTypeDescriptor extends TypeDescriptor {
+    @SuppressWarnings("serial")
+    private static class GenericTypeDescriptor extends TypeDescriptor {
 
-		public GenericTypeDescriptor(TypeDescriptor typeDescriptor) {
-			super(typeDescriptor.getResolvableType().getGeneric(0), null, typeDescriptor.getAnnotations());
-		}
-	}
+        public GenericTypeDescriptor(TypeDescriptor typeDescriptor) {
+            super(typeDescriptor.getResolvableType().getGeneric(0), null, typeDescriptor.getAnnotations());
+        }
+    }
 
 }

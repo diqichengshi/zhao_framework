@@ -20,6 +20,7 @@ public abstract class ResourcePatternUtils {
     /**
      * Return whether the given resource location is a URL: either a
      * special "classpath" or "classpath*" pseudo URL or a standard URL.
+     *
      * @param resourceLocation the location String to check
      * @return whether the location qualifies as a URL
      * @see ResourcePatternResolver#CLASSPATH_ALL_URL_PREFIX
@@ -38,8 +39,9 @@ public abstract class ResourcePatternUtils {
      * <p>This might be the ResourceLoader itself, if it implements the
      * ResourcePatternResolver extension, or a PathMatchingResourcePatternResolver
      * built on the given ResourceLoader.
+     *
      * @param resourceLoader the ResourceLoader to build a pattern resolver for
-     * (may be {@code null} to indicate a default ResourceLoader)
+     *                       (may be {@code null} to indicate a default ResourceLoader)
      * @return the ResourcePatternResolver
      * @see PathMatchingResourcePatternResolver
      */
@@ -47,11 +49,9 @@ public abstract class ResourcePatternUtils {
         Assert.notNull(resourceLoader, "ResourceLoader must not be null");
         if (resourceLoader instanceof ResourcePatternResolver) {
             return (ResourcePatternResolver) resourceLoader;
-        }
-        else if (resourceLoader != null) {
+        } else if (resourceLoader != null) {
             return new PathMatchingResourcePatternResolver(resourceLoader);
-        }
-        else {
+        } else {
             return new PathMatchingResourcePatternResolver();
         }
     }

@@ -11,6 +11,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
     /**
      * Constant that indicates no externally defined autowiring. Note that
      * BeanFactoryAware etc and annotation-driven injection will still be applied.
+     *
      * @see #createBean
      * @see #autowire
      * @see #autowireBeanProperties
@@ -20,6 +21,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
     /**
      * Constant that indicates autowiring bean properties by name
      * (applying to all bean property setters).
+     *
      * @see #createBean
      * @see #autowire
      * @see #autowireBeanProperties
@@ -29,6 +31,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
     /**
      * Constant that indicates autowiring bean properties by type
      * (applying to all bean property setters).
+     *
      * @see #createBean
      * @see #autowire
      * @see #autowireBeanProperties
@@ -38,6 +41,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
     /**
      * Constant that indicates autowiring the greediest constructor that
      * can be satisfied (involves resolving the appropriate constructor).
+     *
      * @see #createBean
      * @see #autowire
      */
@@ -46,6 +50,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
     /**
      * Constant that indicates determining an appropriate autowire strategy
      * through introspection of the bean class.
+     *
      * @see #createBean
      * @see #autowire
      * @deprecated as of Spring 3.0: If you are using mixed autowiring strategies,

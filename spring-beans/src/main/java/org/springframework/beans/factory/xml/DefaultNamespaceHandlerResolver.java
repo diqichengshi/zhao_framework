@@ -43,11 +43,9 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
         Object handlerOrClassName = handlerMappings.get(namespaceUri);
         if (handlerOrClassName == null) {
             return null;
-        }
-        else if (handlerOrClassName instanceof NamespaceHandler) {
+        } else if (handlerOrClassName instanceof NamespaceHandler) {
             return (NamespaceHandler) handlerOrClassName;
-        }
-        else {
+        } else {
             String className = (String) handlerOrClassName;
             try {
                 Class<?> handlerClass = ClassUtils.forName(className, this.classLoader);
@@ -59,12 +57,10 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
                 namespaceHandler.init();
                 handlerMappings.put(namespaceUri, namespaceHandler);
                 return namespaceHandler;
-            }
-            catch (ClassNotFoundException ex) {
+            } catch (ClassNotFoundException ex) {
                 throw new FatalBeanException("NamespaceHandler class [" + className + "] for namespace [" +
                         namespaceUri + "] not found", ex);
-            }
-            catch (LinkageError err) {
+            } catch (LinkageError err) {
                 throw new FatalBeanException("Invalid NamespaceHandler class [" + className + "] for namespace [" +
                         namespaceUri + "]: problem with handler class file or dependent class", err);
             }
@@ -84,8 +80,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
                         Map<String, Object> handlerMappings = new ConcurrentHashMap<String, Object>(mappings.size());
                         CollectionUtils.mergePropertiesIntoMap(mappings, handlerMappings);
                         this.handlerMappings = handlerMappings;
-                    }
-                    catch (IOException ex) {
+                    } catch (IOException ex) {
                         throw new IllegalStateException(
                                 "Unable to load NamespaceHandler mappings from location [" + this.handlerMappingsLocation + "]", ex);
                     }

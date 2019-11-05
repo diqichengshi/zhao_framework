@@ -38,6 +38,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
         this.targetType = original.targetType;
         this.isFactoryMethodUnique = original.isFactoryMethodUnique;
     }
+
     @Override
     public String getParentName() {
         return null;
@@ -49,6 +50,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
             throw new IllegalArgumentException("Root bean cannot be changed into a child bean with parent reference");
         }
     }
+
     @Override
     public RootBeanDefinition cloneBeanDefinition() {
         return new RootBeanDefinition(this);

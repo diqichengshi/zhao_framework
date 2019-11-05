@@ -15,6 +15,7 @@ public class GenericBeanDefinition extends AbstractBeanDefinition implements Bea
     /**
      * Create a new GenericBeanDefinition, to be configured through its bean
      * properties and configuration methods.
+     *
      * @see #setBeanClass
      * @see #setBeanClassName
      * @see #setScope
@@ -30,6 +31,7 @@ public class GenericBeanDefinition extends AbstractBeanDefinition implements Bea
     /**
      * Create a new GenericBeanDefinition as deep copy of the given
      * bean definition.
+     *
      * @param original the original bean definition to copy from
      */
     public GenericBeanDefinition(BeanDefinition original) {

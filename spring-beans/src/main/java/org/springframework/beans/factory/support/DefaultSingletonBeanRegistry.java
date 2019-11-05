@@ -96,7 +96,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
      * if necessary.
      * <p>To be called for eager registration of singletons, e.g. to be able to
      * resolve circular references.
-     * @param beanName the name of the bean
+     *
+     * @param beanName         the name of the bean
      * @param singletonFactory the factory for the singleton object
      */
     protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
@@ -252,6 +253,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
         }
         return StringUtils.toStringArray(dependentBeans);
     }
+
     /**
      * 确定指定的依赖bean是否已注册为
      * 依赖于给定的bean或其任何可传递依赖项。

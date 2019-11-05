@@ -2,11 +2,12 @@ package org.springframework.context;
 
 import org.springframework.beans.exception.FatalBeanException;
 
-public class ApplicationContextException  extends FatalBeanException {
+public class ApplicationContextException extends FatalBeanException {
 
     /**
      * Create a new {@code ApplicationContextException}
      * with the specified detail message and no root cause.
+     *
      * @param msg the detail message
      */
     public ApplicationContextException(String msg) {
@@ -16,7 +17,8 @@ public class ApplicationContextException  extends FatalBeanException {
     /**
      * Create a new {@code ApplicationContextException}
      * with the specified detail message and the given root cause.
-     * @param msg the detail message
+     *
+     * @param msg   the detail message
      * @param cause the root cause
      */
     public ApplicationContextException(String msg, Throwable cause) {

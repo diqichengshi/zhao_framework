@@ -31,9 +31,9 @@ import org.springframework.util.StringUtils;
 @UsesJava8
 class StringToTimeZoneConverter implements Converter<String, TimeZone> {
 
-	@Override
-	public TimeZone convert(String source) {
-		return StringUtils.parseTimeZoneString(source);
-	}
+    @Override
+    public TimeZone convert(String source) {
+        return StringUtils.parseTimeZoneString(source);
+    }
 
 }

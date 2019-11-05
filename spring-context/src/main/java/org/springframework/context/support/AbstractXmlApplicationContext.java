@@ -9,7 +9,7 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 
-public abstract class AbstractXmlApplicationContext extends AbstractRefreshableConfigApplicationContext{
+public abstract class AbstractXmlApplicationContext extends AbstractRefreshableConfigApplicationContext {
 
     public AbstractXmlApplicationContext() {
     }
@@ -17,9 +17,10 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
     public AbstractXmlApplicationContext(ApplicationContext parent) {
         super(parent);
     }
+
     @Override
     protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
-        XmlBeanDefinitionReader beanDefinitionReader=new XmlBeanDefinitionReader(beanFactory);
+        XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
 
         // Configure the bean definition reader with this context's
         // resource loading environment.
@@ -31,16 +32,19 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
         initBeanDefinitionReader(beanDefinitionReader);
         loadBeanDefinitions(beanDefinitionReader);
     }
+
     protected void initBeanDefinitionReader(XmlBeanDefinitionReader reader) {
         // reader.setValidating(this.validating);
     }
+
     /**
      * Load the bean definitions with the given XmlBeanDefinitionReader.
      * <p>The lifecycle of the bean factory is handled by the {@link #refreshBeanFactory}
      * method; hence this method is just supposed to load and/or register bean definitions.
+     *
      * @param reader the XmlBeanDefinitionReader to use
      * @throws BeansException in case of bean registration errors
-     * @throws IOException if the required XML document isn't found
+     * @throws IOException    if the required XML document isn't found
      * @see #refreshBeanFactory
      * @see #getConfigLocations
      * @see #getResources

@@ -15,6 +15,7 @@ public class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
 
     /**
      * Determine the type for the given FactoryBean.
+     *
      * @param factoryBean the FactoryBean instance to check
      * @return the FactoryBean's object type,
      * or {@code null} if the type cannot be determined yet
@@ -22,14 +23,14 @@ public class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
     protected Class<?> getTypeForFactoryBean(final FactoryBean<?> factoryBean) {
         try {
             return factoryBean.getObjectType();
-        }
-        catch (Throwable ex) {
+        } catch (Throwable ex) {
             // Thrown from the FactoryBean's getObjectType implementation.
             logger.warn("FactoryBean threw exception from getObjectType, despite the contract saying " +
                     "that it should return null if the type of its object cannot be determined yet", ex);
             return null;
         }
     }
+
     protected Object getCachedObjectForFactoryBean(String beanName) {
         Object object = this.factoryBeanObjectCache.get(beanName);
         return (object != NULL_OBJECT ? object : null);

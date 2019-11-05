@@ -55,112 +55,110 @@ import org.springframework.util.ReflectionUtils;
  * @author Keith Donald
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 3.0
  * @see FallbackObjectToStringConverter
+ * @since 3.0
  */
 final class ObjectToObjectConverter implements ConditionalGenericConverter {
 
-	@Override
-	public Set<ConvertiblePair> getConvertibleTypes() {
-		return Collections.singleton(new ConvertiblePair(Object.class, Object.class));
-	}
+    @Override
+    public Set<ConvertiblePair> getConvertibleTypes() {
+        return Collections.singleton(new ConvertiblePair(Object.class, Object.class));
+    }
 
-	@Override
-	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (sourceType.getType().equals(targetType.getType())) {
-			// no conversion required
-			return false;
-		}
-		return (String.class == targetType.getType() ?
-				hasFactoryConstructor(String.class, sourceType.getType()) :
-				hasToMethodOrFactoryMethodOrConstructor(targetType.getType(), sourceType.getType()));
-	}
+    @Override
+    public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+        if (sourceType.getType().equals(targetType.getType())) {
+            // no conversion required
+            return false;
+        }
+        return (String.class == targetType.getType() ?
+                hasFactoryConstructor(String.class, sourceType.getType()) :
+                hasToMethodOrFactoryMethodOrConstructor(targetType.getType(), sourceType.getType()));
+    }
 
-	@Override
-	public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (source == null) {
-			return null;
-		}
-		Class<?> sourceClass = sourceType.getType();
-		Class<?> targetClass = targetType.getType();
-		try {
-			// Do not invoke a toString() method
-			if (String.class != targetClass) {
-				Method method = getToMethod(targetClass, sourceClass);
-				if (method != null) {
-					ReflectionUtils.makeAccessible(method);
-					return method.invoke(source);
-				}
-			}
+    @Override
+    public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+        if (source == null) {
+            return null;
+        }
+        Class<?> sourceClass = sourceType.getType();
+        Class<?> targetClass = targetType.getType();
+        try {
+            // Do not invoke a toString() method
+            if (String.class != targetClass) {
+                Method method = getToMethod(targetClass, sourceClass);
+                if (method != null) {
+                    ReflectionUtils.makeAccessible(method);
+                    return method.invoke(source);
+                }
+            }
 
-			Method method = getFactoryMethod(targetClass, sourceClass);
-			if (method != null) {
-				ReflectionUtils.makeAccessible(method);
-				return method.invoke(null, source);
-			}
+            Method method = getFactoryMethod(targetClass, sourceClass);
+            if (method != null) {
+                ReflectionUtils.makeAccessible(method);
+                return method.invoke(null, source);
+            }
 
-			Constructor<?> constructor = getFactoryConstructor(targetClass, sourceClass);
-			if (constructor != null) {
-				return constructor.newInstance(source);
-			}
-		}
-		catch (InvocationTargetException ex) {
-			throw new ConversionFailedException(sourceType, targetType, source, ex.getTargetException());
-		}
-		catch (Throwable ex) {
-			throw new ConversionFailedException(sourceType, targetType, source, ex);
-		}
+            Constructor<?> constructor = getFactoryConstructor(targetClass, sourceClass);
+            if (constructor != null) {
+                return constructor.newInstance(source);
+            }
+        } catch (InvocationTargetException ex) {
+            throw new ConversionFailedException(sourceType, targetType, source, ex.getTargetException());
+        } catch (Throwable ex) {
+            throw new ConversionFailedException(sourceType, targetType, source, ex);
+        }
 
-		// If sourceClass is Number and targetClass is Integer, then the following message
-		// format should expand to:
-		// No toInteger() method exists on java.lang.Number, and no static
-		// valueOf/of/from(java.lang.Number) method or Integer(java.lang.Number)
-		// constructor exists on java.lang.Integer.
-		String message = String.format(
-			"No to%3$s() method exists on %1$s, and no static valueOf/of/from(%1$s) method or %3$s(%1$s) constructor exists on %2$s.",
-			sourceClass.getName(), targetClass.getName(), targetClass.getSimpleName());
+        // If sourceClass is Number and targetClass is Integer, then the following message
+        // format should expand to:
+        // No toInteger() method exists on java.lang.Number, and no static
+        // valueOf/of/from(java.lang.Number) method or Integer(java.lang.Number)
+        // constructor exists on java.lang.Integer.
+        String message = String.format(
+                "No to%3$s() method exists on %1$s, and no static valueOf/of/from(%1$s) method or %3$s(%1$s) constructor exists on %2$s.",
+                sourceClass.getName(), targetClass.getName(), targetClass.getSimpleName());
 
-		throw new IllegalStateException(message);
-	}
+        throw new IllegalStateException(message);
+    }
 
 
-	private static Method getToMethod(Class<?> targetClass, Class<?> sourceClass) {
-		Method method = ClassUtils.getMethodIfAvailable(sourceClass, "to" + targetClass.getSimpleName());
-		return (method != null && targetClass.equals(method.getReturnType()) ? method : null);
-	}
+    private static Method getToMethod(Class<?> targetClass, Class<?> sourceClass) {
+        Method method = ClassUtils.getMethodIfAvailable(sourceClass, "to" + targetClass.getSimpleName());
+        return (method != null && targetClass.equals(method.getReturnType()) ? method : null);
+    }
 
-	private static Method getFactoryMethod(Class<?> targetClass, Class<?> sourceClass) {
-		Method method = ClassUtils.getStaticMethod(targetClass, "valueOf", sourceClass);
-		if (method == null) {
-			method = ClassUtils.getStaticMethod(targetClass, "of", sourceClass);
-			if (method == null) {
-				method = ClassUtils.getStaticMethod(targetClass, "from", sourceClass);
-			}
-		}
-		return method;
-	}
+    private static Method getFactoryMethod(Class<?> targetClass, Class<?> sourceClass) {
+        Method method = ClassUtils.getStaticMethod(targetClass, "valueOf", sourceClass);
+        if (method == null) {
+            method = ClassUtils.getStaticMethod(targetClass, "of", sourceClass);
+            if (method == null) {
+                method = ClassUtils.getStaticMethod(targetClass, "from", sourceClass);
+            }
+        }
+        return method;
+    }
 
-	private static Constructor<?> getFactoryConstructor(Class<?> targetClass, Class<?> sourceClass) {
-		return ClassUtils.getConstructorIfAvailable(targetClass, sourceClass);
-	}
+    private static Constructor<?> getFactoryConstructor(Class<?> targetClass, Class<?> sourceClass) {
+        return ClassUtils.getConstructorIfAvailable(targetClass, sourceClass);
+    }
 
-	private static boolean hasToMethodOrFactoryMethodOrConstructor(Class<?> targetClass,
-			Class<?> sourceClass) {
-		return (hasToMethod(targetClass, sourceClass) ||
-				hasFactoryMethod(targetClass, sourceClass) ||
-				hasFactoryConstructor(targetClass, sourceClass));
-	}
+    private static boolean hasToMethodOrFactoryMethodOrConstructor(Class<?> targetClass,
+                                                                   Class<?> sourceClass) {
+        return (hasToMethod(targetClass, sourceClass) ||
+                hasFactoryMethod(targetClass, sourceClass) ||
+                hasFactoryConstructor(targetClass, sourceClass));
+    }
 
-	static boolean hasToMethod(Class<?> targetClass, Class<?> sourceClass) {
-		return getToMethod(targetClass, sourceClass) != null;
-	}
+    static boolean hasToMethod(Class<?> targetClass, Class<?> sourceClass) {
+        return getToMethod(targetClass, sourceClass) != null;
+    }
 
-	static boolean hasFactoryMethod(Class<?> targetClass, Class<?> sourceClass) {
-		return getFactoryMethod(targetClass, sourceClass) != null;
-	}
+    static boolean hasFactoryMethod(Class<?> targetClass, Class<?> sourceClass) {
+        return getFactoryMethod(targetClass, sourceClass) != null;
+    }
 
-	static boolean hasFactoryConstructor(Class<?> targetClass, Class<?> sourceClass) {
-		return getFactoryConstructor(targetClass, sourceClass) != null;
-	}
+    static boolean hasFactoryConstructor(Class<?> targetClass, Class<?> sourceClass) {
+        return getFactoryConstructor(targetClass, sourceClass) != null;
+    }
 
 }

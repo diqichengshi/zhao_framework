@@ -24,6 +24,7 @@ public class ParserContext {
     public final BeanDefinitionParserDelegate getDelegate() {
         return this.delegate;
     }
+
     public Object extractSource(Object sourceCandidate) {
         return this.readerContext.extractSource(sourceCandidate);
     }

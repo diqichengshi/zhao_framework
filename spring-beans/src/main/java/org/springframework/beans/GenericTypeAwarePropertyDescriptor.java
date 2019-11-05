@@ -35,7 +35,7 @@ public class GenericTypeAwarePropertyDescriptor extends PropertyDescriptor {
 
         super(propertyName, null, null);
 
-        if (beanClass == null)  {
+        if (beanClass == null) {
             throw new IntrospectionException("Bean class must not be null");
         }
         this.beanClass = beanClass;
@@ -78,8 +78,7 @@ public class GenericTypeAwarePropertyDescriptor extends PropertyDescriptor {
 
         if (this.readMethod != null) {
             this.propertyType = GenericTypeResolver.resolveReturnType(this.readMethod, this.beanClass);
-        }
-        else if (this.writeMethodParameter != null) {
+        } else if (this.writeMethodParameter != null) {
             this.propertyType = this.writeMethodParameter.getParameterType();
         }
 

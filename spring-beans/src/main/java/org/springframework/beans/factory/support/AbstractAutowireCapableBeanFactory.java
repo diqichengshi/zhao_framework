@@ -186,8 +186,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             if (earlySingletonReference != null) {
                 if (exposedObject == bean) {
                     exposedObject = earlySingletonReference;
-                }
-                else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
+                } else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
                     String[] dependentBeans = getDependentBeans(beanName);
                     Set<String> actualDependentBeans = new LinkedHashSet<String>(dependentBeans.length);
                     for (String dependentBean : dependentBeans) {

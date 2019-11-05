@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class NamespaceHandlerSupport implements NamespaceHandler{
+public abstract class NamespaceHandlerSupport implements NamespaceHandler {
     private final Map<String, BeanDefinitionParser> parsers =
             new HashMap<String, BeanDefinitionParser>();
 
@@ -18,6 +18,7 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler{
 
     private final Map<String, BeanDefinitionDecorator> attributeDecorators =
             new HashMap<String, BeanDefinitionDecorator>();
+
     protected final void registerBeanDefinitionParser(String elementName, BeanDefinitionParser parser) {
         this.parsers.put(elementName, parser);
     }
@@ -59,11 +60,9 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler{
         String localName = parserContext.getDelegate().getLocalName(node);
         if (node instanceof Element) {
             decorator = this.decorators.get(localName);
-        }
-        else if (node instanceof Attr) {
+        } else if (node instanceof Attr) {
             decorator = this.attributeDecorators.get(localName);
-        }
-        else {
+        } else {
             parserContext.getReaderContext().fatal(
                     "Cannot decorate based on Nodes of type [" + node.getClass().getName() + "]", node);
         }

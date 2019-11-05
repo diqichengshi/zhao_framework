@@ -1,4 +1,5 @@
 package org.springframework.beans.factory.xml;
+
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
@@ -43,8 +44,7 @@ public class BeansDtdResolver implements EntityResolver {
                         logger.debug("Found beans DTD [" + systemId + "] in classpath: " + dtdFile);
                     }
                     return source;
-                }
-                catch (IOException ex) {
+                } catch (IOException ex) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Could not resolve beans DTD [" + systemId + "]: not found in classpath", ex);
                     }

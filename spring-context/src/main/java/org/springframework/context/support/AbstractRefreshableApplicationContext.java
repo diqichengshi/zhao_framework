@@ -19,11 +19,13 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 
     /**
      * Create a new AbstractRefreshableApplicationContext with the given parent context.
+     *
      * @param parent the parent context
      */
     public AbstractRefreshableApplicationContext(ApplicationContext parent) {
         super(parent);
     }
+
     @Override
     public ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException {
         return this.beanFactory;
@@ -41,19 +43,21 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
             synchronized (this.beanFactoryMonitor) {
                 this.beanFactory = beanFactory;
             }
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new ApplicationContextException("I/O error parsing bean definition source for " + getDisplayName(), ex);
         }
     }
+
     protected DefaultListableBeanFactory createBeanFactory() {
         return new DefaultListableBeanFactory();
     }
+
     protected final void closeBeanFactory() {
         synchronized (this.beanFactoryMonitor) {
             this.beanFactory = null;
         }
     }
+
     protected final boolean hasBeanFactory() {
         synchronized (this.beanFactoryMonitor) {
             return (this.beanFactory != null);
@@ -61,19 +65,19 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
     }
 
 
-
     @Override
     public boolean isTypeMatch(String name, Class<?> typeToMatch) {
-        return beanFactory.isTypeMatch(name,typeToMatch);
+        return beanFactory.isTypeMatch(name, typeToMatch);
     }
 
 
     /**
      * Load bean definitions into the given bean factory, typically through
      * delegating to one or more bean definition readers.
+     *
      * @param beanFactory the bean factory to load bean definitions into
      * @throws BeansException if parsing of the bean definitions failed
-     * @throws IOException if loading of bean definition files failed
+     * @throws IOException    if loading of bean definition files failed
      * @see org.springframework.beans.factory.support.PropertiesBeanDefinitionReader
      * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
      */

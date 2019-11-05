@@ -102,6 +102,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     /**
      * Create a new AbstractBeanDefinition as a deep copy of the given
      * bean definition.
+     *
      * @param original the original bean definition to copy from
      */
     protected AbstractBeanDefinition(BeanDefinition original) {
@@ -138,8 +139,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
             setMethodOverrides(new MethodOverrides(originalAbd.getMethodOverrides()));
             setSynthetic(originalAbd.isSynthetic());
             setResource(originalAbd.getResource());
-        }
-        else {
+        } else {
             setResourceDescription(original.getResourceDescription());
         }
     }
@@ -206,14 +206,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
             getMethodOverrides().addOverrides(otherAbd.getMethodOverrides());
             setSynthetic(otherAbd.isSynthetic());
             setResource(otherAbd.getResource());
-        }
-        else {
+        } else {
             setResourceDescription(other.getResourceDescription());
         }
     }
 
     /**
      * Apply the provided default values to this bean.
+     *
      * @param defaults the defaults to apply
      */
     public void applyDefaults(BeanDefinitionDefaults defaults) {
@@ -243,9 +243,10 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
     /**
      * Return the class of the wrapped bean, if already resolved.
+     *
      * @return the bean class, or {@code null} if none defined
      * @throws IllegalStateException if the bean definition does not define a bean class,
-     * or a specified bean class name has not been resolved into an actual Class
+     *                               or a specified bean class name has not been resolved into an actual Class
      */
     public Class<?> getBeanClass() throws IllegalStateException {
         Object beanClassObject = this.beanClass;
@@ -269,8 +270,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
         Object beanClassObject = this.beanClass;
         if (beanClassObject instanceof Class) {
             return ((Class<?>) beanClassObject).getName();
-        }
-        else {
+        } else {
             return (String) beanClassObject;
         }
     }
@@ -279,6 +279,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
      * Determine the class of the wrapped bean, resolving it from a
      * specified class name if necessary. Will also reload a specified
      * Class from its name when called with the bean class already resolved.
+     *
      * @param classLoader the ClassLoader to use for resolving a (potential) class name
      * @return the resolved bean class
      * @throws ClassNotFoundException if the class name could be resolved
@@ -301,6 +302,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
      * definition may eventually inherit its scope from a parent bean definition.
      * For this reason, the default scope name is an empty string (i.e., {@code ""}),
      * with singleton status being assumed until a resolved scope is set.
+     *
      * @see #SCOPE_SINGLETON
      * @see #SCOPE_PROTOTYPE
      */
@@ -320,6 +322,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     /**
      * Return whether this a <b>Singleton</b>, with a single shared instance
      * returned from all calls.
+     *
      * @see #SCOPE_SINGLETON
      */
     @Override
@@ -330,6 +333,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     /**
      * Return whether this a <b>Prototype</b>, with an independent instance
      * returned for each call.
+     *
      * @see #SCOPE_PROTOTYPE
      */
     @Override
@@ -380,8 +384,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
      * Set the autowire mode. This determines whether any automagical detection
      * and setting of bean references will happen. Default is AUTOWIRE_NO,
      * which means there's no autowire.
+     *
      * @param autowireMode the autowire mode to set.
-     * Must be one of the constants defined in this class.
+     *                     Must be one of the constants defined in this class.
      * @see #AUTOWIRE_NO
      * @see #AUTOWIRE_BY_NAME
      * @see #AUTOWIRE_BY_TYPE
@@ -402,6 +407,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     /**
      * Return the resolved autowire code,
      * (resolving AUTOWIRE_AUTODETECT to AUTOWIRE_CONSTRUCTOR or AUTOWIRE_BY_TYPE).
+     *
      * @see #AUTOWIRE_AUTODETECT
      * @see #AUTOWIRE_CONSTRUCTOR
      * @see #AUTOWIRE_BY_TYPE
@@ -418,16 +424,16 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
                 }
             }
             return AUTOWIRE_CONSTRUCTOR;
-        }
-        else {
+        } else {
             return this.autowireMode;
         }
     }
 
     /**
      * Set the dependency check code.
+     *
      * @param dependencyCheck the code to set.
-     * Must be one of the four constants defined in this class.
+     *                        Must be one of the four constants defined in this class.
      * @see #DEPENDENCY_CHECK_NONE
      * @see #DEPENDENCY_CHECK_OBJECTS
      * @see #DEPENDENCY_CHECK_SIMPLE
@@ -673,6 +679,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     /**
      * Specify whether or not the configured init method is the default.
      * Default value is {@code false}.
+     *
      * @see #setInitMethodName
      */
     public void setEnforceInitMethod(boolean enforceInitMethod) {
@@ -681,6 +688,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
     /**
      * Indicate whether the configured init method is the default.
+     *
      * @see #getInitMethodName()
      */
     public boolean isEnforceInitMethod() {
@@ -705,6 +713,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     /**
      * Specify whether or not the configured destroy method is the default.
      * Default value is {@code false}.
+     *
      * @see #setDestroyMethodName
      */
     public void setEnforceDestroyMethod(boolean enforceDestroyMethod) {
@@ -713,6 +722,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
     /**
      * Indicate whether the configured destroy method is the default.
+     *
      * @see #getDestroyMethodName
      */
     public boolean isEnforceDestroyMethod() {
@@ -808,6 +818,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
     /**
      * Validate this bean definition.
+     *
      * @throws BeanDefinitionValidationException in case of validation failure
      */
     public void validate() throws BeanDefinitionValidationException {
@@ -825,6 +836,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     /**
      * Validate and prepare the method overrides defined for this bean.
      * Checks for existence of a method with the specified name.
+     *
      * @throws BeanDefinitionValidationException in case of validation failure
      */
     public void prepareMethodOverrides() throws BeanDefinitionValidationException {
@@ -841,6 +853,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
      * Validate and prepare the given method override.
      * Checks for existence of a method with the specified name,
      * marking it as not overloaded if none found.
+     *
      * @param mo the MethodOverride object to validate
      * @throws BeanDefinitionValidationException in case of validation failure
      */
@@ -850,8 +863,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
             throw new BeanDefinitionValidationException(
                     "Invalid method override: no method with name '" + mo.getMethodName() +
                             "' on class [" + getBeanClassName() + "]");
-        }
-        else if (count == 1) {
+        } else if (count == 1) {
             // Mark override as not overloaded, to avoid the overhead of arg type checking.
             mo.setOverloaded(false);
         }
@@ -861,6 +873,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     /**
      * Public declaration of Object's {@code clone()} method.
      * Delegates to {@link #cloneBeanDefinition()}.
+     *
      * @see Object#clone()
      */
     @Override
@@ -871,6 +884,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     /**
      * Clone this bean definition.
      * To be implemented by concrete subclasses.
+     *
      * @return the cloned bean definition object
      */
     public abstract AbstractBeanDefinition cloneBeanDefinition();

@@ -14,6 +14,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
     int ROLE_APPLICATION = 0;
     int ROLE_SUPPORT = 1;
     int ROLE_INFRASTRUCTURE = 2;
+
     /**
      * Return the name of the parent definition of this bean definition, if any.
      */
@@ -60,8 +61,9 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
      * constructor arguments, or with no arguments if none are specified.
      * The method will be invoked on the specified factory bean, if any,
      * or otherwise as a static method on the local bean class.
+     *
      * @param factoryMethodName static factory method name,
-     * or {@code null} if normal constructor creation should be used
+     *                          or {@code null} if normal constructor creation should be used
      * @see #getBeanClassName()
      */
     void setFactoryMethodName(String factoryMethodName);
@@ -74,6 +76,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
     /**
      * Override the target scope of this bean, specifying a new scope name.
+     *
      * @see #SCOPE_SINGLETON
      * @see #SCOPE_PROTOTYPE
      */
@@ -131,6 +134,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
     /**
      * Return the constructor argument values for this bean.
      * <p>The returned instance can be modified during bean factory post-processing.
+     *
      * @return the ConstructorArgumentValues object (never {@code null})
      */
     ConstructorArgumentValues getConstructorArgumentValues();
@@ -138,6 +142,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
     /**
      * Return the property values to be applied to a new instance of the bean.
      * <p>The returned instance can be modified during bean factory post-processing.
+     *
      * @return the MutablePropertyValues object (never {@code null})
      */
     MutablePropertyValues getPropertyValues();
@@ -146,6 +151,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
     /**
      * Return whether this a <b>Singleton</b>, with a single, shared instance
      * returned on all calls.
+     *
      * @see #SCOPE_SINGLETON
      */
     boolean isSingleton();
@@ -153,6 +159,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
     /**
      * Return whether this a <b>Prototype</b>, with an independent instance
      * returned for each call.
+     *
      * @see #SCOPE_PROTOTYPE
      */
     boolean isPrototype();
@@ -166,6 +173,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
      * Get the role hint for this {@code BeanDefinition}. The role hint
      * provides the frameworks as well as tools with an indication of
      * the role and importance of a particular {@code BeanDefinition}.
+     *
      * @see #ROLE_APPLICATION
      * @see #ROLE_SUPPORT
      * @see #ROLE_INFRASTRUCTURE

@@ -33,15 +33,15 @@ import org.springframework.lang.UsesJava8;
  * {@link java.util.Date#from(java.time.Instant)} and {@link java.util.Date#toInstant()}.
  *
  * @author Juergen Hoeller
- * @since 4.0.1
  * @see GregorianCalendar#from(ZonedDateTime)
+ * @since 4.0.1
  */
 @UsesJava8
 final class ZonedDateTimeToCalendarConverter implements Converter<ZonedDateTime, Calendar> {
 
-	@Override
-	public Calendar convert(ZonedDateTime source) {
-		return GregorianCalendar.from(source);
-	}
+    @Override
+    public Calendar convert(ZonedDateTime source) {
+        return GregorianCalendar.from(source);
+    }
 
 }

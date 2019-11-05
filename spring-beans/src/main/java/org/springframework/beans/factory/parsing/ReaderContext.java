@@ -16,7 +16,7 @@ public class ReaderContext {
 
 
     public ReaderContext(Resource resource, ProblemReporter problemReporter
-                        ,ReaderEventListener eventListener, SourceExtractor sourceExtractor) {
+            , ReaderEventListener eventListener, SourceExtractor sourceExtractor) {
 
         this.resource = resource;
         this.problemReporter = problemReporter;
@@ -80,7 +80,7 @@ public class ReaderContext {
         this.problemReporter.warning(new Problem(message, location, parseState, cause));
     }
 
-   public void fireDefaultsRegistered(DefaultsDefinition defaultsDefinition) {
+    public void fireDefaultsRegistered(DefaultsDefinition defaultsDefinition) {
         this.eventListener.defaultsRegistered(defaultsDefinition);
     }
 

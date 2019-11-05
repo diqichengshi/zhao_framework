@@ -24,46 +24,47 @@ import java.util.regex.Pattern;
  * Expects the same syntax as Pattern's {@code compile} method.
  *
  * @author Juergen Hoeller
- * @since 2.0.1
  * @see Pattern
  * @see Pattern#compile(String)
+ * @since 2.0.1
  */
 public class PatternEditor extends PropertyEditorSupport {
 
-	private final int flags;
+    private final int flags;
 
 
-	/**
-	 * Create a new PatternEditor with default settings.
-	 */
-	public PatternEditor() {
-		this.flags = 0;
-	}
+    /**
+     * Create a new PatternEditor with default settings.
+     */
+    public PatternEditor() {
+        this.flags = 0;
+    }
 
-	/**
-	 * Create a new PatternEditor with the given settings.
-	 * @param flags the {@code java.util.regex.Pattern} flags to apply
-	 * @see Pattern#compile(String, int)
-	 * @see Pattern#CASE_INSENSITIVE
-	 * @see Pattern#MULTILINE
-	 * @see Pattern#DOTALL
-	 * @see Pattern#UNICODE_CASE
-	 * @see Pattern#CANON_EQ
-	 */
-	public PatternEditor(int flags) {
-		this.flags = flags;
-	}
+    /**
+     * Create a new PatternEditor with the given settings.
+     *
+     * @param flags the {@code java.util.regex.Pattern} flags to apply
+     * @see Pattern#compile(String, int)
+     * @see Pattern#CASE_INSENSITIVE
+     * @see Pattern#MULTILINE
+     * @see Pattern#DOTALL
+     * @see Pattern#UNICODE_CASE
+     * @see Pattern#CANON_EQ
+     */
+    public PatternEditor(int flags) {
+        this.flags = flags;
+    }
 
 
-	@Override
-	public void setAsText(String text) {
-		setValue(text != null ? Pattern.compile(text, this.flags) : null);
-	}
+    @Override
+    public void setAsText(String text) {
+        setValue(text != null ? Pattern.compile(text, this.flags) : null);
+    }
 
-	@Override
-	public String getAsText() {
-		Pattern value = (Pattern) getValue();
-		return (value != null ? value.pattern() : "");
-	}
+    @Override
+    public String getAsText() {
+        Pattern value = (Pattern) getValue();
+        return (value != null ? value.pattern() : "");
+    }
 
 }

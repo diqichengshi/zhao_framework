@@ -26,22 +26,22 @@ import org.springframework.lang.UsesJava8;
  * objects. Exposes the {@code TimeZone} ID as a text representation.
  *
  * @author Nicholas Williams
- * @since 4.0
  * @see ZoneId
  * @see TimeZoneEditor
+ * @since 4.0
  */
 @UsesJava8
 public class ZoneIdEditor extends PropertyEditorSupport {
 
-	@Override
-	public void setAsText(String text) throws IllegalArgumentException {
-		setValue(ZoneId.of(text));
-	}
+    @Override
+    public void setAsText(String text) throws IllegalArgumentException {
+        setValue(ZoneId.of(text));
+    }
 
-	@Override
-	public String getAsText() {
-		ZoneId value = (ZoneId) getValue();
-		return (value != null ? value.getId() : "");
-	}
+    @Override
+    public String getAsText() {
+        ZoneId value = (ZoneId) getValue();
+        return (value != null ? value.getId() : "");
+    }
 
 }

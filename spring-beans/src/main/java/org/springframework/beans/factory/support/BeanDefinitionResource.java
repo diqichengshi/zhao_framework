@@ -8,13 +8,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class BeanDefinitionResource  extends AbstractResource {
+public class BeanDefinitionResource extends AbstractResource {
 
     private final BeanDefinition beanDefinition;
 
 
     /**
      * Create a new BeanDefinitionResource.
+     *
      * @param beanDefinition the BeanDefinition objectto wrap
      */
     public BeanDefinitionResource(BeanDefinition beanDefinition) {

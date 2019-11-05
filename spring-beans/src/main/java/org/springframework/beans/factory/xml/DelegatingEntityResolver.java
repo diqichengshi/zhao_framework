@@ -9,10 +9,14 @@ import java.io.IOException;
 
 public class DelegatingEntityResolver implements EntityResolver {
 
-    /** Suffix for DTD files */
+    /**
+     * Suffix for DTD files
+     */
     public static final String DTD_SUFFIX = ".dtd";
 
-    /** Suffix for schema definition files */
+    /**
+     * Suffix for schema definition files
+     */
     public static final String XSD_SUFFIX = ".xsd";
 
 
@@ -26,8 +30,9 @@ public class DelegatingEntityResolver implements EntityResolver {
      * a default {@link BeansDtdResolver} and a default {@link PluggableSchemaResolver}.
      * <p>Configures the {@link PluggableSchemaResolver} with the supplied
      * {@link ClassLoader}.
+     *
      * @param classLoader the ClassLoader to use for loading
-     * (can be {@code null}) to use the default ClassLoader)
+     *                    (can be {@code null}) to use the default ClassLoader)
      */
     public DelegatingEntityResolver(ClassLoader classLoader) {
         this.dtdResolver = new BeansDtdResolver();
@@ -37,7 +42,8 @@ public class DelegatingEntityResolver implements EntityResolver {
     /**
      * Create a new DelegatingEntityResolver that delegates to
      * the given {@link EntityResolver EntityResolvers}.
-     * @param dtdResolver the EntityResolver to resolve DTDs with
+     *
+     * @param dtdResolver    the EntityResolver to resolve DTDs with
      * @param schemaResolver the EntityResolver to resolve XML schemas with
      */
     public DelegatingEntityResolver(EntityResolver dtdResolver, EntityResolver schemaResolver) {
@@ -53,8 +59,7 @@ public class DelegatingEntityResolver implements EntityResolver {
         if (systemId != null) {
             if (systemId.endsWith(DTD_SUFFIX)) {
                 return this.dtdResolver.resolveEntity(publicId, systemId);
-            }
-            else if (systemId.endsWith(XSD_SUFFIX)) {
+            } else if (systemId.endsWith(XSD_SUFFIX)) {
                 return this.schemaResolver.resolveEntity(publicId, systemId);
             }
         }

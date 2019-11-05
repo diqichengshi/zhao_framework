@@ -29,10 +29,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
     public AbstractApplicationContext() {
     }
+
     public AbstractApplicationContext(ApplicationContext parent) {
         this();
         setParent(parent);
     }
+
     public String getDisplayName() {
         return this.displayName;
     }
@@ -43,6 +45,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         }
         return this.environment;
     }
+
     public void setParent(ApplicationContext parent) {
         this.parent = parent;
         if (parent != null) {
@@ -195,8 +198,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         if (!this.active.get()) {
             if (this.closed.get()) {
                 throw new IllegalStateException(getDisplayName() + " has been closed already");
-            }
-            else {
+            } else {
                 throw new IllegalStateException(getDisplayName() + " has not been refreshed yet");
             }
         }
@@ -249,10 +251,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public int getBeanDefinitionCount() {
         return getBeanFactory().getBeanDefinitionCount();
     }
+
     /**
      * 抽象方法由子类实现
      */
     public abstract ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException;
+
     /**
      * 抽象方法由子类实现
      * TODO BeanFactory的刷新,以及bean的解析

@@ -20,8 +20,7 @@ public class BeanDefinitionReaderUtils {
         if (className != null) {
             if (classLoader != null) {
                 bd.setBeanClass(ClassUtils.forName(className, classLoader));
-            }
-            else {
+            } else {
                 bd.setBeanClassName(className);
             }
         }
@@ -56,8 +55,7 @@ public class BeanDefinitionReaderUtils {
         if (isInnerBean) {
             // Inner bean: generate identity hashcode suffix.
             id = generatedBeanName + GENERATED_BEAN_NAME_SEPARATOR + ObjectUtils.getIdentityHexString(definition);
-        }
-        else {
+        } else {
             // Top-level bean: use plain class name.
             // Increase counter until the id is unique.
             int counter = -1;
@@ -72,8 +70,9 @@ public class BeanDefinitionReaderUtils {
 
     /**
      * Register the given bean definition with the given bean factory.
+     *
      * @param definitionHolder the bean definition including name and aliases
-     * @param registry the bean factory to register with
+     * @param registry         the bean factory to register with
      * @throws BeanDefinitionStoreException if registration failed
      */
     public static void registerBeanDefinition(

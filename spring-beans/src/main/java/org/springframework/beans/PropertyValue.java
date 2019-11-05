@@ -35,6 +35,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
     /**
      * Constructor that exposes a new value for an original value holder.
      * The original holder will be exposed as source of the new holder.
+     *
      * @param original the PropertyValue to link to (never {@code null})
      * @param newValue the new value to apply
      */
@@ -43,6 +44,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
         this.name = original.getName();
         this.value = newValue;
     }
+
     public String getName() {
         return this.name;
     }
@@ -58,6 +60,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
     public boolean isOptional() {
         return this.optional;
     }
+
     /**
      * Return whether this holder contains a converted value already ({@code true}),
      * or whether the value still needs to be converted ({@code false}).
@@ -65,6 +68,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
     public synchronized boolean isConverted() {
         return this.converted;
     }
+
     /**
      * Set the converted value of the constructor argument,
      * after processed type conversion.
@@ -84,6 +88,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
 
     /**
      * Return the original PropertyValue instance for this value holder.
+     *
      * @return the original PropertyValue (either a source of this
      * value holder or this value holder itself).
      */

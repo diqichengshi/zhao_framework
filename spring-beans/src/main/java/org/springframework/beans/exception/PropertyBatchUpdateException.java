@@ -23,12 +23,15 @@ import java.io.PrintWriter;
 @SuppressWarnings("serial")
 public class PropertyBatchUpdateException extends BeansException {
 
-    /** List of PropertyAccessException objects */
+    /**
+     * List of PropertyAccessException objects
+     */
     private PropertyAccessException[] propertyAccessExceptions;
 
 
     /**
      * Create a new PropertyBatchUpdateException.
+     *
      * @param propertyAccessExceptions the List of PropertyAccessExceptions
      */
     public PropertyBatchUpdateException(PropertyAccessException[] propertyAccessExceptions) {

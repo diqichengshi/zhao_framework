@@ -9,15 +9,18 @@ import org.springframework.util.Assert;
 
 public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContext {
     private Resource[] configResources;
+
     /**
      * 有参的构造方法，在创建此类实例时需要指定xml文件路径
      */
     public ClassPathXmlApplicationContext(String configLocation) {
-        this(new String[] {configLocation}, true, null);
+        this(new String[]{configLocation}, true, null);
     }
+
     public ClassPathXmlApplicationContext(String... configLocations) throws BeansException {
         this(configLocations, true, null);
     }
+
     public ClassPathXmlApplicationContext(String[] configLocations, boolean refresh, ApplicationContext parent)
             throws BeansException {
         super(parent);
@@ -31,8 +34,9 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
      * Create a new ClassPathXmlApplicationContext with the given parent,
      * loading the definitions from the given XML files and automatically
      * refreshing the context.
-     * @param paths array of relative (or absolute) paths within the class path
-     * @param clazz the class to load resources with (basis for the given paths)
+     *
+     * @param paths  array of relative (or absolute) paths within the class path
+     * @param clazz  the class to load resources with (basis for the given paths)
      * @param parent the parent context
      * @throws BeansException if context creation failed
      * @see org.springframework.core.io.ClassPathResource#ClassPathResource(String, Class)

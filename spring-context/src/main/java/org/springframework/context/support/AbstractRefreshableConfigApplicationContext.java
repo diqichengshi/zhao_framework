@@ -13,10 +13,10 @@ import org.springframework.util.StringUtils;
  * {@link org.springframework.web.portlet.context.XmlPortletApplicationContext}.
  *
  * @author Juergen Hoeller
- * @since 2.5.2
  * @see #setConfigLocation
  * @see #setConfigLocations
  * @see #getDefaultConfigLocations
+ * @since 2.5.2
  */
 public abstract class AbstractRefreshableConfigApplicationContext extends AbstractRefreshableApplicationContext {
 
@@ -49,8 +49,7 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
             for (int i = 0; i < locations.length; i++) {
                 this.configLocations[i] = resolvePath(locations[i]).trim();
             }
-        }
-        else {
+        } else {
             this.configLocations = null;
         }
     }

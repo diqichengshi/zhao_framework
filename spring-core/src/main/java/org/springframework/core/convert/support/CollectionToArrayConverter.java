@@ -38,35 +38,35 @@ import org.springframework.core.convert.converter.ConditionalGenericConverter;
  */
 final class CollectionToArrayConverter implements ConditionalGenericConverter {
 
-	private final ConversionService conversionService;
+    private final ConversionService conversionService;
 
-	public CollectionToArrayConverter(ConversionService conversionService) {
-		this.conversionService = conversionService;
-	}
+    public CollectionToArrayConverter(ConversionService conversionService) {
+        this.conversionService = conversionService;
+    }
 
-	@Override
-	public Set<ConvertiblePair> getConvertibleTypes() {
-		return Collections.singleton(new ConvertiblePair(Collection.class, Object[].class));
-	}
+    @Override
+    public Set<ConvertiblePair> getConvertibleTypes() {
+        return Collections.singleton(new ConvertiblePair(Collection.class, Object[].class));
+    }
 
-	@Override
-	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		return ConversionUtils.canConvertElements(sourceType.getElementTypeDescriptor(), targetType.getElementTypeDescriptor(), this.conversionService);
-	}
+    @Override
+    public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+        return ConversionUtils.canConvertElements(sourceType.getElementTypeDescriptor(), targetType.getElementTypeDescriptor(), this.conversionService);
+    }
 
-	@Override
-	public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (source == null) {
-			return null;
-		}
-		Collection<?> sourceCollection = (Collection<?>) source;
-		Object array = Array.newInstance(targetType.getElementTypeDescriptor().getType(), sourceCollection.size());
-		int i = 0;
-		for (Object sourceElement : sourceCollection) {
-			Object targetElement = this.conversionService.convert(sourceElement, sourceType.elementTypeDescriptor(sourceElement), targetType.getElementTypeDescriptor());
-			Array.set(array, i++, targetElement);
-		}
-		return array;
-	}
+    @Override
+    public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+        if (source == null) {
+            return null;
+        }
+        Collection<?> sourceCollection = (Collection<?>) source;
+        Object array = Array.newInstance(targetType.getElementTypeDescriptor().getType(), sourceCollection.size());
+        int i = 0;
+        for (Object sourceElement : sourceCollection) {
+            Object targetElement = this.conversionService.convert(sourceElement, sourceType.elementTypeDescriptor(sourceElement), targetType.getElementTypeDescriptor());
+            Array.set(array, i++, targetElement);
+        }
+        return array;
+    }
 
 }

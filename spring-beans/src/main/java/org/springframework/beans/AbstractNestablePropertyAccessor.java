@@ -45,12 +45,14 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         setWrappedInstance(object);
         Assert.notNull(object, "target object must not be null");
     }
+
     /**
      * Create a new accessor for the given object,
      * registering a nested path that the object is in.
-     * @param object object wrapped by this accessor
+     *
+     * @param object     object wrapped by this accessor
      * @param nestedPath the nested path of the object
-     * @param parent the containing accessor (must not be {@code null})
+     * @param parent     the containing accessor (must not be {@code null})
      */
     protected AbstractNestablePropertyAccessor(Object object, String nestedPath, AbstractNestablePropertyAccessor parent) {
         setWrappedInstance(object, nestedPath, parent.getWrappedInstance());
@@ -115,6 +117,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         PropertyTokenHolder tokens = getPropertyNameTokens(getFinalPath(nestedPa, propertyName));
         nestedPa.setPropertyValue(tokens, new PropertyValue(propertyName, value));
     }
+
     @Override
     public void setPropertyValue(PropertyValue pv) throws BeansException {
         PropertyTokenHolder tokens = (PropertyTokenHolder) pv.resolvedTokens;
@@ -123,8 +126,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             AbstractNestablePropertyAccessor nestedPa;
             try {
                 nestedPa = getPropertyAccessorForPropertyPath(propertyName);
-            }
-            catch (NotReadablePropertyException ex) {
+            } catch (NotReadablePropertyException ex) {
                 throw new NotWritablePropertyException(getRootClass(), this.nestedPath + propertyName,
                         "Nested property in path '" + propertyName + "' does not exist", ex);
             }
@@ -133,11 +135,11 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
                 pv.getOriginalPropertyValue().resolvedTokens = tokens;
             }
             nestedPa.setPropertyValue(tokens, pv);
-        }
-        else {
+        } else {
             setPropertyValue(tokens, pv);
         }
     }
+
     @SuppressWarnings("unchecked")
     protected void setPropertyValue(PropertyTokenHolder tokens, PropertyValue pv) throws BeansException {
         String propertyName = tokens.canonicalName;
@@ -153,8 +155,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             Object propValue;
             try {
                 propValue = getPropertyValue(getterTokens);
-            }
-            catch (NotReadablePropertyException ex) {
+            } catch (NotReadablePropertyException ex) {
                 throw new NotWritablePropertyException(getRootClass(), this.nestedPath + propertyName,
                         "Cannot access indexed value in property referenced " +
                                 "in indexed property path '" + propertyName + "'", ex);
@@ -167,8 +168,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
                     int lastKeyIndex = tokens.canonicalName.lastIndexOf('[');
                     getterTokens.canonicalName = tokens.canonicalName.substring(0, lastKeyIndex);
                     propValue = setDefaultValue(getterTokens);
-                }
-                else {
+                } else {
                     throw new NullValueInNestedPathException(getRootClass(), this.nestedPath + propertyName,
                             "Cannot access indexed value in property referenced " +
                                     "in indexed property path '" + propertyName + "': returned null");
@@ -194,13 +194,11 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
                         propValue = getPropertyValue(actualName);
                     }
                     Array.set(propValue, arrayIndex, convertedValue);
-                }
-                catch (IndexOutOfBoundsException ex) {
+                } catch (IndexOutOfBoundsException ex) {
                     throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
                             "Invalid array index in property path '" + propertyName + "'", ex);
                 }
-            }
-            else if (propValue instanceof List) {
+            } else if (propValue instanceof List) {
                 PropertyHandler ph = getPropertyHandler(actualName);
                 Class<?> requiredType = ph.getCollectionType(tokens.keys.length);
                 List<Object> list = (List<Object>) propValue;
@@ -216,8 +214,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
                     for (int i = size; i < index; i++) {
                         try {
                             list.add(null);
-                        }
-                        catch (NullPointerException ex) {
+                        } catch (NullPointerException ex) {
                             throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
                                     "Cannot set element with index " + index + " in List of size " +
                                             size + ", accessed using property path '" + propertyName +
@@ -225,18 +222,15 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
                         }
                     }
                     list.add(convertedValue);
-                }
-                else {
+                } else {
                     try {
                         list.set(index, convertedValue);
-                    }
-                    catch (IndexOutOfBoundsException ex) {
+                    } catch (IndexOutOfBoundsException ex) {
                         throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
                                 "Invalid list index in property path '" + propertyName + "'", ex);
                     }
                 }
-            }
-            else if (propValue instanceof Map) {
+            } else if (propValue instanceof Map) {
                 PropertyHandler ph = getLocalPropertyHandler(actualName);
                 Class<?> mapKeyType = ph.getMapKeyType(tokens.keys.length);
                 Class<?> mapValueType = ph.getMapValueType(tokens.keys.length);
@@ -254,21 +248,17 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
                 Object convertedMapValue = convertIfNecessary(propertyName, oldValue, pv.getValue(),
                         mapValueType, ph.nested(tokens.keys.length));
                 map.put(convertedMapKey, convertedMapValue);
-            }
-            else {
+            } else {
                 throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
                         "Property referenced in indexed property path '" + propertyName +
                                 "' is neither an array nor a List nor a Map; returned value was [" + propValue + "]");
             }
-        }
-
-        else {
+        } else {
             PropertyHandler ph = getLocalPropertyHandler(actualName);
             if (ph == null || !ph.isWritable()) {
                 if (pv.isOptional()) {
                     return;
-                }
-                else {
+                } else {
                     throw createNotWritablePropertyException(propertyName);
                 }
             }
@@ -279,13 +269,11 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
                 if (!Boolean.FALSE.equals(pv.conversionNecessary)) {
                     if (pv.isConverted()) {
                         valueToApply = pv.getConvertedValue();
-                    }
-                    else {
+                    } else {
                         if (isExtractOldValueForEditor() && ph.isReadable()) {
                             try {
                                 oldValue = ph.getValue();
-                            }
-                            catch (Exception ex) {
+                            } catch (Exception ex) {
                                 if (ex instanceof PrivilegedActionException) {
                                     ex = ((PrivilegedActionException) ex).getException();
                                 }
@@ -301,17 +289,14 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
                     pv.getOriginalPropertyValue().conversionNecessary = (valueToApply != originalValue);
                 }
                 ph.setValue(object, valueToApply);
-            }
-            catch (TypeMismatchException ex) {
+            } catch (TypeMismatchException ex) {
                 throw ex;
-            }
-            catch (InvocationTargetException ex) {
+            } catch (InvocationTargetException ex) {
                 PropertyChangeEvent propertyChangeEvent =
                         new PropertyChangeEvent(this.rootObject, this.nestedPath + propertyName, oldValue, pv.getValue());
                 if (ex.getTargetException() instanceof ClassCastException) {
                     throw new TypeMismatchException(propertyChangeEvent, ph.getPropertyType(), ex.getTargetException());
-                }
-                else {
+                } else {
                     Throwable cause = ex.getTargetException();
                     if (cause instanceof UndeclaredThrowableException) {
                         // May happen e.g. with Groovy-generated methods
@@ -319,8 +304,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
                     }
                     throw new MethodInvocationException(propertyChangeEvent, cause);
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 PropertyChangeEvent pce =
                         new PropertyChangeEvent(this.rootObject, this.nestedPath + propertyName, oldValue, pv.getValue());
                 throw new MethodInvocationException(pce, ex);
@@ -356,14 +340,12 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             PropertyHandler ph = getPropertyHandler(propertyName);
             if (ph != null) {
                 return ph.isReadable();
-            }
-            else {
+            } else {
                 // Maybe an indexed/mapped property...
                 getPropertyValue(propertyName);
                 return true;
             }
-        }
-        catch (InvalidPropertyException ex) {
+        } catch (InvalidPropertyException ex) {
             // Cannot be evaluated, so can't be readable.
         }
         return false;
@@ -374,14 +356,12 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             PropertyHandler ph = getPropertyHandler(propertyName);
             if (ph != null) {
                 return ph.isWritable();
-            }
-            else {
+            } else {
                 // Maybe an indexed/mapped property...
                 getPropertyValue(propertyName);
                 return true;
             }
-        }
-        catch (InvalidPropertyException ex) {
+        } catch (InvalidPropertyException ex) {
             // Cannot be evaluated, so can't be writable.
         }
         return false;
@@ -515,6 +495,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     /**
      * Return the {@link PropertyHandler} for the specified {@code propertyName}, navigating
      * if necessary. Return {@code null} if not found rather than throwing an exception.
+     *
      * @param propertyName the property to obtain the descriptor for
      * @return the property descriptor for the specified property,
      * or {@code null} if not found
@@ -561,8 +542,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             }
             setPropertyValue(name, newArray);
             return getPropertyValue(name);
-        }
-        else {
+        } else {
             return array;
         }
     }

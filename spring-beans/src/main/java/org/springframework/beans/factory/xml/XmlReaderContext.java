@@ -20,7 +20,7 @@ public class XmlReaderContext extends ReaderContext {
     public XmlReaderContext(Resource resource, ProblemReporter problemReporter,
                             ReaderEventListener eventListener, SourceExtractor sourceExtractor,
                             XmlBeanDefinitionReader reader, NamespaceHandlerResolver namespaceHandlerResolver) {
-        super(resource,problemReporter, eventListener, sourceExtractor);
+        super(resource, problemReporter, eventListener, sourceExtractor);
         this.reader = reader;
         this.namespaceHandlerResolver = namespaceHandlerResolver;
     }
@@ -32,6 +32,7 @@ public class XmlReaderContext extends ReaderContext {
     public final XmlBeanDefinitionReader getReader() {
         return this.reader;
     }
+
     public final Environment getEnvironment() {
         return this.reader.getEnvironment();
     }
@@ -47,6 +48,7 @@ public class XmlReaderContext extends ReaderContext {
     public final ClassLoader getBeanClassLoader() {
         return this.reader.getBeanClassLoader();
     }
+
     public String generateBeanName(BeanDefinition beanDefinition) {
         return this.reader.getBeanNameGenerator().generateBeanName(beanDefinition, getRegistry());
     }

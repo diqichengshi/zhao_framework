@@ -25,31 +25,32 @@ import org.springframework.util.ClassUtils;
 /**
  * Calls {@link Enum#name()} to convert a source Enum to a String.  This converter will
  * not match enums with interfaces that can be converterd.
+ *
  * @author Keith Donald
  * @author Phillip Webb
  * @since 3.0
  */
 final class EnumToStringConverter implements Converter<Enum<?>, String>, ConditionalConverter {
 
-	private final ConversionService conversionService;
+    private final ConversionService conversionService;
 
-	public EnumToStringConverter(ConversionService conversionService) {
-		this.conversionService = conversionService;
-	}
+    public EnumToStringConverter(ConversionService conversionService) {
+        this.conversionService = conversionService;
+    }
 
-	@Override
-	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		for (Class<?> interfaceType : ClassUtils.getAllInterfacesForClass(sourceType.getType())) {
-			if (conversionService.canConvert(TypeDescriptor.valueOf(interfaceType), targetType)) {
-				return false;
-			}
-		}
-		return true;
-	}
+    @Override
+    public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+        for (Class<?> interfaceType : ClassUtils.getAllInterfacesForClass(sourceType.getType())) {
+            if (conversionService.canConvert(TypeDescriptor.valueOf(interfaceType), targetType)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	@Override
-	public String convert(Enum<?> source) {
-		return source.name();
-	}
+    @Override
+    public String convert(Enum<?> source) {
+        return source.name();
+    }
 
 }

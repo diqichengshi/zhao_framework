@@ -6,6 +6,7 @@ public interface ReaderEventListener extends EventListener {
 
     /**
      * Notification that the given defaults has been registered.
+     *
      * @param defaultsDefinition a descriptor for the defaults
      * @see org.springframework.beans.factory.xml.DocumentDefaultsDefinition
      */
@@ -13,6 +14,7 @@ public interface ReaderEventListener extends EventListener {
 
     /**
      * Notification that the given component has been registered.
+     *
      * @param componentDefinition a descriptor for the new component
      * @see BeanComponentDefinition
      */
@@ -20,6 +22,7 @@ public interface ReaderEventListener extends EventListener {
 
     /**
      * Notification that the given import has been processed.
+     *
      * @param importDefinition a descriptor for the import
      */
     void importProcessed(ImportDefinition importDefinition);

@@ -39,52 +39,50 @@ import org.springframework.core.type.ClassMetadata;
  */
 final class SimpleMetadataReader implements MetadataReader {
 
-	private final Resource resource;
+    private final Resource resource;
 
-	private final ClassMetadata classMetadata;
+    private final ClassMetadata classMetadata;
 
-	private final AnnotationMetadata annotationMetadata;
-
-
-	SimpleMetadataReader(Resource resource, ClassLoader classLoader) throws IOException {
-		// 加载.class文件
-		InputStream is = new BufferedInputStream(resource.getInputStream());
-		ClassReader classReader;
-		try {
-			classReader = new ClassReader(is);
-		}
-		catch (IllegalArgumentException ex) {
-			throw new NestedIOException("ASM ClassReader failed to parse class file - " +
-					"probably due to a new Java class file version that isn't supported yet: " + resource, ex);
-		}
-		finally {
-			is.close();
-		}
-
-		AnnotationMetadataReadingVisitor visitor = new AnnotationMetadataReadingVisitor(classLoader);
-		// 解析.class元信息
-		classReader.accept(visitor, ClassReader.SKIP_DEBUG);
-
-		this.annotationMetadata = visitor;
-		// (since AnnotationMetadataReadingVisitor extends ClassMetadataReadingVisitor)
-		this.classMetadata = visitor;
-		this.resource = resource;
-	}
+    private final AnnotationMetadata annotationMetadata;
 
 
-	@Override
-	public Resource getResource() {
-		return this.resource;
-	}
+    SimpleMetadataReader(Resource resource, ClassLoader classLoader) throws IOException {
+        // 加载.class文件
+        InputStream is = new BufferedInputStream(resource.getInputStream());
+        ClassReader classReader;
+        try {
+            classReader = new ClassReader(is);
+        } catch (IllegalArgumentException ex) {
+            throw new NestedIOException("ASM ClassReader failed to parse class file - " +
+                    "probably due to a new Java class file version that isn't supported yet: " + resource, ex);
+        } finally {
+            is.close();
+        }
 
-	@Override
-	public ClassMetadata getClassMetadata() {
-		return this.classMetadata;
-	}
+        AnnotationMetadataReadingVisitor visitor = new AnnotationMetadataReadingVisitor(classLoader);
+        // 解析.class元信息
+        classReader.accept(visitor, ClassReader.SKIP_DEBUG);
 
-	@Override
-	public AnnotationMetadata getAnnotationMetadata() {
-		return this.annotationMetadata;
-	}
+        this.annotationMetadata = visitor;
+        // (since AnnotationMetadataReadingVisitor extends ClassMetadataReadingVisitor)
+        this.classMetadata = visitor;
+        this.resource = resource;
+    }
+
+
+    @Override
+    public Resource getResource() {
+        return this.resource;
+    }
+
+    @Override
+    public ClassMetadata getClassMetadata() {
+        return this.classMetadata;
+    }
+
+    @Override
+    public AnnotationMetadata getAnnotationMetadata() {
+        return this.annotationMetadata;
+    }
 
 }

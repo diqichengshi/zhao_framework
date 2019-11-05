@@ -71,17 +71,18 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
         this.resourcePatternResolver = ResourcePatternUtils.getResourcePatternResolver(resourceLoader);
         this.metadataReaderFactory = new CachingMetadataReaderFactory(resourceLoader);
     }
+
     /**
      * Set the Environment to use when resolving placeholders and evaluating
      * {@link Conditional @Conditional}-annotated component classes.
      * <p>The default is a {@link StandardEnvironment}.
+     *
      * @param environment the Environment to use
      */
     public void setEnvironment(Environment environment) {
         Assert.notNull(environment, "Environment must not be null");
         this.environment = environment;
     }
-
 
 
     @Override
@@ -92,6 +93,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
     /**
      * Set the resource pattern to use when scanning the classpath.
      * This value will be appended to each base package name.
+     *
      * @see #findCandidateComponents(String)
      * @see #DEFAULT_RESOURCE_PATTERN
      */

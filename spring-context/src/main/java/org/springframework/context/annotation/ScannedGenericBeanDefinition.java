@@ -15,6 +15,7 @@ public class ScannedGenericBeanDefinition extends GenericBeanDefinition implemen
     /**
      * Create a new ScannedGenericBeanDefinition for the class that the
      * given MetadataReader describes.
+     *
      * @param metadataReader the MetadataReader for the scanned target class
      */
     public ScannedGenericBeanDefinition(MetadataReader metadataReader) {

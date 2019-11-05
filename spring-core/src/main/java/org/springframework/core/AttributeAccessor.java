@@ -8,7 +8,8 @@ public interface AttributeAccessor {
      * <p>In general, users should take care to prevent overlaps with other
      * metadata attributes by using fully-qualified names, perhaps using
      * class or package names as prefix.
-     * @param name the unique attribute key
+     *
+     * @param name  the unique attribute key
      * @param value the attribute value to be attached
      */
     void setAttribute(String name, Object value);
@@ -16,6 +17,7 @@ public interface AttributeAccessor {
     /**
      * Get the value of the attribute identified by {@code name}.
      * Return {@code null} if the attribute doesn't exist.
+     *
      * @param name the unique attribute key
      * @return the current value of the attribute, if any
      */
@@ -24,6 +26,7 @@ public interface AttributeAccessor {
     /**
      * Remove the attribute identified by {@code name} and return its value.
      * Return {@code null} if no attribute under {@code name} is found.
+     *
      * @param name the unique attribute key
      * @return the last value of the attribute, if any
      */
@@ -32,6 +35,7 @@ public interface AttributeAccessor {
     /**
      * Return {@code true} if the attribute identified by {@code name} exists.
      * Otherwise return {@code false}.
+     *
      * @param name the unique attribute key
      */
     boolean hasAttribute(String name);

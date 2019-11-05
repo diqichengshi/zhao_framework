@@ -22,8 +22,9 @@ public class ResourceEntityResolver extends DelegatingEntityResolver {
     /**
      * Create a ResourceEntityResolver for the specified ResourceLoader
      * (usually, an ApplicationContext).
+     *
      * @param resourceLoader the ResourceLoader (or ApplicationContext)
-     * to load XML entity includes with
+     *                       to load XML entity includes with
      */
     public ResourceEntityResolver(ResourceLoader resourceLoader) {
         super(resourceLoader.getClassLoader());
@@ -44,8 +45,7 @@ public class ResourceEntityResolver extends DelegatingEntityResolver {
                 if (givenUrl.startsWith(systemRootUrl)) {
                     resourcePath = givenUrl.substring(systemRootUrl.length());
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 // Typically a MalformedURLException or AccessControlException.
                 if (logger.isDebugEnabled()) {
                     logger.debug("Could not resolve XML entity [" + systemId + "] against system root URL", ex);

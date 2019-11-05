@@ -8,9 +8,10 @@ public class XmlBeanDefinitionStoreException extends BeanDefinitionStoreExceptio
 
     /**
      * Create a new XmlBeanDefinitionStoreException.
+     *
      * @param resourceDescription description of the resource that the bean definition came from
-     * @param msg the detail message (used as exception message as-is)
-     * @param cause the SAXException (typically a SAXParseException) root cause
+     * @param msg                 the detail message (used as exception message as-is)
+     * @param cause               the SAXException (typically a SAXParseException) root cause
      * @see org.xml.sax.SAXParseException
      */
     public XmlBeanDefinitionStoreException(String resourceDescription, String msg, SAXException cause) {
@@ -19,6 +20,7 @@ public class XmlBeanDefinitionStoreException extends BeanDefinitionStoreExceptio
 
     /**
      * Return the line number in the XML resource that failed.
+     *
      * @return the line number if available (in case of a SAXParseException); -1 else
      * @see org.xml.sax.SAXParseException#getLineNumber()
      */

@@ -2,7 +2,7 @@ package org.springframework.beans;
 
 import org.springframework.core.AttributeAccessorSupport;
 
-public class BeanMetadataAttributeAccessor extends AttributeAccessorSupport implements BeanMetadataElement{
+public class BeanMetadataAttributeAccessor extends AttributeAccessorSupport implements BeanMetadataElement {
     private Object source;
 
 
@@ -22,6 +22,7 @@ public class BeanMetadataAttributeAccessor extends AttributeAccessorSupport impl
 
     /**
      * Add the given BeanMetadataAttribute to this accessor's set of attributes.
+     *
      * @param attribute the BeanMetadataAttribute object to register
      */
     public void addMetadataAttribute(BeanMetadataAttribute attribute) {
@@ -30,6 +31,7 @@ public class BeanMetadataAttributeAccessor extends AttributeAccessorSupport impl
 
     /**
      * Look up the given BeanMetadataAttribute in this accessor's set of attributes.
+     *
      * @param name the name of the attribute
      * @return the corresponding BeanMetadataAttribute object,
      * or {@code null} if no such attribute defined

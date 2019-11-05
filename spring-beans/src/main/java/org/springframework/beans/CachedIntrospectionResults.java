@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * 缓存内省结果
  * 缓存java beans的内部类
- *Java类的信息。不打算由应用程序代码直接使用
+ * Java类的信息。不打算由应用程序代码直接使用
  */
 public class CachedIntrospectionResults {
     private static final Log logger = LogFactory.getLog(CachedIntrospectionResults.class);
@@ -63,7 +63,7 @@ public class CachedIntrospectionResults {
             }
             if (beanInfo == null) {
                 // If none of the factories supported the class, fall back to the default
-                beanInfo =  Introspector.getBeanInfo(beanClass);
+                beanInfo = Introspector.getBeanInfo(beanClass);
             }
             this.beanInfo = beanInfo;
 
@@ -112,7 +112,7 @@ public class CachedIntrospectionResults {
         }
 
         results = new CachedIntrospectionResults(beanClass);
-        ConcurrentMap<Class<?>, CachedIntrospectionResults> classCacheToUse=softClassCache;
+        ConcurrentMap<Class<?>, CachedIntrospectionResults> classCacheToUse = softClassCache;
 
         CachedIntrospectionResults existing = classCacheToUse.putIfAbsent(beanClass, results);
         return (existing != null ? existing : results);
@@ -150,11 +150,11 @@ public class CachedIntrospectionResults {
         try {
             return new GenericTypeAwarePropertyDescriptor(beanClass, pd.getName(), pd.getReadMethod(),
                     pd.getWriteMethod(), pd.getPropertyEditorClass());
-        }
-        catch (IntrospectionException ex) {
+        } catch (IntrospectionException ex) {
             throw new FatalBeanException("Failed to re-introspect class [" + beanClass.getName() + "]", ex);
         }
     }
+
     TypeDescriptor addTypeDescriptor(PropertyDescriptor pd, TypeDescriptor td) {
         TypeDescriptor existing = this.typeDescriptorCache.putIfAbsent(pd, td);
         return (existing != null ? existing : td);

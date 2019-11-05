@@ -28,21 +28,16 @@ public class TypeConverterSupport extends PropertyEditorRegistrySupport implemen
         try {
             if (field != null) {
                 return this.typeConverterDelegate.convertIfNecessary(value, requiredType, field);
-            }
-            else {
+            } else {
                 return this.typeConverterDelegate.convertIfNecessary(value, requiredType, methodParam);
             }
-        }
-        catch (ConverterNotFoundException ex) {
+        } catch (ConverterNotFoundException ex) {
             throw new ConversionNotSupportedException(value, requiredType, ex);
-        }
-        catch (ConversionException ex) {
+        } catch (ConversionException ex) {
             throw new TypeMismatchException(value, requiredType, ex);
-        }
-        catch (IllegalStateException ex) {
+        } catch (IllegalStateException ex) {
             throw new ConversionNotSupportedException(value, requiredType, ex);
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             throw new TypeMismatchException(value, requiredType, ex);
         }
     }

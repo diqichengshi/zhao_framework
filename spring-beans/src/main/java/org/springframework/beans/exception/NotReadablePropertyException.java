@@ -12,7 +12,8 @@ public class NotReadablePropertyException extends InvalidPropertyException {
 
     /**
      * Create a new NotReadablePropertyException.
-     * @param beanClass the offending bean class
+     *
+     * @param beanClass    the offending bean class
      * @param propertyName the offending property
      */
     public NotReadablePropertyException(Class<?> beanClass, String propertyName) {
@@ -23,9 +24,10 @@ public class NotReadablePropertyException extends InvalidPropertyException {
 
     /**
      * Create a new NotReadablePropertyException.
-     * @param beanClass the offending bean class
+     *
+     * @param beanClass    the offending bean class
      * @param propertyName the offending property
-     * @param msg the detail message
+     * @param msg          the detail message
      */
     public NotReadablePropertyException(Class<?> beanClass, String propertyName, String msg) {
         super(beanClass, propertyName, msg);
@@ -33,10 +35,11 @@ public class NotReadablePropertyException extends InvalidPropertyException {
 
     /**
      * Create a new NotReadablePropertyException.
-     * @param beanClass the offending bean class
+     *
+     * @param beanClass    the offending bean class
      * @param propertyName the offending property
-     * @param msg the detail message
-     * @param cause the root cause
+     * @param msg          the detail message
+     * @param cause        the root cause
      * @since 4.0.9
      */
     public NotReadablePropertyException(Class<?> beanClass, String propertyName, String msg, Throwable cause) {

@@ -26,11 +26,12 @@ public abstract class SpringFactoriesLoader {
      * <p>The returned factories are sorted in accordance with the {@link AnnotationAwareOrderComparator}.
      * <p>If a custom instantiation strategy is required, use {@link #loadFactoryNames}
      * to obtain all registered factory names.
+     *
      * @param factoryClass the interface or abstract class representing the factory
-     * @param classLoader the ClassLoader to use for loading (can be {@code null} to use the default)
-     * @see #loadFactoryNames
+     * @param classLoader  the ClassLoader to use for loading (can be {@code null} to use the default)
      * @throws IllegalArgumentException if any factory implementation class cannot
-     * be loaded or if an error occurs while instantiating any factory
+     *                                  be loaded or if an error occurs while instantiating any factory
+     * @see #loadFactoryNames
      */
     public static <T> List<T> loadFactories(Class<T> factoryClass, ClassLoader classLoader) {
         Assert.notNull(factoryClass, "'factoryClass' must not be null");
@@ -55,11 +56,12 @@ public abstract class SpringFactoriesLoader {
      * Load the fully qualified class names of factory implementations of the
      * given type from {@value #FACTORIES_RESOURCE_LOCATION}, using the given
      * class loader.
+     *
      * @param factoryClass the interface or abstract class representing the factory
-     * @param classLoader the ClassLoader to use for loading resources; can be
-     * {@code null} to use the default
-     * @see #loadFactories
+     * @param classLoader  the ClassLoader to use for loading resources; can be
+     *                     {@code null} to use the default
      * @throws IllegalArgumentException if an error occurs while loading factory names
+     * @see #loadFactories
      */
     public static List<String> loadFactoryNames(Class<?> factoryClass, ClassLoader classLoader) {
         String factoryClassName = factoryClass.getName();
@@ -74,12 +76,12 @@ public abstract class SpringFactoriesLoader {
                 result.addAll(Arrays.asList(StringUtils.commaDelimitedListToStringArray(factoryClassNames)));
             }
             return result;
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new IllegalArgumentException("Unable to load [" + factoryClass.getName() +
                     "] factories from location [" + FACTORIES_RESOURCE_LOCATION + "]", ex);
         }
     }
+
     @SuppressWarnings("unchecked")
     private static <T> T instantiateFactory(String instanceClassName, Class<T> factoryClass, ClassLoader classLoader) {
         try {
@@ -89,8 +91,7 @@ public abstract class SpringFactoriesLoader {
                         "Class [" + instanceClassName + "] is not assignable to [" + factoryClass.getName() + "]");
             }
             return (T) instanceClass.newInstance();
-        }
-        catch (Throwable ex) {
+        } catch (Throwable ex) {
             throw new IllegalArgumentException("Cannot instantiate factory class: " + factoryClass.getName(), ex);
         }
     }

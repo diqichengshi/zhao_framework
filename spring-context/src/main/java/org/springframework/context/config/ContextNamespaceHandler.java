@@ -3,7 +3,7 @@ package org.springframework.context.config;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 import org.springframework.context.annotation.ComponentScanBeanDefinitionParser;
 
-public  class ContextNamespaceHandler extends NamespaceHandlerSupport {
+public class ContextNamespaceHandler extends NamespaceHandlerSupport {
 
     @Override
     public void init() {

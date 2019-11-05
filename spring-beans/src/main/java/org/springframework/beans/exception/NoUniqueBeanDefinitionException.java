@@ -12,9 +12,10 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
 
     /**
      * Create a new {@code NoUniqueBeanDefinitionException}.
-     * @param type required type of the non-unique bean
+     *
+     * @param type               required type of the non-unique bean
      * @param numberOfBeansFound the number of matching beans
-     * @param message detailed message describing the problem
+     * @param message            detailed message describing the problem
      */
     public NoUniqueBeanDefinitionException(Class<?> type, int numberOfBeansFound, String message) {
         super(type, message);
@@ -23,7 +24,8 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
 
     /**
      * Create a new {@code NoUniqueBeanDefinitionException}.
-     * @param type required type of the non-unique bean
+     *
+     * @param type           required type of the non-unique bean
      * @param beanNamesFound the names of all matching beans (as a Collection)
      */
     public NoUniqueBeanDefinitionException(Class<?> type, Collection<String> beanNamesFound) {
@@ -33,7 +35,8 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
 
     /**
      * Create a new {@code NoUniqueBeanDefinitionException}.
-     * @param type required type of the non-unique bean
+     *
+     * @param type           required type of the non-unique bean
      * @param beanNamesFound the names of all matching beans (as an array)
      */
     public NoUniqueBeanDefinitionException(Class<?> type, String... beanNamesFound) {
@@ -44,6 +47,7 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
     /**
      * Return the number of beans found when only one matching bean was expected.
      * For a NoUniqueBeanDefinitionException, this will usually be higher than 1.
+     *
      * @see #getBeanType()
      */
     @Override

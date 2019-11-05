@@ -43,8 +43,7 @@ public class MutablePropertyValues implements PropertyValues {
             for (PropertyValue pv : pvs) {
                 this.propertyValueList.add(new PropertyValue(pv));
             }
-        }
-        else {
+        } else {
             this.propertyValueList = new ArrayList<PropertyValue>(0);
         }
     }

@@ -22,7 +22,7 @@ import java.lang.annotation.Annotation;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser{
+public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String BASE_PACKAGE_ATTRIBUTE = "base-package";
 
@@ -81,15 +81,13 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser{
 
         try {
             parseBeanNameGenerator(element, scanner);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             parserContext.getReaderContext().error(ex.getMessage(), parserContext.extractSource(element), ex.getCause());
         }
 
         try {
             parseScope(element, scanner);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             parserContext.getReaderContext().error(ex.getMessage(), parserContext.extractSource(element), ex.getCause());
         }
 
@@ -155,14 +153,11 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser{
             String mode = element.getAttribute(SCOPED_PROXY_ATTRIBUTE);
             if ("targetClass".equals(mode)) {
                 scanner.setScopedProxyMode(ScopedProxyMode.TARGET_CLASS);
-            }
-            else if ("interfaces".equals(mode)) {
+            } else if ("interfaces".equals(mode)) {
                 scanner.setScopedProxyMode(ScopedProxyMode.INTERFACES);
-            }
-            else if ("no".equals(mode)) {
+            } else if ("no".equals(mode)) {
                 scanner.setScopedProxyMode(ScopedProxyMode.NO);
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("scoped-proxy only supports 'no', 'interfaces' and 'targetClass'");
             }
         }
@@ -180,13 +175,11 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser{
                     if (INCLUDE_FILTER_ELEMENT.equals(localName)) {
                         TypeFilter typeFilter = createTypeFilter((Element) node, classLoader, parserContext);
                         scanner.addIncludeFilter(typeFilter);
-                    }
-                    else if (EXCLUDE_FILTER_ELEMENT.equals(localName)) {
+                    } else if (EXCLUDE_FILTER_ELEMENT.equals(localName)) {
                         TypeFilter typeFilter = createTypeFilter((Element) node, classLoader, parserContext);
                         scanner.addExcludeFilter(typeFilter);
                     }
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     parserContext.getReaderContext().error(
                             ex.getMessage(), parserContext.extractSource(element), ex.getCause());
                 }
@@ -218,12 +211,10 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser{
                             "Class is not assignable to [" + TypeFilter.class.getName() + "]: " + expression);
                 }
                 return (TypeFilter) BeanUtils.instantiateClass(filterClass);
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Unsupported filter type: " + filterType);
             }
-        }
-        catch (ClassNotFoundException ex) {
+        } catch (ClassNotFoundException ex) {
             throw new FatalBeanException("Type filter class not found: " + expression, ex);
         }
     }
@@ -233,12 +224,10 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser{
         Object result;
         try {
             result = classLoader.loadClass(className).newInstance();
-        }
-        catch (ClassNotFoundException ex) {
+        } catch (ClassNotFoundException ex) {
             throw new IllegalArgumentException("Class [" + className + "] for strategy [" +
                     strategyType.getName() + "] not found", ex);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new IllegalArgumentException("Unable to instantiate class [" + className + "] for strategy [" +
                     strategyType.getName() + "]: a zero-argument constructor is required", ex);
         }

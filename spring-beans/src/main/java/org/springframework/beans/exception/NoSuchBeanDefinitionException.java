@@ -5,15 +5,20 @@ import org.springframework.util.StringUtils;
 
 public class NoSuchBeanDefinitionException extends BeansException {
 
-    /** Name of the missing bean */
+    /**
+     * Name of the missing bean
+     */
     private String beanName;
 
-    /** Required type of the missing bean */
+    /**
+     * Required type of the missing bean
+     */
     private Class<?> beanType;
 
 
     /**
      * Create a new {@code NoSuchBeanDefinitionException}.
+     *
      * @param name the name of the missing bean
      */
     public NoSuchBeanDefinitionException(String name) {
@@ -23,7 +28,8 @@ public class NoSuchBeanDefinitionException extends BeansException {
 
     /**
      * Create a new {@code NoSuchBeanDefinitionException}.
-     * @param name the name of the missing bean
+     *
+     * @param name    the name of the missing bean
      * @param message detailed message describing the problem
      */
     public NoSuchBeanDefinitionException(String name, String message) {
@@ -33,6 +39,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
 
     /**
      * Create a new {@code NoSuchBeanDefinitionException}.
+     *
      * @param type required type of the missing bean
      */
     public NoSuchBeanDefinitionException(Class<?> type) {
@@ -42,7 +49,8 @@ public class NoSuchBeanDefinitionException extends BeansException {
 
     /**
      * Create a new {@code NoSuchBeanDefinitionException}.
-     * @param type required type of the missing bean
+     *
+     * @param type    required type of the missing bean
      * @param message detailed message describing the problem
      */
     public NoSuchBeanDefinitionException(Class<?> type, String message) {
@@ -52,9 +60,10 @@ public class NoSuchBeanDefinitionException extends BeansException {
 
     /**
      * Create a new {@code NoSuchBeanDefinitionException}.
-     * @param type required type of the missing bean
+     *
+     * @param type                  required type of the missing bean
      * @param dependencyDescription a description of the originating dependency
-     * @param message detailed message describing the problem
+     * @param message               detailed message describing the problem
      */
     public NoSuchBeanDefinitionException(Class<?> type, String dependencyDescription, String message) {
         super("No qualifying bean of type [" + type.getName() + "] found for dependency" +
@@ -81,6 +90,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
     /**
      * Return the number of beans found when only one matching bean was expected.
      * For a regular NoSuchBeanDefinitionException, this will always be 0.
+     *
      * @see NoUniqueBeanDefinitionException
      */
     public int getNumberOfBeansFound() {

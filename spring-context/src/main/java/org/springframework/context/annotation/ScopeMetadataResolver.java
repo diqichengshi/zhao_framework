@@ -12,6 +12,7 @@ public interface ScopeMetadataResolver {
      * present on {@link BeanDefinition#getBeanClassName() the class} of the
      * supplied {@code definition}, or to use metadata present in the
      * {@link BeanDefinition#attributeNames()} of the supplied {@code definition}.
+     *
      * @param definition the target bean definition
      * @return the relevant scope metadata; never {@code null}
      */

@@ -57,26 +57,33 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
         }
         return new StandardEnvironment();
     }
+
     /**
      * Set the defaults to use for detected beans.
+     *
      * @see BeanDefinitionDefaults
      */
     public void setBeanDefinitionDefaults(BeanDefinitionDefaults beanDefinitionDefaults) {
         this.beanDefinitionDefaults =
                 (beanDefinitionDefaults != null ? beanDefinitionDefaults : new BeanDefinitionDefaults());
     }
+
     public void setAutowireCandidatePatterns(String... autowireCandidatePatterns) {
         this.autowireCandidatePatterns = autowireCandidatePatterns;
     }
+
     public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
         this.beanNameGenerator = (beanNameGenerator != null ? beanNameGenerator : new AnnotationBeanNameGenerator());
     }
+
     public void setScopeMetadataResolver(ScopeMetadataResolver scopeMetadataResolver) {
         this.scopeMetadataResolver = (scopeMetadataResolver != null ? scopeMetadataResolver : new AnnotationScopeMetadataResolver());
     }
+
     public void setScopedProxyMode(ScopedProxyMode scopedProxyMode) {
         this.scopeMetadataResolver = new AnnotationScopeMetadataResolver(scopedProxyMode);
     }
+
     /**
      * Perform a scan within the specified base packages.
      *

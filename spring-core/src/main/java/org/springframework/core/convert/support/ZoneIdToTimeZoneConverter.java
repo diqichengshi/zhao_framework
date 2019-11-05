@@ -32,15 +32,15 @@ import org.springframework.lang.UsesJava8;
  * {@link java.util.Date#from(java.time.Instant)} and {@link java.util.Date#toInstant()}.
  *
  * @author Juergen Hoeller
- * @since 4.0
  * @see TimeZone#getTimeZone(ZoneId)
+ * @since 4.0
  */
 @UsesJava8
 final class ZoneIdToTimeZoneConverter implements Converter<ZoneId, TimeZone> {
 
-	@Override
-	public TimeZone convert(ZoneId source) {
-		return TimeZone.getTimeZone(source);
-	}
+    @Override
+    public TimeZone convert(ZoneId source) {
+        return TimeZone.getTimeZone(source);
+    }
 
 }

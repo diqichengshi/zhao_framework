@@ -19,6 +19,7 @@ public class BeanCreationException extends RuntimeException {
 
     /**
      * Create a new BeanCreationException.
+     *
      * @param msg the detail message
      */
     public BeanCreationException(String msg) {
@@ -27,7 +28,8 @@ public class BeanCreationException extends RuntimeException {
 
     /**
      * Create a new BeanCreationException.
-     * @param msg the detail message
+     *
+     * @param msg   the detail message
      * @param cause the root cause
      */
     public BeanCreationException(String msg, Throwable cause) {
@@ -36,8 +38,9 @@ public class BeanCreationException extends RuntimeException {
 
     /**
      * Create a new BeanCreationException.
+     *
      * @param beanName the name of the bean requested
-     * @param msg the detail message
+     * @param msg      the detail message
      */
     public BeanCreationException(String beanName, String msg) {
         super("Error creating bean with name '" + beanName + "': " + msg);
@@ -46,9 +49,10 @@ public class BeanCreationException extends RuntimeException {
 
     /**
      * Create a new BeanCreationException.
+     *
      * @param beanName the name of the bean requested
-     * @param msg the detail message
-     * @param cause the root cause
+     * @param msg      the detail message
+     * @param cause    the root cause
      */
     public BeanCreationException(String beanName, String msg, Throwable cause) {
         this(beanName, msg);
@@ -57,10 +61,11 @@ public class BeanCreationException extends RuntimeException {
 
     /**
      * Create a new BeanCreationException.
+     *
      * @param resourceDescription description of the resource
-     * that the bean definition came from
-     * @param beanName the name of the bean requested
-     * @param msg the detail message
+     *                            that the bean definition came from
+     * @param beanName            the name of the bean requested
+     * @param msg                 the detail message
      */
     public BeanCreationException(String resourceDescription, String beanName, String msg) {
         super("Error creating bean with name '" + beanName + "'" +
@@ -71,11 +76,12 @@ public class BeanCreationException extends RuntimeException {
 
     /**
      * Create a new BeanCreationException.
+     *
      * @param resourceDescription description of the resource
-     * that the bean definition came from
-     * @param beanName the name of the bean requested
-     * @param msg the detail message
-     * @param cause the root cause
+     *                            that the bean definition came from
+     * @param beanName            the name of the bean requested
+     * @param msg                 the detail message
+     * @param cause               the root cause
      */
     public BeanCreationException(String resourceDescription, String beanName, String msg, Throwable cause) {
         this(resourceDescription, beanName, msg);
@@ -102,6 +108,7 @@ public class BeanCreationException extends RuntimeException {
      * Add a related cause to this bean creation exception,
      * not being a direct cause of the failure but having occured
      * earlier in the creation of the same bean instance.
+     *
      * @param ex the related cause to add
      */
     public void addRelatedCause(Throwable ex) {
@@ -113,6 +120,7 @@ public class BeanCreationException extends RuntimeException {
 
     /**
      * Return the related causes, if any.
+     *
      * @return the array of related causes, or {@code null} if none
      */
     public Throwable[] getRelatedCauses() {

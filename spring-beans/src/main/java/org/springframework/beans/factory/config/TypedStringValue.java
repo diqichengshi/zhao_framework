@@ -20,6 +20,7 @@ public class TypedStringValue implements BeanMetadataElement {
 
     /**
      * Create a new {@link TypedStringValue} for the given String value.
+     *
      * @param value the String value
      */
     public TypedStringValue(String value) {
@@ -29,7 +30,8 @@ public class TypedStringValue implements BeanMetadataElement {
     /**
      * Create a new {@link TypedStringValue} for the given String value
      * and target type.
-     * @param value the String value
+     *
+     * @param value      the String value
      * @param targetType the type to convert to
      */
     public TypedStringValue(String value, Class<?> targetType) {
@@ -40,7 +42,8 @@ public class TypedStringValue implements BeanMetadataElement {
     /**
      * Create a new {@link TypedStringValue} for the given String value
      * and target type.
-     * @param value the String value
+     *
+     * @param value          the String value
      * @param targetTypeName the type to convert to
      */
     public TypedStringValue(String value, String targetTypeName) {
@@ -53,6 +56,7 @@ public class TypedStringValue implements BeanMetadataElement {
      * Set the String value.
      * <p>Only necessary for manipulating a registered value,
      * for example in BeanFactoryPostProcessors.
+     *
      * @see PropertyPlaceholderConfigurer
      */
     public void setValue(String value) {
@@ -70,6 +74,7 @@ public class TypedStringValue implements BeanMetadataElement {
      * Set the type to convert to.
      * <p>Only necessary for manipulating a registered value,
      * for example in BeanFactoryPostProcessors.
+     *
      * @see PropertyPlaceholderConfigurer
      */
     public void setTargetType(Class<?> targetType) {
@@ -103,8 +108,7 @@ public class TypedStringValue implements BeanMetadataElement {
         Object targetTypeValue = this.targetType;
         if (targetTypeValue instanceof Class) {
             return ((Class<?>) targetTypeValue).getName();
-        }
-        else {
+        } else {
             return (String) targetTypeValue;
         }
     }
@@ -120,6 +124,7 @@ public class TypedStringValue implements BeanMetadataElement {
      * Determine the type to convert to, resolving it from a specified class name
      * if necessary. Will also reload a specified Class from its name when called
      * with the target type already resolved.
+     *
      * @param classLoader the ClassLoader to use for resolving a (potential) class name
      * @return the resolved type to convert to
      * @throws ClassNotFoundException if the type cannot be resolved

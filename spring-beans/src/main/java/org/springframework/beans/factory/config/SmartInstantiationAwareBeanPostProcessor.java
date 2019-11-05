@@ -9,8 +9,9 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
     /**
      * Predict the type of the bean to be eventually returned from this
      * processor's {@link #postProcessBeforeInstantiation} callback.
+     *
      * @param beanClass the raw class of the bean
-     * @param beanName the name of the bean
+     * @param beanName  the name of the bean
      * @return the type of the bean, or {@code null} if not predictable
      * @throws org.springframework.beans.BeansException in case of errors
      */
@@ -18,8 +19,9 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
 
     /**
      * Determine the candidate constructors to use for the given bean.
+     *
      * @param beanClass the raw class of the bean (never {@code null})
-     * @param beanName the name of the bean
+     * @param beanName  the name of the bean
      * @return the candidate constructors, or {@code null} if none specified
      * @throws org.springframework.beans.BeansException in case of errors
      */
@@ -39,7 +41,8 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
      * return the raw bean instance from those subsequent callbacks (if the wrapper
      * for the affected bean has been built for a call to this method already,
      * it will be exposes as final bean reference by default).
-     * @param bean the raw bean instance
+     *
+     * @param bean     the raw bean instance
      * @param beanName the name of the bean
      * @return the object to expose as bean reference
      * (typically with the passed-in bean instance as default)

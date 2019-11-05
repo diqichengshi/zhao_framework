@@ -10,6 +10,7 @@ public interface NamespaceHandler {
     /**
      * Invoked by the {@link DefaultBeanDefinitionDocumentReader} after
      * construction but before any custom elements are parsed.
+     *
      * @see NamespaceHandlerSupport#registerBeanDefinitionParser(String, BeanDefinitionParser)
      */
     void init();
@@ -24,7 +25,8 @@ public interface NamespaceHandler {
      * inside (for example) a {@code &lt;property&gt;} tag.
      * <p>Implementations may return {@code null} if they will
      * <strong>not</strong> be used in a nested scenario.
-     * @param element the element that is to be parsed into one or more {@code BeanDefinitions}
+     *
+     * @param element       the element that is to be parsed into one or more {@code BeanDefinitions}
      * @param parserContext the object encapsulating the current state of the parsing process
      * @return the primary {@code BeanDefinition} (can be {@code null} as explained above)
      */
@@ -41,8 +43,9 @@ public interface NamespaceHandler {
      * {@link org.springframework.beans.factory.BeanFactory}.
      * <p>The supplied {@link ParserContext} can be used to register any
      * additional beans needed to support the main definition.
-     * @param source the source element or attribute that is to be parsed
-     * @param definition the current bean definition
+     *
+     * @param source        the source element or attribute that is to be parsed
+     * @param definition    the current bean definition
      * @param parserContext the object encapsulating the current state of the parsing process
      * @return the decorated definition (to be registered in the BeanFactory),
      * or simply the original bean definition if no decoration is required.

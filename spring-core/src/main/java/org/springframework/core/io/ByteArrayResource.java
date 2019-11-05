@@ -32,100 +32,104 @@ import java.util.Arrays;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 1.2.3
  * @see ByteArrayInputStream
  * @see InputStreamResource
  * @see org.springframework.mail.javamail.MimeMessageHelper#addAttachment(String, InputStreamSource)
+ * @since 1.2.3
  */
 public class ByteArrayResource extends AbstractResource {
 
-	private final byte[] byteArray;
+    private final byte[] byteArray;
 
-	private final String description;
-
-
-	/**
-	 * Create a new ByteArrayResource.
-	 * @param byteArray the byte array to wrap
-	 */
-	public ByteArrayResource(byte[] byteArray) {
-		this(byteArray, "resource loaded from byte array");
-	}
-
-	/**
-	 * Create a new ByteArrayResource.
-	 * @param byteArray the byte array to wrap
-	 * @param description where the byte array comes from
-	 */
-	public ByteArrayResource(byte[] byteArray, String description) {
-		if (byteArray == null) {
-			throw new IllegalArgumentException("Byte array must not be null");
-		}
-		this.byteArray = byteArray;
-		this.description = (description != null ? description : "");
-	}
-
-	/**
-	 * Return the underlying byte array.
-	 */
-	public final byte[] getByteArray() {
-		return this.byteArray;
-	}
+    private final String description;
 
 
-	/**
-	 * This implementation always returns {@code true}.
-	 */
-	@Override
-	public boolean exists() {
-		return true;
-	}
+    /**
+     * Create a new ByteArrayResource.
+     *
+     * @param byteArray the byte array to wrap
+     */
+    public ByteArrayResource(byte[] byteArray) {
+        this(byteArray, "resource loaded from byte array");
+    }
 
-	/**
-	 * This implementation returns the length of the underlying byte array.
-	 */
-	@Override
-	public long contentLength() {
-		return this.byteArray.length;
-	}
+    /**
+     * Create a new ByteArrayResource.
+     *
+     * @param byteArray   the byte array to wrap
+     * @param description where the byte array comes from
+     */
+    public ByteArrayResource(byte[] byteArray, String description) {
+        if (byteArray == null) {
+            throw new IllegalArgumentException("Byte array must not be null");
+        }
+        this.byteArray = byteArray;
+        this.description = (description != null ? description : "");
+    }
 
-	/**
-	 * This implementation returns a ByteArrayInputStream for the
-	 * underlying byte array.
-	 * @see ByteArrayInputStream
-	 */
-	@Override
-	public InputStream getInputStream() throws IOException {
-		return new ByteArrayInputStream(this.byteArray);
-	}
-
-	/**
-	 * This implementation returns a description that includes the passed-in
-	 * {@code description}, if any.
-	 */
-	@Override
-	public String getDescription() {
-		return "Byte array resource [" + this.description + "]";
-	}
+    /**
+     * Return the underlying byte array.
+     */
+    public final byte[] getByteArray() {
+        return this.byteArray;
+    }
 
 
-	/**
-	 * This implementation compares the underlying byte array.
-	 * @see Arrays#equals(byte[], byte[])
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		return (obj == this ||
-			(obj instanceof ByteArrayResource && Arrays.equals(((ByteArrayResource) obj).byteArray, this.byteArray)));
-	}
+    /**
+     * This implementation always returns {@code true}.
+     */
+    @Override
+    public boolean exists() {
+        return true;
+    }
 
-	/**
-	 * This implementation returns the hash code based on the
-	 * underlying byte array.
-	 */
-	@Override
-	public int hashCode() {
-		return (byte[].class.hashCode() * 29 * this.byteArray.length);
-	}
+    /**
+     * This implementation returns the length of the underlying byte array.
+     */
+    @Override
+    public long contentLength() {
+        return this.byteArray.length;
+    }
+
+    /**
+     * This implementation returns a ByteArrayInputStream for the
+     * underlying byte array.
+     *
+     * @see ByteArrayInputStream
+     */
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return new ByteArrayInputStream(this.byteArray);
+    }
+
+    /**
+     * This implementation returns a description that includes the passed-in
+     * {@code description}, if any.
+     */
+    @Override
+    public String getDescription() {
+        return "Byte array resource [" + this.description + "]";
+    }
+
+
+    /**
+     * This implementation compares the underlying byte array.
+     *
+     * @see Arrays#equals(byte[], byte[])
+     */
+    @Override
+    public boolean equals(Object obj) {
+        return (obj == this ||
+                (obj instanceof ByteArrayResource && Arrays.equals(((ByteArrayResource) obj).byteArray, this.byteArray)));
+    }
+
+    /**
+     * This implementation returns the hash code based on the
+     * underlying byte array.
+     */
+    @Override
+    public int hashCode() {
+        return (byte[].class.hashCode() * 29 * this.byteArray.length);
+    }
 
 }

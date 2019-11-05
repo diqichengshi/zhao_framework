@@ -28,10 +28,10 @@ package org.springframework.asm;
  */
 public final class SpringAsmInfo {
 
-	/**
-	 * The ASM compatibility version for Spring's ASM visitor implementations:
-	 * currently {@link Opcodes#ASM5}.
-	 */
-	public static final int ASM_VERSION = Opcodes.ASM5;
+    /**
+     * The ASM compatibility version for Spring's ASM visitor implementations:
+     * currently {@link Opcodes#ASM5}.
+     */
+    public static final int ASM_VERSION = Opcodes.ASM5;
 
 }

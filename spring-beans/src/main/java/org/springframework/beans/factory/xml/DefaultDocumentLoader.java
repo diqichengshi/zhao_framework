@@ -20,7 +20,7 @@ public class DefaultDocumentLoader implements DocumentLoader {
 
     @Override
     public Document loadDocument(InputSource inputSource, EntityResolver entityResolver,
-             ErrorHandler errorHandler, int validationMode, boolean namespaceAware) throws Exception {
+                                 ErrorHandler errorHandler, int validationMode, boolean namespaceAware) throws Exception {
         DocumentBuilderFactory factory = createDocumentBuilderFactory(validationMode, namespaceAware);
         if (logger.isDebugEnabled()) {
             logger.debug("Using JAXP provider [" + factory.getClass().getName() + "]");
@@ -42,8 +42,7 @@ public class DefaultDocumentLoader implements DocumentLoader {
                 factory.setNamespaceAware(true);
                 try {
                     factory.setAttribute(SCHEMA_LANGUAGE_ATTRIBUTE, XSD_SCHEMA_LANGUAGE);
-                }
-                catch (IllegalArgumentException ex) {
+                } catch (IllegalArgumentException ex) {
                     ParserConfigurationException pcex = new ParserConfigurationException(
                             "Unable to validate using XSD: Your JAXP provider [" + factory +
                                     "] does not support XML Schema. Are you running on Java 1.4 with Apache Crimson? " +

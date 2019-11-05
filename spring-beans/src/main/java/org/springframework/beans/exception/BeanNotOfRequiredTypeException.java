@@ -4,22 +4,29 @@ import org.springframework.beans.BeansException;
 
 public class BeanNotOfRequiredTypeException extends BeansException {
 
-    /** The name of the instance that was of the wrong type */
+    /**
+     * The name of the instance that was of the wrong type
+     */
     private String beanName;
 
-    /** The required type */
+    /**
+     * The required type
+     */
     private Class<?> requiredType;
 
-    /** The offending type */
+    /**
+     * The offending type
+     */
     private Class<?> actualType;
 
 
     /**
      * Create a new BeanNotOfRequiredTypeException.
-     * @param beanName the name of the bean requested
+     *
+     * @param beanName     the name of the bean requested
      * @param requiredType the required type
-     * @param actualType the actual type returned, which did not match
-     * the expected type
+     * @param actualType   the actual type returned, which did not match
+     *                     the expected type
      */
     public BeanNotOfRequiredTypeException(String beanName, Class<?> requiredType, Class<?> actualType) {
         super("Bean named '" + beanName + "' must be of type [" + requiredType.getName() +

@@ -25,14 +25,14 @@ import org.springframework.util.StringUtils;
  * Converts from a String to a {@link Locale}.
  *
  * @author Keith Donald
- * @since 3.0
  * @see StringUtils#parseLocaleString
+ * @since 3.0
  */
 final class StringToLocaleConverter implements Converter<String, Locale> {
 
-	@Override
-	public Locale convert(String source) {
-		return StringUtils.parseLocaleString(source);
-	}
+    @Override
+    public Locale convert(String source) {
+        return StringUtils.parseLocaleString(source);
+    }
 
 }
