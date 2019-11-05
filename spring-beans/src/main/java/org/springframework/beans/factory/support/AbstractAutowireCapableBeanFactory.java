@@ -701,7 +701,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         if (mpvs != null && !resolveNecessary) {
             mpvs.setConverted();
         }
-        // TODO 完成设置
+        // TODO 完成属性的设置
         // Set our (possibly massaged) deep copy.
         try {
             bw.setPropertyValues(new MutablePropertyValues(deepCopy)); // bean的属性赋值
