@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements ConfigurableBeanFactory {
+
     protected final Log logger = LogFactory.getLog(getClass());
 
     private BeanFactory parentBeanFactory;
@@ -67,7 +68,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 
     /**
-     * 返回指定be an的实例，该实例可以是共享的，也可以是独立的。
+     * 返回指定bean的实例,该实例可以是共享的,也可以是独立的。
      *
      * @param name要检索的bean的名称
      * @param required        type要检索的bean的必需类型
