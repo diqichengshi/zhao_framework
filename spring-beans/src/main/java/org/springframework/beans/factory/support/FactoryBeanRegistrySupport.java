@@ -110,4 +110,9 @@ public class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
     protected Object postProcessObjectFromFactoryBean(Object object, String beanName) throws BeansException {
         return object;
     }
+
+    protected void removeSingleton(String beanName) {
+        super.removeSingleton(beanName);
+        this.factoryBeanObjectCache.remove(beanName);
+    }
 }

@@ -8,6 +8,7 @@ import org.springframework.core.SimpleAliasRegistry;
 import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -80,6 +81,34 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
      */
     private final Map<String, Set<String>> dependenciesForBeanMap = new ConcurrentHashMap<String, Set<String>>(64);
 
+
+    protected void addSingleton(String beanName, Object singletonObject) {
+        synchronized (this.singletonObjects) {
+            this.singletonObjects.put(beanName, (singletonObject != null ? singletonObject : NULL_OBJECT));
+            this.singletonFactories.remove(beanName);
+            this.earlySingletonObjects.remove(beanName);
+            this.registeredSingletons.add(beanName);
+        }
+    }
+
+    /**
+     * Add the given singleton factory for building the specified singleton
+     * if necessary.
+     * <p>To be called for eager registration of singletons, e.g. to be able to
+     * resolve circular references.
+     * @param beanName the name of the bean
+     * @param singletonFactory the factory for the singleton object
+     */
+    protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
+        Assert.notNull(singletonFactory, "Singleton factory must not be null");
+        synchronized (this.singletonObjects) {
+            if (!this.singletonObjects.containsKey(beanName)) {
+                this.singletonFactories.put(beanName, singletonFactory);
+                this.earlySingletonObjects.remove(beanName);
+                this.registeredSingletons.add(beanName);
+            }
+        }
+    }
 
     @Override
     public Object getSingleton(String beanName) {
@@ -188,12 +217,12 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
         }
     }
 
-    protected void addSingleton(String beanName, Object singletonObject) {
+    protected void removeSingleton(String beanName) {
         synchronized (this.singletonObjects) {
-            this.singletonObjects.put(beanName, (singletonObject != null ? singletonObject : NULL_OBJECT));
+            this.singletonObjects.remove(beanName);
             this.singletonFactories.remove(beanName);
             this.earlySingletonObjects.remove(beanName);
-            this.registeredSingletons.add(beanName);
+            this.registeredSingletons.remove(beanName);
         }
     }
 
@@ -216,6 +245,13 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
         return this.dependentBeanMap.containsKey(beanName);
     }
 
+    public String[] getDependentBeans(String beanName) {
+        Set<String> dependentBeans = this.dependentBeanMap.get(beanName);
+        if (dependentBeans == null) {
+            return new String[0];
+        }
+        return StringUtils.toStringArray(dependentBeans);
+    }
     /**
      * 确定指定的依赖bean是否已注册为
      * 依赖于给定的bean或其任何可传递依赖项。

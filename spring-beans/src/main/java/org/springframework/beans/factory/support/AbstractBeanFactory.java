@@ -376,6 +376,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         return ((containsSingleton(beanName) || containsBeanDefinition(beanName)) &&
                 (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(beanName)));
     }
+
+    //---------------------------------------------------------------------
+    // Implementation of ConfigurableBeanFactory interface
+    //---------------------------------------------------------------------
+    public void setParentBeanFactory(BeanFactory parentBeanFactory) {
+        if (this.parentBeanFactory != null && this.parentBeanFactory != parentBeanFactory) {
+            throw new IllegalStateException("Already associated with parent BeanFactory: " + this.parentBeanFactory);
+        }
+        this.parentBeanFactory = parentBeanFactory;
+    }
     public ClassLoader getBeanClassLoader() {
         return this.beanClassLoader;
     }
@@ -687,6 +697,21 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
      */
     protected void cleanupAfterBeanCreationFailure(String beanName) {
         this.alreadyCreated.remove(beanName);
+    }
+    /**
+     * Remove the singleton instance (if any) for the given bean name,
+     * but only if it hasn't been used for other purposes than type checking.
+     * @param beanName the name of the bean
+     * @return {@code true} if actually removed, {@code false} otherwise
+     */
+    protected boolean removeSingletonIfCreatedForTypeCheckOnly(String beanName) {
+        if (!this.alreadyCreated.contains(beanName)) {
+            removeSingleton(beanName);
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /**
