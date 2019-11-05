@@ -4,6 +4,7 @@ import org.springframework.beans.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 
 import java.lang.reflect.Method;
+import java.util.Set;
 
 public class RootBeanDefinition extends AbstractBeanDefinition {
     boolean allowCaching = true;
@@ -17,6 +18,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
     boolean constructorArgumentsResolved = false;
     final Object postProcessingLock = new Object();
     boolean postProcessed = false;
+    private Set<String> externallyManagedDestroyMethods;
 
     public RootBeanDefinition() {
         super();
@@ -63,4 +65,11 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
     public boolean isFactoryMethod(Method candidate) {
         return (candidate != null && candidate.getName().equals(getFactoryMethodName()));
     }
+    public boolean isExternallyManagedDestroyMethod(String destroyMethod) {
+        synchronized (this.postProcessingLock) {
+            return (this.externallyManagedDestroyMethods != null &&
+                    this.externallyManagedDestroyMethods.contains(destroyMethod));
+        }
+    }
+
 }

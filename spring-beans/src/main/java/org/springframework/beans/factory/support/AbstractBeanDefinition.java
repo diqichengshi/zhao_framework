@@ -25,6 +25,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     public static final int DEPENDENCY_CHECK_OBJECTS = 1;
     public static final int DEPENDENCY_CHECK_SIMPLE = 2;
     public static final int DEPENDENCY_CHECK_ALL = 3;
+    public static final String INFER_METHOD = "(inferred)";
     public static final int AUTOWIRE_NO = AutowireCapableBeanFactory.AUTOWIRE_NO;
     public static final int AUTOWIRE_BY_NAME = AutowireCapableBeanFactory.AUTOWIRE_BY_NAME;
     public static final int AUTOWIRE_BY_TYPE = AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;

@@ -7,4 +7,6 @@ public interface Scope {
 
     Object resolveContextualObject(String key);
 
+    void registerDestructionCallback(String name, Runnable callback);
+
 }

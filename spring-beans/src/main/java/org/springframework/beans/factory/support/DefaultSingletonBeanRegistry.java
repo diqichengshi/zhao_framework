@@ -3,6 +3,7 @@ package org.springframework.beans.factory.support;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.config.SingletonBeanRegistry;
 import org.springframework.beans.exception.BeanCreationNotAllowedException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.core.SimpleAliasRegistry;
 import org.springframework.util.Assert;
@@ -319,7 +320,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
         }
         registerDependentBean(containedBeanName, containingBeanName);
     }
-
+    public void registerDisposableBean(String beanName, DisposableBean bean) {
+        synchronized (this.disposableBeans) {
+            this.disposableBeans.put(beanName, bean);
+        }
+    }
     /**
      * Register a dependent bean for the given bean,
      * to be destroyed before the given bean is destroyed.

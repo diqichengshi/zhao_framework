@@ -3,7 +3,7 @@ package org.springframework.beans.factory.support;
 import org.springframework.beans.config.AutowireCapableBeanFactory;
 import org.springframework.beans.config.BeanDefinition;
 import org.springframework.beans.*;
-import org.springframework.beans.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.exception.BeanCurrentlyInCreationException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.BeansException;

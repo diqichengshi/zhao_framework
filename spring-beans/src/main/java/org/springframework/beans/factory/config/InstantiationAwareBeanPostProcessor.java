@@ -1,7 +1,6 @@
 package org.springframework.beans.factory.config;
 
 import org.springframework.beans.PropertyValues;
-import org.springframework.beans.config.BeanPostProcessor;
 import org.springframework.beans.BeansException;
 
 import java.beans.PropertyDescriptor;

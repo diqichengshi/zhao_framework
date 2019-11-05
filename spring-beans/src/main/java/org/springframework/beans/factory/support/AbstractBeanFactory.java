@@ -3,7 +3,7 @@ package org.springframework.beans.factory.support;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.TypeConverter;
 import org.springframework.beans.config.BeanDefinition;
-import org.springframework.beans.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.config.Scope;
 import org.springframework.beans.exception.*;
 import org.springframework.beans.factory.*;
@@ -28,27 +28,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     private ClassLoader tempClassLoader;
     private TypeConverter typeConverter;
     private BeanExpressionResolver beanExpressionResolver;
-    /**
-     * Names of beans that are currently in creation
-     */
     private final ThreadLocal<Object> prototypesCurrentlyInCreation = new ThreadLocal<Object>();
-    /**
-     * Names of beans that have already been created at least once
-     */
     private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>(64));
-    /**
-     * Map from scope identifier String to corresponding Scope
-     */
     private final Map<String, Scope> scopes = new LinkedHashMap<String, Scope>(8);
-    /**
-     * BeanPostProcessors to apply in createBean
-     */
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
-
     private boolean hasInstantiationAwareBeanPostProcessors;
-    private final Map<String, RootBeanDefinition> mergedBeanDefinitions =
-            new ConcurrentHashMap<String, RootBeanDefinition>(64);
-
+    private boolean hasDestructionAwareBeanPostProcessors;
+    private final Map<String, RootBeanDefinition> mergedBeanDefinitions = new ConcurrentHashMap<String, RootBeanDefinition>(64);
 
     //-----------------------------------------------------------------------------------
     // Implementation of BeanFactory interface开始
@@ -454,7 +440,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
             }
         }
     }
-
+    protected boolean hasDestructionAwareBeanPostProcessors() {
+        return this.hasDestructionAwareBeanPostProcessors;
+    }
     protected String transformedBeanName(String name) {
         return BeanFactoryUtils.transformedBeanName(name);
     }
@@ -748,6 +736,42 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         return isAlias(beanName) || containsLocalBean(beanName) || hasDependentBean(beanName);
     }
 
+    protected boolean requiresDestruction(Object bean, RootBeanDefinition mbd) {
+        return (bean != null &&
+                (DisposableBeanAdapter.hasDestroyMethod(bean, mbd) || hasDestructionAwareBeanPostProcessors()));
+    }
+    /**
+     * Add the given bean to the list of disposable beans in this factory,
+     * registering its DisposableBean interface and/or the given destroy method
+     * to be called on factory shutdown (if applicable). Only applies to singletons.
+     * @param beanName the name of the bean
+     * @param bean the bean instance
+     * @param mbd the bean definition for the bean
+     * @see RootBeanDefinition#isSingleton
+     * @see RootBeanDefinition#getDependsOn
+     * @see #registerDisposableBean
+     * @see #registerDependentBean
+     */
+    protected void registerDisposableBeanIfNecessary(String beanName, Object bean, RootBeanDefinition mbd) {
+        if (!mbd.isPrototype() && requiresDestruction(bean, mbd)) {
+            if (mbd.isSingleton()) {
+                // Register a DisposableBean implementation that performs all destruction
+                // work for the given bean: DestructionAwareBeanPostProcessors,
+                // DisposableBean interface, custom destroy method.
+                registerDisposableBean(beanName,
+                        new DisposableBeanAdapter(bean, beanName, mbd, getBeanPostProcessors()));
+            }
+            else {
+                // A bean with a custom scope...
+                Scope scope = this.scopes.get(mbd.getScope());
+                if (scope == null) {
+                    throw new IllegalStateException("No Scope registered for scope '" + mbd.getScope() + "'");
+                }
+                scope.registerDestructionCallback(beanName,
+                        new DisposableBeanAdapter(bean, beanName, mbd, getBeanPostProcessors()));
+            }
+        }
+    }
     /**
      * 抽象方法宫子类实现
      */
