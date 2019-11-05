@@ -123,17 +123,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @see #instantiateBean
      */
     protected Object doCreateBean(final String beanName, final RootBeanDefinition mbd, final Object[] args) {
-        // Instantiate the bean.
+        // 先进行实例化bean(Instantiate the bean).
         BeanWrapper instanceWrapper = null;
         if (mbd.isSingleton()) {
+            // 移除BeanWrapper缓存
             instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
         }
         if (instanceWrapper == null) {
-            //这个是主要方法一，生成wrapper下面分析
-            // instanceWrapper 是一个被包装过了的 bean，它里面的属性还未赋实际值
+            // 创建BeanWrapper,这是一个被包装过了的 bean,它里面的属性还未赋实际值
             instanceWrapper = createBeanInstance(beanName, mbd, args);
         }
-        //获取bean和class对象
+        //获取bean实例和实例化对象的类型
         final Object bean = (instanceWrapper != null ? instanceWrapper.getWrappedInstance() : null);
         Class<?> beanType = (instanceWrapper != null ? instanceWrapper.getWrappedClass() : null);
         // 后置处理器机制,用来处理@AutoWired注解
@@ -149,13 +149,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         // Eagerly cache singletons to be able to resolve circular references
         // even when triggered by lifecycle interfaces like BeanFactoryAware.
+        // 下面代码是为了解决循环依赖的问题
         boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
                 isSingletonCurrentlyInCreation(beanName));
+        // 提前曝光bean
         if (earlySingletonExposure) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Eagerly caching bean '" + beanName +
                         "' to allow for resolving potential circular references");
             }
+            // 该方法介于bean实例化和依赖注入(populateBean)中间,这个对象已经被生产出来了,虽然还没有真正初始化,
+            // 但是可以根据对象引用能定位到堆中的对象,所以Spring此时将这个对象提前曝光出来让大家认识
             addSingletonFactory(beanName, new ObjectFactory<Object>() {
                 @Override
                 public Object getObject() throws BeansException {
@@ -167,11 +171,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 初始化Bean实例
         Object exposedObject = bean;
         try {
-            //TODO 属性填充,自动注入,重点方法二
+            //TODO 实例化后,需要进行依赖注入(属性填充,自动注入)
             populateBean(beanName, mbd, instanceWrapper);
             if (exposedObject != null) {
-                //实现InitializingBean接口的方法回调，重点方法三
-                exposedObject = initializeBean(mbd.getResourceDescription(), exposedObject, mbd); // 执行Bean的初始化方法
+                // TODO 这里就是处理bean初始化完成后的各种回调,例如init-method配置,BeanPostProcessor接口
+                exposedObject = initializeBean(mbd.getResourceDescription(), exposedObject, mbd);
             }
         } catch (Throwable ex) {
             if (ex instanceof BeanCreationException) {
@@ -182,8 +186,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
 
         if (earlySingletonExposure) {
+            // 如果已经提交曝光了bean,那么就从缓存中获取bean
             Object earlySingletonReference = getSingleton(beanName, false);
             if (earlySingletonReference != null) {
+                // /根据名称获取的已注册的Bean和正在实例化的Bean是同一个
                 if (exposedObject == bean) {
                     exposedObject = earlySingletonReference;
                 } else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
@@ -206,6 +212,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 }
             }
         }
+        // Register bean as disposable.
+        try {
+            registerDisposableBeanIfNecessary(beanName, bean, mbd);
+        }
+        catch (BeanDefinitionValidationException ex) {
+            throw new BeanCreationException(
+                    mbd.getResourceDescription(), beanName, "Invalid destruction signature", ex);
+        }
+
         return exposedObject;
     }
 

@@ -96,7 +96,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
      * if necessary.
      * <p>To be called for eager registration of singletons, e.g. to be able to
      * resolve circular references.
-     *
+     * 该方法介于bean实例化和依赖注入(populateBean)中间,这个对象已经被生产出来了,虽然还没有真正初始化,
+     * 但是可以根据对象引用能定位到堆中的对象,所以Spring此时将这个对象提前曝光出来让大家认识
      * @param beanName         the name of the bean
      * @param singletonFactory the factory for the singleton object
      */
