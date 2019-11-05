@@ -162,7 +162,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             // 创建BeanWrapper,这是一个被包装过了的 bean,它里面的属性还未赋实际值
             instanceWrapper = createBeanInstance(beanName, mbd, args);
         }
-        //获取bean实例和实例化对象的类型
+        // 获取bean实例和实例化对象的类型
         final Object bean = (instanceWrapper != null ? instanceWrapper.getWrappedInstance() : null);
         Class<?> beanType = (instanceWrapper != null ? instanceWrapper.getWrappedClass() : null);
         // 后置处理器机制,用来处理@AutoWired注解
