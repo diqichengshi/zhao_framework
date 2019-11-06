@@ -7,4 +7,13 @@ public abstract class InstantiationAwareBeanPostProcessorAdapter implements Inst
     public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
         return true;
     }
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        return bean;
+    }
 }

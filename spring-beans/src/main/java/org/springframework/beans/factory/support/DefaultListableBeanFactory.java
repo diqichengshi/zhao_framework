@@ -8,24 +8,43 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.exception.NoSuchBeanDefinitionException;
 import org.springframework.beans.exception.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.CannotLoadBeanClassException;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.core.OrderComparator;
+import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements ConfigurableListableBeanFactory, BeanDefinitionRegistry {
+public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory
+        implements ConfigurableListableBeanFactory, BeanDefinitionRegistry {
 
+    private static final Map<String, Reference<DefaultListableBeanFactory>> serializableFactories =
+            new ConcurrentHashMap<String, Reference<DefaultListableBeanFactory>>(8);
+    private String serializationId;
+    private boolean allowEagerClassLoading = true;
+    private boolean allowBeanDefinitionOverriding = true;
     private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
-
+    private final Map<Class<?>, String[]> allBeanNamesByType = new ConcurrentHashMap<Class<?>, String[]>(64);
+    private final Map<Class<?>, String[]> singletonBeanNamesByType = new ConcurrentHashMap<Class<?>, String[]>(64);
     private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<Class<?>, Object>(16);
-
     private Comparator<Object> dependencyComparator;
+    private volatile List<String> beanDefinitionNames = new ArrayList<String>(64);
+
+    private volatile Set<String> manualSingletonNames = new LinkedHashSet<String>(16);
+
+    private volatile String[] frozenBeanDefinitionNames;
+
+    private volatile boolean configurationFrozen = false;
 
     /**
      * 有参的构造方法，在创建此类实例时需要指定xml文件路径
@@ -37,7 +56,166 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     public DefaultListableBeanFactory(BeanFactory parentBeanFactory) {
         super(parentBeanFactory);
     }
+    public void setSerializationId(String serializationId) {
+        if (serializationId != null) {
+            serializableFactories.put(serializationId, new WeakReference<DefaultListableBeanFactory>(this));
+        }
+        else if (this.serializationId != null) {
+            serializableFactories.remove(this.serializationId);
+        }
+        this.serializationId = serializationId;
+    }
+    public void setAllowBeanDefinitionOverriding(boolean allowBeanDefinitionOverriding) {
+        this.allowBeanDefinitionOverriding = allowBeanDefinitionOverriding;
+    }
 
+    public Comparator<Object> getDependencyComparator() {
+        return this.dependencyComparator;
+    }
+    public boolean isAllowEagerClassLoading() {
+        return this.allowEagerClassLoading;
+    }
+
+    //---------------------------------------------------------------------
+    // Implementation of ListableBeanFactory interface
+    //---------------------------------------------------------------------
+    @Override
+    public boolean containsBeanDefinition(String beanName) {
+        return beanDefinitionMap.containsKey(beanName);
+    }
+    @Override
+    public int getBeanDefinitionCount() {
+        return beanDefinitionMap.size();
+    }
+
+    @Override
+    public String[] getBeanNamesForType(Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
+        if (!isConfigurationFrozen() || type == null || !allowEagerInit) {
+            return doGetBeanNamesForType(ResolvableType.forRawClass(type), includeNonSingletons, allowEagerInit);
+        }
+        Map<Class<?>, String[]> cache =
+                (includeNonSingletons ? this.allBeanNamesByType : this.singletonBeanNamesByType);
+        String[] resolvedBeanNames = cache.get(type);
+        if (resolvedBeanNames != null) {
+            return resolvedBeanNames;
+        }
+        resolvedBeanNames = doGetBeanNamesForType(ResolvableType.forRawClass(type), includeNonSingletons, true);
+        if (ClassUtils.isCacheSafe(type, getBeanClassLoader())) {
+            cache.put(type, resolvedBeanNames);
+        }
+        return resolvedBeanNames;
+    }
+    private String[] doGetBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
+        List<String> result = new ArrayList<String>();
+
+        // Check all bean definitions.
+        for (String beanName : this.beanDefinitionNames) {
+            // Only consider bean as eligible if the bean name
+            // is not defined as alias for some other bean.
+            if (!isAlias(beanName)) {
+                try {
+                    RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+                    // Only check bean definition if it is complete.
+                    if (!mbd.isAbstract() && (allowEagerInit ||
+                            ((mbd.hasBeanClass() || !mbd.isLazyInit() || isAllowEagerClassLoading())) &&
+                                    !requiresEagerInitForType(mbd.getFactoryBeanName()))) {
+                        // In case of FactoryBean, match object created by FactoryBean.
+                        boolean isFactoryBean = isFactoryBean(beanName, mbd);
+                        boolean matchFound = (allowEagerInit || !isFactoryBean || containsSingleton(beanName)) &&
+                                (includeNonSingletons || isSingleton(beanName)) && isTypeMatch(beanName, type);
+                        if (!matchFound && isFactoryBean) {
+                            // In case of FactoryBean, try to match FactoryBean instance itself next.
+                            beanName = FACTORY_BEAN_PREFIX + beanName;
+                            matchFound = (includeNonSingletons || mbd.isSingleton()) && isTypeMatch(beanName, type);
+                        }
+                        if (matchFound) {
+                            result.add(beanName);
+                        }
+                    }
+                }
+                catch (CannotLoadBeanClassException ex) {
+                    if (allowEagerInit) {
+                        throw ex;
+                    }
+                    // Probably contains a placeholder: let's ignore it for type matching purposes.
+                    if (this.logger.isDebugEnabled()) {
+                        this.logger.debug("Ignoring bean class loading failure for bean '" + beanName + "'", ex);
+                    }
+                    onSuppressedException(ex);
+                }
+                catch (BeanDefinitionStoreException ex) {
+                    if (allowEagerInit) {
+                        throw ex;
+                    }
+                    // Probably contains a placeholder: let's ignore it for type matching purposes.
+                    if (this.logger.isDebugEnabled()) {
+                        this.logger.debug("Ignoring unresolvable metadata in bean definition '" + beanName + "'", ex);
+                    }
+                    onSuppressedException(ex);
+                }
+            }
+        }
+
+        // Check manually registered singletons too.
+        for (String beanName : this.manualSingletonNames) {
+            try {
+                // In case of FactoryBean, match object created by FactoryBean.
+                if (isFactoryBean(beanName)) {
+                    if ((includeNonSingletons || isSingleton(beanName)) && isTypeMatch(beanName, type)) {
+                        result.add(beanName);
+                        // Match found for this bean: do not match FactoryBean itself anymore.
+                        continue;
+                    }
+                    // In case of FactoryBean, try to match FactoryBean itself next.
+                    beanName = FACTORY_BEAN_PREFIX + beanName;
+                }
+                // Match raw bean instance (might be raw FactoryBean).
+                if (isTypeMatch(beanName, type)) {
+                    result.add(beanName);
+                }
+            }
+            catch (NoSuchBeanDefinitionException ex) {
+                // Shouldn't happen - probably a result of circular reference resolution...
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Failed to check manually registered singleton with name '" + beanName + "'", ex);
+                }
+            }
+        }
+
+        return StringUtils.toStringArray(result);
+    }
+
+    private boolean requiresEagerInitForType(String factoryBeanName) {
+        return (factoryBeanName != null && isFactoryBean(factoryBeanName) && !containsSingleton(factoryBeanName));
+    }
+
+
+
+    //---------------------------------------------------------------------
+    // Implementation of ConfigurableListableBeanFactory interface
+    //---------------------------------------------------------------------
+    @Override
+    public void registerResolvableDependency(Class<?> dependencyType, Object autowiredValue) {
+        Assert.notNull(dependencyType, "Type must not be null");
+        if (autowiredValue != null) {
+            Assert.isTrue((autowiredValue instanceof ObjectFactory || dependencyType.isInstance(autowiredValue)),
+                    "Value [" + autowiredValue + "] does not implement specified type [" + dependencyType.getName() + "]");
+            this.resolvableDependencies.put(dependencyType, autowiredValue);
+        }
+    }
+    @Override
+    public BeanDefinition getBeanDefinition(String beanName) {
+        return beanDefinitionMap.get(beanName);
+    }
+    @Override
+    public void clearMetadataCache() {
+        super.clearMetadataCache();
+        clearByTypeCache();
+    }
+
+    public boolean isConfigurationFrozen() {
+        return this.configurationFrozen;
+    }
     /*
      * 注册bean定义，需要给定唯一bean的名称和bean的定义,放到bean定义集合中
      */
@@ -50,6 +228,18 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         beanDefinitionMap.put(beanName, beanDefinition);
     }
 
+    /**
+     * Remove any assumptions about by-type mappings.
+     */
+    private void clearByTypeCache() {
+        this.allBeanNamesByType.clear();
+        this.singletonBeanNamesByType.clear();
+    }
+
+
+    //---------------------------------------------------------------------
+    // Dependency resolution functionality
+    //---------------------------------------------------------------------
     /**
      * 获取依赖属性
      */
@@ -182,40 +372,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         return (candidateName != null && (candidateName.equals(beanName)));
     }
 
-    public Comparator<Object> getDependencyComparator() {
-        return this.dependencyComparator;
-    }
-
-    //---------------------------------------------------------------------
-    // Implementation of ConfigurableListableBeanFactory interface
-    //---------------------------------------------------------------------
-    @Override
-    public void registerResolvableDependency(Class<?> dependencyType, Object autowiredValue) {
-        Assert.notNull(dependencyType, "Type must not be null");
-        if (autowiredValue != null) {
-            Assert.isTrue((autowiredValue instanceof ObjectFactory || dependencyType.isInstance(autowiredValue)),
-                    "Value [" + autowiredValue + "] does not implement specified type [" + dependencyType.getName() + "]");
-            this.resolvableDependencies.put(dependencyType, autowiredValue);
-        }
-    }
-
-    @Override
-    public BeanDefinition getBeanDefinition(String beanName) {
-        return beanDefinitionMap.get(beanName);
-    }
-
-    @Override
-    public boolean containsBeanDefinition(String beanName) {
-        return beanDefinitionMap.containsKey(beanName);
-    }
-
-    public int getBeanDefinitionCount() {
-        return beanDefinitionMap.size();
-    }
 
     @Override
     public void setBeanClassLoader(ClassLoader beanClassLoader) {
-
     }
 
 }

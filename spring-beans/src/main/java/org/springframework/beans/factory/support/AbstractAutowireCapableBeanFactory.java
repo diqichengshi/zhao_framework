@@ -92,6 +92,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         return this.parameterNameDiscoverer;
     }
 
+    public void setAllowCircularReferences(boolean allowCircularReferences) {
+        this.allowCircularReferences = allowCircularReferences;
+    }
+
     public void ignoreDependencyInterface(Class<?> ifc) {
         this.ignoredDependencyInterfaces.add(ifc);
     }

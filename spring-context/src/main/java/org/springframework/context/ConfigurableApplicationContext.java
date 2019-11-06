@@ -42,6 +42,18 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
      * @see java.lang.System#getenv()
      */
     String SYSTEM_ENVIRONMENT_BEAN_NAME = "systemEnvironment";
+    /**
+     * Add a new ApplicationListener that will be notified on context events
+     * such as context refresh and context shutdown.
+     * <p>Note that any ApplicationListener registered here will be applied
+     * on refresh if the context is not active yet, or on the fly with the
+     * current event multicaster in case of a context that is already active.
+     * @param listener the ApplicationListener to register
+     * @see org.springframework.context.event.ContextRefreshedEvent
+     * @see org.springframework.context.event.ContextClosedEvent
+     */
+    void addApplicationListener(ApplicationListener<?> listener);
+
     public void refresh() throws BeansException, IllegalStateException;
 
 }

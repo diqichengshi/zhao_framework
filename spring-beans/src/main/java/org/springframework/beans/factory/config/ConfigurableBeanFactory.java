@@ -54,6 +54,14 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
      */
     void setTempClassLoader(ClassLoader tempClassLoader);
     /**
+     * Specify the resolution strategy for expressions in bean definition values.
+     * <p>There is no expression support active in a BeanFactory by default.
+     * An ApplicationContext will typically set a standard expression strategy
+     * here, supporting "#{...}" expressions in a Unified EL compatible style.
+     * @since 3.0
+     */
+    /*void setBeanExpressionResolver(BeanExpressionResolver resolver);*/
+    /**
      * Add a PropertyEditorRegistrar to be applied to all bean creation processes.
      * <p>Such a registrar creates new PropertyEditor instances and registers them
      * on the given registry, fresh for each bean creation attempt. This avoids
@@ -82,6 +90,10 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
      * @param beanPostProcessor the post-processor to register
      */
     void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
+    /**
+     * Return the current number of registered BeanPostProcessors, if any.
+     */
+    int getBeanPostProcessorCount();
     /**
      * Determine whether the specified bean is currently in creation.
      * @param beanName the name of the bean

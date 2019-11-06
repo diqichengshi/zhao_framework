@@ -5,28 +5,40 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.exception.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.support.ResourceEditorRegistrar;
 import org.springframework.context.*;
+import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractApplicationContext extends DefaultResourceLoader implements ConfigurableApplicationContext {
     protected final Log logger = LogFactory.getLog(getClass());
+    private String id = ObjectUtils.identityToString(this);
     private ApplicationContext parent;
     private String displayName = ObjectUtils.identityToString(this);
     private ConfigurableEnvironment environment;
+    private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<BeanFactoryPostProcessor>();
     private final Object startupShutdownMonitor = new Object();
     private long startupDate;
     private final AtomicBoolean active = new AtomicBoolean();
     private final AtomicBoolean closed = new AtomicBoolean();
+    private ApplicationEventMulticaster applicationEventMulticaster;
+    private final Set<ApplicationListener<?>> applicationListeners = new LinkedHashSet<ApplicationListener<?>>();
+    private Set<ApplicationEvent> earlyApplicationEvents;
 
     public AbstractApplicationContext() {
     }
@@ -34,6 +46,21 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public AbstractApplicationContext(ApplicationContext parent) {
         this();
         setParent(parent);
+    }
+
+    @Override
+    public String getId() {
+        return this.id;
+    }
+
+    public void setParent(ApplicationContext parent) {
+        this.parent = parent;
+        if (parent != null) {
+            Environment parentEnvironment = parent.getEnvironment();
+            if (parentEnvironment instanceof ConfigurableEnvironment) {
+                getEnvironment().merge((ConfigurableEnvironment) parentEnvironment);
+            }
+        }
     }
 
     public String getDisplayName() {
@@ -47,20 +74,105 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         return this.environment;
     }
 
-    public void setParent(ApplicationContext parent) {
-        this.parent = parent;
-        if (parent != null) {
-            Environment parentEnvironment = parent.getEnvironment();
-            if (parentEnvironment instanceof ConfigurableEnvironment) {
-                getEnvironment().merge((ConfigurableEnvironment) parentEnvironment);
+    /**
+     * Publish the given event to all listeners.
+     * <p>Note: Listeners get initialized after the MessageSource, to be able
+     * to access it within listener implementations. Thus, MessageSource
+     * implementations cannot publish events.
+     * @param event the event to publish (may be application-specific or a
+     * standard framework event)
+     */
+    @Override
+    public void publishEvent(ApplicationEvent event) {
+        publishEvent(event, null);
+    }
+
+    /**
+     * Publish the given event to all listeners.
+     * <p>Note: Listeners get initialized after the MessageSource, to be able
+     * to access it within listener implementations. Thus, MessageSource
+     * implementations cannot publish events.
+     * @param event the event to publish (may be an {@link ApplicationEvent}
+     * or a payload object to be turned into a {@link PayloadApplicationEvent})
+     */
+    @Override
+    public void publishEvent(Object event) {
+        publishEvent(event, null);
+    }
+
+    /**
+     * Publish the given event to all listeners.
+     * @param event the event to publish (may be an {@link ApplicationEvent}
+     * or a payload object to be turned into a {@link PayloadApplicationEvent})
+     * @param eventType the resolved event type, if known
+     * @since 4.2
+     */
+    protected void publishEvent(Object event, ResolvableType eventType) {
+        Assert.notNull(event, "Event must not be null");
+        if (logger.isTraceEnabled()) {
+            logger.trace("Publishing event in " + getDisplayName() + ": " + event);
+        }
+
+        // Decorate event as an ApplicationEvent if necessary
+        ApplicationEvent applicationEvent;
+        if (event instanceof ApplicationEvent) {
+            applicationEvent = (ApplicationEvent) event;
+        }
+        else {
+            applicationEvent = new PayloadApplicationEvent<Object>(this, event);
+            if (eventType == null) {
+                eventType = ResolvableType.forClassWithGenerics(PayloadApplicationEvent.class, event.getClass());
             }
+        }
+
+        // Multicast right now if possible - or lazily once the multicaster is initialized
+        if (this.earlyApplicationEvents != null) {
+            this.earlyApplicationEvents.add(applicationEvent);
+        }
+        else {
+            getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
+        }
+
+        // Publish event via parent context as well...
+        if (this.parent != null) {
+            if (this.parent instanceof AbstractApplicationContext) {
+                ((AbstractApplicationContext) this.parent).publishEvent(event, eventType);
+            }
+            else {
+                this.parent.publishEvent(event);
+            }
+        }
+    }
+
+    public List<BeanFactoryPostProcessor> getBeanFactoryPostProcessors() {
+        return this.beanFactoryPostProcessors;
+    }
+
+    @Override
+    public void addApplicationListener(ApplicationListener<?> listener) {
+        if (this.applicationEventMulticaster != null) {
+            this.applicationEventMulticaster.addApplicationListener(listener);
+        }
+        else {
+            this.applicationListeners.add(listener);
         }
     }
 
     protected ConfigurableEnvironment createEnvironment() {
         return new StandardEnvironment();
     }
-
+    /**
+     * Return the internal ApplicationEventMulticaster used by the context.
+     * @return the internal ApplicationEventMulticaster (never {@code null})
+     * @throws IllegalStateException if the context has not been initialized yet
+     */
+    ApplicationEventMulticaster getApplicationEventMulticaster() throws IllegalStateException {
+        if (this.applicationEventMulticaster == null) {
+            throw new IllegalStateException("ApplicationEventMulticaster not initialized - " +
+                    "call 'refresh' before multicasting events via the context: " + this);
+        }
+        return this.applicationEventMulticaster;
+    }
     /**
      * 获取BeanFactory配置清单
      * 此处进行精简
@@ -68,34 +180,39 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     @Override
     public void refresh() throws BeansException, IllegalStateException {
         synchronized (this.startupShutdownMonitor) {
-            // Prepare this context for refreshing.
+            // 准备刷新的上下文环境,初始化前准备工作,对环境变量的验证
             prepareRefresh();
 
-            // Tell the subclass to refresh the internal bean factory.
+            // 初始化BeanFactory，并进行XML文件读取
             ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
-            // Prepare the bean factory for use in this context.
-            // 进行功能增强
+            // 对BeanFactory进行各种功能填充
             prepareBeanFactory(beanFactory);
 
             try {
-                // Allows post-processing of the bean factory in context subclasses.
+                // 允许子类覆盖该方法做额外的处理
                 postProcessBeanFactory(beanFactory);
-                // Invoke factory processors registered as beans in the context.
+
+                // 激活各种BeanFactory处理器
                 invokeBeanFactoryPostProcessors(beanFactory);
-                // Register bean processors that intercept bean creation.
+
+                // 注册 拦截Bean创建的Bean处理器,这里只是注册,真正的调用是在getBean时候
                 registerBeanPostProcessors(beanFactory);
-                // Initialize message source for this context.
+
+                // 为上下文初始化Message消息资源，即不同语言的消息体，国际化处理
                 initMessageSource();
-                // Initialize event multicaster for this context.
+
+                // 初始化应用消息广播器,并放入"applicationEventMulticaster"bean中,与Spring的事件监听有关
                 initApplicationEventMulticaster();
-                // Initialize other special beans in specific context subclasses.
+                // 留给子类来初始化其他bean
                 onRefresh();
-                // Check for listener beans and register them.
+
+                // 在所有注册的bean中查找Listener bean,注册到消息广播器中
                 registerListeners();
-                // Instantiate all remaining (non-lazy-init) singletons.
+                // 初始化剩下的单实例(非惰性的)
                 finishBeanFactoryInitialization(beanFactory);
-                // Last step: publish corresponding event.
+
+                // 完成刷新过程,通知生命周期处理器 lifecycleProcessor刷新过程,同时发出 ContextRefreshEvent 通知别人
                 finishRefresh();
             } catch (BeansException ex) {
                 logger.warn("Exception encountered during context initialization - cancelling refresh attempt", ex);
@@ -123,15 +240,23 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         this.closed.set(false);
         this.active.set(true);
 
-        if (logger.isInfoEnabled()) {
-            logger.info("Refreshing " + this);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Refreshing " + this);
         }
+        initPropertySources();
 
+        getEnvironment().validateRequiredProperties();
+
+        this.earlyApplicationEvents = new LinkedHashSet<>();
+
+    }
+
+    protected void initPropertySources() {
+        // For subclasses: do nothing by default.
     }
 
     /**
      * Tell the subclass to refresh the internal bean factory.
-     *
      * @return the fresh BeanFactory instance
      * @see #refreshBeanFactory()
      * @see #getBeanFactory()
@@ -146,36 +271,39 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         return beanFactory;
     }
 
-    /**进行功能增强*/
+    /**
+     * Configure the factory's standard context characteristics,
+     * such as the context's ClassLoader and post-processors.
+     * 对BeanFactory进行各种功能填充
+     * @param beanFactory the BeanFactory to configure
+     */
     protected void prepareBeanFactory(ConfigurableListableBeanFactory beanFactory) {
         // Tell the internal bean factory to use the context's class loader etc.
         beanFactory.setBeanClassLoader(getClassLoader());
-        // beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
+        // 增加属性注册编辑器
         beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
-        // Configure the bean factory with context callbacks.
-        // beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+        // 设置几个忽略自动装配的接口
         beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
-        // beanFactory.ignoreDependencyInterface(ApplicationEventPublisherAware.class);
+        beanFactory.ignoreDependencyInterface(ApplicationEventPublisherAware.class);
         beanFactory.ignoreDependencyInterface(MessageSourceAware.class);
         beanFactory.ignoreDependencyInterface(ApplicationContextAware.class);
         beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 
-        // BeanFactory interface not registered as resolvable type in a plain factory.
-        // MessageSource registered (and found for autowiring) as a bean.
+        // 置几个自动装配的特殊规则
         beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
         beanFactory.registerResolvableDependency(ResourceLoader.class, this);
-        // beanFactory.registerResolvableDependency(ApplicationEventPublisher.class, this);
+        beanFactory.registerResolvableDependency(ApplicationEventPublisher.class, this);
         beanFactory.registerResolvableDependency(ApplicationContext.class, this);
 
         // Detect a LoadTimeWeaver and prepare for weaving, if found.
-       /* if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+        /*if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
             beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
             // Set a temporary ClassLoader for type matching.
             beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
         }*/
 
-        // Register default environment beans.
+        // 以单例模式注册默认的系统环境bean
         if (!beanFactory.containsLocalBean(ENVIRONMENT_BEAN_NAME)) {
             beanFactory.registerSingleton(ENVIRONMENT_BEAN_NAME, getEnvironment());
         }
@@ -186,16 +314,28 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
             beanFactory.registerSingleton(SYSTEM_ENVIRONMENT_BEAN_NAME, getEnvironment().getSystemEnvironment());
         }
     }
-
-    protected void postProcessBeanFactory(BeanFactory beanFactory) {
+    /**
+     * 允许子类覆盖该方法做额外的处理
+     * Modify the application context's internal bean factory after its standard
+     * initialization. All bean definitions will have been loaded, but no beans
+     * will have been instantiated yet. This allows for registering special
+     * BeanPostProcessors etc in certain ApplicationContext implementations.
+     * @param beanFactory the bean factory used by the application context
+     */
+    protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+    }
+    /**
+     * 激活各种BeanFactory处理器
+     * Instantiate and invoke all registered BeanFactoryPostProcessor beans,
+     * respecting explicit order if given.
+     * <p>Must be called before singleton instantiation.
+     */
+    protected void invokeBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+        PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, getBeanFactoryPostProcessors());
     }
 
-    protected void invokeBeanFactoryPostProcessors(BeanFactory beanFactory) {
-        // PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, getBeanFactoryPostProcessors());
-    }
-
-    protected void registerBeanPostProcessors(BeanFactory beanFactory) {
-        // PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
+    protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+         PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
     }
 
     protected void initMessageSource() {
@@ -213,7 +353,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     protected void registerListeners() {
     }
 
-    protected void finishBeanFactoryInitialization(BeanFactory beanFactory) {
+    protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
     }
 
     protected void finishRefresh() {
@@ -268,7 +408,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         assertBeanFactoryActive();
         return getBeanFactory().containsBean(name);
     }
-
+    @Override
+    public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
+        return getBeanFactory().isSingleton(name);
+    }
+    @Override
+    public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
+        return getBeanFactory().isTypeMatch(name,typeToMatch);
+    }
     @Override
     public boolean isTypeMatch(String name, Class<?> typeToMatch) {
         assertBeanFactoryActive();
@@ -279,7 +426,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public Class<?> getType(String name) throws NoSuchBeanDefinitionException {
         return getBeanFactory().getType(name);
     }
-
+    //---------------------------------------------------------------------
+    // Implementation of ListableBeanFactory interface
+    //---------------------------------------------------------------------
     @Override
     public boolean containsBeanDefinition(String beanName) {
         return getBeanFactory().containsBeanDefinition(beanName);
@@ -289,13 +438,25 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public int getBeanDefinitionCount() {
         return getBeanFactory().getBeanDefinitionCount();
     }
-
+    @Override
+    public String[] getBeanNamesForType(Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
+        assertBeanFactoryActive();
+        return getBeanFactory().getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
+    }
     /**
      * 抽象方法由子类实现
      */
     public abstract ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException;
 
     /**
+     * Subclasses must implement this method to perform the actual configuration load.
+     * The method is invoked by {@link #refresh()} before any other initialization work.
+     * <p>A subclass will either create a new bean factory and hold a reference to it,
+     * or return a single BeanFactory instance that it holds. In the latter case, it will
+     * usually throw an IllegalStateException if refreshing the context more than once.
+     * @throws BeansException if initialization of the bean factory failed
+     * @throws IllegalStateException if already initialized and multiple refresh
+     * attempts are not supported
      * 抽象方法由子类实现
      * TODO BeanFactory的刷新,以及bean的解析
      */
