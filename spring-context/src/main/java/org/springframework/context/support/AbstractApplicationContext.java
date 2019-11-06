@@ -10,6 +10,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.support.ResourceEditorRegistrar;
 import org.springframework.context.*;
 import org.springframework.context.event.ApplicationEventMulticaster;
+import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
@@ -26,6 +27,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractApplicationContext extends DefaultResourceLoader implements ConfigurableApplicationContext {
+
+    public static final String MESSAGE_SOURCE_BEAN_NAME = "messageSource";
+    public static final String LIFECYCLE_PROCESSOR_BEAN_NAME = "lifecycleProcessor";
+    public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
+
     protected final Log logger = LogFactory.getLog(getClass());
     private String id = ObjectUtils.identityToString(this);
     private ApplicationContext parent;
@@ -196,7 +202,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
                 // 激活各种BeanFactory处理器
                 invokeBeanFactoryPostProcessors(beanFactory);
 
-                // 注册 拦截Bean创建的Bean处理器,这里只是注册,真正的调用是在getBean时候
+                // 注册拦截Bean创建的Bean处理器,这里只是注册,真正的调用是在getBean时候
                 registerBeanPostProcessors(beanFactory);
 
                 // 为上下文初始化Message消息资源，即不同语言的消息体，国际化处理
@@ -333,7 +339,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     protected void invokeBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory) {
         PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, getBeanFactoryPostProcessors());
     }
-
+    /**
+     * 注册拦截Bean创建的Bean处理器,这里只是注册,真正的调用是在getBean时候
+     * Instantiate and invoke all registered BeanPostProcessor beans,
+     * respecting explicit order if given.
+     * <p>Must be called before any instantiation of application beans.
+     */
     protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
          PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
     }
@@ -341,9 +352,30 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     protected void initMessageSource() {
 
     }
-
+    /**
+     *  初始化应用消息广播器,并放入"applicationEventMulticaster"bean中,与Spring的事件监听有关
+     * Initialize the ApplicationEventMulticaster.
+     * Uses SimpleApplicationEventMulticaster if none defined in the context.
+     * @see org.springframework.context.event.SimpleApplicationEventMulticaster
+     */
     protected void initApplicationEventMulticaster() {
-
+        ConfigurableListableBeanFactory beanFactory = getBeanFactory();
+        if (beanFactory.containsLocalBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME)) {
+            this.applicationEventMulticaster =
+                    beanFactory.getBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Using ApplicationEventMulticaster [" + this.applicationEventMulticaster + "]");
+            }
+        }
+        else {
+            this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
+            beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, this.applicationEventMulticaster);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Unable to locate ApplicationEventMulticaster with name '" +
+                        APPLICATION_EVENT_MULTICASTER_BEAN_NAME +
+                        "': using default [" + this.applicationEventMulticaster + "]");
+            }
+        }
     }
 
     protected void onRefresh() throws BeansException {

@@ -62,4 +62,11 @@ public interface SingletonBeanRegistry {
      * @see org.springframework.beans.factory.BeanFactory#containsBean
      */
     boolean containsSingleton(String beanName);
+
+    /**
+     * Return the singleton mutex used by this registry (for external collaborators).
+     * @return the mutex object (never {@code null})
+     * @since 4.2
+     */
+    Object getSingletonMutex();
 }
