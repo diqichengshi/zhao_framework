@@ -92,6 +92,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         return this.parameterNameDiscoverer;
     }
 
+    public void ignoreDependencyInterface(Class<?> ifc) {
+        this.ignoredDependencyInterfaces.add(ifc);
+    }
     /**
      * 实现抽象类的方法
      * 这个类的中心方法: 创建一个bean实例，
@@ -99,6 +102,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      *
      * @see #doCreateBean
      */
+
     protected Object createBean(final String beanName, final RootBeanDefinition mbd, final Object[] args) {
         if (logger.isDebugEnabled()) {
             logger.debug("Creating instance of bean '" + beanName + "'");

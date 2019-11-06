@@ -2,14 +2,10 @@ package org.springframework.beans.factory.support;
 
 import org.springframework.beans.*;
 import org.springframework.beans.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.*;
 import org.springframework.beans.config.Scope;
 import org.springframework.beans.exception.*;
 import org.springframework.beans.factory.*;
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
-import org.springframework.beans.factory.config.BeanExpressionContext;
-import org.springframework.beans.factory.config.BeanExpressionResolver;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.core.DecoratingClassLoader;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.util.*;
@@ -374,6 +370,31 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     public ClassLoader getTempClassLoader() {
         return this.tempClassLoader;
     }
+
+    @Override
+    public void setTempClassLoader(ClassLoader tempClassLoader) {
+        this.tempClassLoader=tempClassLoader;
+    }
+
+    @Override
+    public void addPropertyEditorRegistrar(PropertyEditorRegistrar registrar) {
+        Assert.notNull(registrar, "PropertyEditorRegistrar must not be null");
+        this.propertyEditorRegistrars.add(registrar);
+    }
+
+    @Override
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+        Assert.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
+        this.beanPostProcessors.remove(beanPostProcessor);
+        this.beanPostProcessors.add(beanPostProcessor);
+        if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+            this.hasInstantiationAwareBeanPostProcessors = true;
+        }
+        if (beanPostProcessor instanceof DestructionAwareBeanPostProcessor) {
+            this.hasDestructionAwareBeanPostProcessors = true;
+        }
+    }
+
 
     public Scope getRegisteredScope(String scopeName) {
         Assert.notNull(scopeName, "Scope identifier must not be null");

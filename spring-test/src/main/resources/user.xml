@@ -17,10 +17,10 @@
         <property name="id" value="1"/>
         <property name="name" value="张三"/>
         <property name="password" value="12456"/>
-        <property name="role" ref="role"/>
+        <property name="menu" ref="menu"/>
     </bean>
-    <bean id="role" class="com.zhaojuan.springframework.test.entity.Role" scope="singleton">
+    <!--<bean id="role" class="com.zhaojuan.springframework.test.entity.Role" scope="singleton">
         <property name="id" value="2"/>
         <property name="name" value="李四"/>
-    </bean>
+    </bean>-->
 </beans>

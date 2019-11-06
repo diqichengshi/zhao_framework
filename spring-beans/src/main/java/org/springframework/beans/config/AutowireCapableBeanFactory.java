@@ -6,59 +6,64 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 
 import java.util.Set;
-
+/**
+ * Extension of the {@link org.springframework.beans.factory.BeanFactory}
+ * interface to be implemented by bean factories that are capable of
+ * autowiring, provided that they want to expose this functionality for
+ * existing bean instances.
+ *
+ * <p>This subinterface of BeanFactory is not meant to be used in normal
+ * application code: stick to {@link org.springframework.beans.factory.BeanFactory}
+ * or {@link org.springframework.beans.factory.ListableBeanFactory} for
+ * typical use cases.
+ *
+ * <p>Integration code for other frameworks can leverage this interface to
+ * wire and populate existing bean instances that Spring does not control
+ * the lifecycle of. This is particularly useful for WebWork Actions and
+ * Tapestry Page objects, for example.
+ *
+ * <p>Note that this interface is not implemented by
+ * {@link org.springframework.context.ApplicationContext} facades,
+ * as it is hardly ever used by application code. That said, it is available
+ * from an application context too, accessible through ApplicationContext's
+ * {@link org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()}
+ * method.
+ *
+ * <p>You may also implement the {@link org.springframework.beans.factory.BeanFactoryAware}
+ * interface, which exposes the internal BeanFactory even when running in an
+ * ApplicationContext, to get access to an AutowireCapableBeanFactory:
+ * simply cast the passed-in BeanFactory to AutowireCapableBeanFactory.
+ * 作用:提供自动装配bean能力的功能支持，
+ * 声明方法如下:(这个接口中所有声明的方法都是在默认的实现在AbstractAutowireCapableBeanFactory类中默认实现)
+ * @author Juergen Hoeller
+ * @since 04.12.2003
+ * @see org.springframework.beans.factory.BeanFactoryAware
+ * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
+ * @see org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()
+ */
 public interface AutowireCapableBeanFactory extends BeanFactory {
-    /**
-     * Constant that indicates no externally defined autowiring. Note that
-     * BeanFactoryAware etc and annotation-driven injection will still be applied.
-     *
-     * @see #createBean
-     * @see #autowire
-     * @see #autowireBeanProperties
-     */
     int AUTOWIRE_NO = 0;
-
-    /**
-     * Constant that indicates autowiring bean properties by name
-     * (applying to all bean property setters).
-     *
-     * @see #createBean
-     * @see #autowire
-     * @see #autowireBeanProperties
-     */
     int AUTOWIRE_BY_NAME = 1;
-
-    /**
-     * Constant that indicates autowiring bean properties by type
-     * (applying to all bean property setters).
-     *
-     * @see #createBean
-     * @see #autowire
-     * @see #autowireBeanProperties
-     */
     int AUTOWIRE_BY_TYPE = 2;
-
-    /**
-     * Constant that indicates autowiring the greediest constructor that
-     * can be satisfied (involves resolving the appropriate constructor).
-     *
-     * @see #createBean
-     * @see #autowire
-     */
     int AUTOWIRE_CONSTRUCTOR = 3;
-
-    /**
-     * Constant that indicates determining an appropriate autowire strategy
-     * through introspection of the bean class.
-     *
-     * @see #createBean
-     * @see #autowire
-     * @deprecated as of Spring 3.0: If you are using mixed autowiring strategies,
-     * prefer annotation-based autowiring for clearer demarcation of autowiring needs.
-     */
     @Deprecated
     int AUTOWIRE_AUTODETECT = 4;
+    //-------------------------------------------------------------------------
+    // Typical methods for creating and populating external bean instances
+    // 创建和填充外部bean实例的典型方法
+    //-------------------------------------------------------------------------
 
+    /**
+     * Resolve the specified dependency against the beans defined in this factory.
+     * @param descriptor the descriptor for the dependency
+     * @param beanName the name of the bean which declares the present dependency
+     * @param autowiredBeanNames a Set that all names of autowired beans (used for
+     * resolving the present dependency) are supposed to be added to
+     * @param typeConverter the TypeConverter to use for populating arrays and
+     * collections
+     * @return the resolved object, or {@code null} if none found
+     * @throws BeansException in dependency resolution failed
+     */
     Object resolveDependency(DependencyDescriptor descriptor, String beanName,
                              Set<String> autowiredBeanNames, TypeConverter typeConverter) throws BeansException;
 

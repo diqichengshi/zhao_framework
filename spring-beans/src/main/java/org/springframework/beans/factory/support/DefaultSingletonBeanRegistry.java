@@ -205,6 +205,19 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
     }
 
     @Override
+    public void registerSingleton(String beanName, Object singletonObject) {
+        Assert.notNull(beanName, "'beanName' must not be null");
+        synchronized (this.singletonObjects) {
+            Object oldObject = this.singletonObjects.get(beanName);
+            if (oldObject != null) {
+                throw new IllegalStateException("Could not register object [" + singletonObject +
+                        "] under bean name '" + beanName + "': there is already object [" + oldObject + "] bound");
+            }
+            addSingleton(beanName, singletonObject);
+        }
+    }
+
+    @Override
     public boolean containsSingleton(String beanName) {
         return this.singletonObjects.containsKey(beanName);
     }

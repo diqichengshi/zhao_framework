@@ -6,13 +6,14 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.exception.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.beans.support.ResourceEditorRegistrar;
+import org.springframework.context.*;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.ObjectUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,9 +72,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
             prepareRefresh();
 
             // Tell the subclass to refresh the internal bean factory.
-            BeanFactory beanFactory = obtainFreshBeanFactory();
+            ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
             // Prepare the bean factory for use in this context.
+            // 进行功能增强
             prepareBeanFactory(beanFactory);
 
             try {
@@ -134,19 +136,55 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
      * @see #refreshBeanFactory()
      * @see #getBeanFactory()
      */
-    protected BeanFactory obtainFreshBeanFactory() {
+    protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
         // TODO 刷新工厂,为空测创建,并加载XML,抽象方法由子类实现
         refreshBeanFactory();
-        BeanFactory beanFactory = getBeanFactory();
+        ConfigurableListableBeanFactory beanFactory = getBeanFactory();
         if (logger.isDebugEnabled()) {
             logger.debug("Bean factory for " + getDisplayName() + ": " + beanFactory);
         }
         return beanFactory;
     }
 
+    /**进行功能增强*/
+    protected void prepareBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+        // Tell the internal bean factory to use the context's class loader etc.
+        beanFactory.setBeanClassLoader(getClassLoader());
+        // beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
+        beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
-    protected void prepareBeanFactory(BeanFactory beanFactory) {
+        // Configure the bean factory with context callbacks.
+        // beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+        beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
+        // beanFactory.ignoreDependencyInterface(ApplicationEventPublisherAware.class);
+        beanFactory.ignoreDependencyInterface(MessageSourceAware.class);
+        beanFactory.ignoreDependencyInterface(ApplicationContextAware.class);
+        beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 
+        // BeanFactory interface not registered as resolvable type in a plain factory.
+        // MessageSource registered (and found for autowiring) as a bean.
+        beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
+        beanFactory.registerResolvableDependency(ResourceLoader.class, this);
+        // beanFactory.registerResolvableDependency(ApplicationEventPublisher.class, this);
+        beanFactory.registerResolvableDependency(ApplicationContext.class, this);
+
+        // Detect a LoadTimeWeaver and prepare for weaving, if found.
+       /* if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+            beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
+            // Set a temporary ClassLoader for type matching.
+            beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
+        }*/
+
+        // Register default environment beans.
+        if (!beanFactory.containsLocalBean(ENVIRONMENT_BEAN_NAME)) {
+            beanFactory.registerSingleton(ENVIRONMENT_BEAN_NAME, getEnvironment());
+        }
+        if (!beanFactory.containsLocalBean(SYSTEM_PROPERTIES_BEAN_NAME)) {
+            beanFactory.registerSingleton(SYSTEM_PROPERTIES_BEAN_NAME, getEnvironment().getSystemProperties());
+        }
+        if (!beanFactory.containsLocalBean(SYSTEM_ENVIRONMENT_BEAN_NAME)) {
+            beanFactory.registerSingleton(SYSTEM_ENVIRONMENT_BEAN_NAME, getEnvironment().getSystemEnvironment());
+        }
     }
 
     protected void postProcessBeanFactory(BeanFactory beanFactory) {

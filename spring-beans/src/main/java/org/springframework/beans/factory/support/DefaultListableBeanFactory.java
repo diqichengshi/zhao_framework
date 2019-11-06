@@ -1,5 +1,6 @@
 package org.springframework.beans.factory.support;
 
+import org.springframework.beans.PropertyEditorRegistrar;
 import org.springframework.beans.TypeConverter;
 import org.springframework.beans.config.BeanDefinition;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
@@ -7,9 +8,12 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.exception.NoSuchBeanDefinitionException;
 import org.springframework.beans.exception.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.core.OrderComparator;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import java.util.*;
@@ -182,6 +186,19 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         return this.dependencyComparator;
     }
 
+    //---------------------------------------------------------------------
+    // Implementation of ConfigurableListableBeanFactory interface
+    //---------------------------------------------------------------------
+    @Override
+    public void registerResolvableDependency(Class<?> dependencyType, Object autowiredValue) {
+        Assert.notNull(dependencyType, "Type must not be null");
+        if (autowiredValue != null) {
+            Assert.isTrue((autowiredValue instanceof ObjectFactory || dependencyType.isInstance(autowiredValue)),
+                    "Value [" + autowiredValue + "] does not implement specified type [" + dependencyType.getName() + "]");
+            this.resolvableDependencies.put(dependencyType, autowiredValue);
+        }
+    }
+
     @Override
     public BeanDefinition getBeanDefinition(String beanName) {
         return beanDefinitionMap.get(beanName);
@@ -195,4 +212,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     public int getBeanDefinitionCount() {
         return beanDefinitionMap.size();
     }
+
+    @Override
+    public void setBeanClassLoader(ClassLoader beanClassLoader) {
+
+    }
+
 }

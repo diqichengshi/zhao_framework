@@ -148,8 +148,12 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
                     resolveBasePackage(basePackage) + "/" + this.resourcePattern;
             // 获取basePackage包下的 .class 文件资源
             Resource[] resources = this.resourcePatternResolver.getResources(packageSearchPath);
+            boolean traceEnabled = logger.isTraceEnabled();
+            boolean debugEnabled = logger.isDebugEnabled();
             for (Resource resource : resources) {
-
+                if (traceEnabled) {
+                    logger.trace("Scanning " + resource);
+                }
                 // 判断是否可读
                 if (resource.isReadable()) {
                     try {
@@ -157,12 +161,25 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
                         MetadataReader metadataReader = this.metadataReaderFactory.getMetadataReader(resource);
                         if (isCandidateComponent(metadataReader)) {
                             ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
-                            // sbd.setResource(resource);
-                            // sbd.setSource(resource);
+                            sbd.setResource(resource);
+                            sbd.setSource(resource);
                             if (isCandidateComponent(sbd)) {
+                                if (debugEnabled) {
+                                    logger.debug("Identified candidate component class: " + resource);
+                                }
                                 candidates.add(sbd);
                             }
-                        } // end if
+                            else {
+                                if (debugEnabled) {
+                                    logger.debug("Ignored because not a concrete top-level class: " + resource);
+                                }
+                            }
+                        }
+                        else {
+                            if (traceEnabled) {
+                                logger.trace("Ignored because not matching any filter: " + resource);
+                            }
+                        }
                     } catch (Throwable ex) {
                         throw new BeanDefinitionStoreException(
                                 "Failed to read candidate component class: " + resource, ex);

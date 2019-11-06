@@ -1,11 +1,15 @@
 package com.zhaojuan.springframework.test.entity;
 
+import org.springframework.beans.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 public class User {
     private Integer id;
     private String name;
     private String password;
     private Role role;
-
+    @Autowired
+    private Menu menu;
     public User() {
         System.out.println("User 无参构造方法执行");
     }
@@ -40,6 +44,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Menu getMenu() {
+        return menu;
+    }
+
+    public void setMenu(Menu menu) {
+        this.menu = menu;
     }
 
     @Override
