@@ -416,18 +416,18 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
         // 根据Bean配置的依赖注入方式完成注入,默认是0,即不走以下逻辑,所有的依赖注入都需要在xml文件中有显式的配置
         // 如果设置了相关的依赖装配方式,会遍历Bean中的属性,根据类型或名称来完成相应注入,无需额外配置
-        if (mbd.getResolvedAutowireMode() == GenericBeanDefinition.AUTOWIRE_BY_NAME ||
-                mbd.getResolvedAutowireMode() == GenericBeanDefinition.AUTOWIRE_BY_TYPE) {
+        if (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_NAME ||
+                mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_TYPE) {
             // 深拷贝当前已有的配置
             MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
             // 根据名称进行注入
-            if (mbd.getResolvedAutowireMode() == GenericBeanDefinition.AUTOWIRE_BY_NAME) {
+            if (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_NAME) {
                 autowireByName(beanName, mbd, bw, newPvs);
             }
 
             // // 根据类型进行注入
             // Add property values based on autowire by type if applicable.
-            if (mbd.getResolvedAutowireMode() == GenericBeanDefinition.AUTOWIRE_BY_TYPE) {
+            if (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_TYPE) {
                 autowireByType(beanName, mbd, bw, newPvs);
             }
 
