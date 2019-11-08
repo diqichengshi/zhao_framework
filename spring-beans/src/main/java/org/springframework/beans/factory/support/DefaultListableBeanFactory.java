@@ -1,8 +1,7 @@
 package org.springframework.beans.factory.support;
 
-import org.springframework.beans.PropertyEditorRegistrar;
 import org.springframework.beans.TypeConverter;
-import org.springframework.beans.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.exception.NoSuchBeanDefinitionException;
@@ -10,7 +9,6 @@ import org.springframework.beans.exception.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.CannotLoadBeanClassException;
 import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.core.OrderComparator;

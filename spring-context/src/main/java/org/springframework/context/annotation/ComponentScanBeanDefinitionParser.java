@@ -14,13 +14,12 @@ import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.springframework.beans.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 

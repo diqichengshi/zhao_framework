@@ -2,7 +2,7 @@ package org.springframework.beans.factory.parsing;
 
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.PropertyValues;
-import org.springframework.beans.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.BeanReference;
 
@@ -14,6 +14,11 @@ public class BeanComponentDefinition extends BeanDefinitionHolder implements Com
     private BeanDefinition[] innerBeanDefinitions;
 
     private BeanReference[] beanReferences;
+
+    public BeanComponentDefinition(BeanDefinition beanDefinition, String beanName) {
+        super(beanDefinition, beanName);
+        findInnerBeanDefinitionsAndBeanReferences(beanDefinition);
+    }
 
     public BeanComponentDefinition(BeanDefinitionHolder holder) {
         super(holder);

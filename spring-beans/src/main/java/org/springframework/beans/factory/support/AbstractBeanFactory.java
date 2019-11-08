@@ -1,7 +1,7 @@
 package org.springframework.beans.factory.support;
 
 import org.springframework.beans.*;
-import org.springframework.beans.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.*;
 import org.springframework.beans.config.Scope;
 import org.springframework.beans.exception.*;

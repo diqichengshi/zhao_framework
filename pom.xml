@@ -10,11 +10,10 @@
     <version>1.0.0</version>
 
     <modules>
+        <module>spring-aop</module>
         <module>spring-beans</module>
         <module>spring-core</module>
-        <module>spring-test</module>
         <module>spring-context</module>
-        <module>spring-aop</module>
     </modules>
 
     <properties>

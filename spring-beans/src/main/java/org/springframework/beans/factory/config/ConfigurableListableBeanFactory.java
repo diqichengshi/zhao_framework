@@ -1,7 +1,6 @@
 package org.springframework.beans.factory.config;
 
 import org.springframework.beans.config.AutowireCapableBeanFactory;
-import org.springframework.beans.config.BeanDefinition;
 import org.springframework.beans.exception.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.ListableBeanFactory;
 

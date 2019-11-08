@@ -1,11 +1,11 @@
 package org.springframework.beans.factory.support;
 
 import org.springframework.beans.config.AutowireCapableBeanFactory;
-import org.springframework.beans.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.*;
 import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.config.*;
-import org.springframework.beans.exception.BeanCurrentlyInCreationException;
+import org.springframework.beans.factory.BeanCurrentlyInCreationException;
 import org.springframework.beans.BeansException;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.MethodParameter;
@@ -218,7 +218,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             if (ex instanceof BeanCreationException) {
                 throw (BeanCreationException) ex;
             } else {
-                throw new BeanCreationException(beanName + "Initialization of bean failed", ex);
+                throw new BeanCreationException(beanName + " Initialization of bean failed", ex);
             }
         }
 

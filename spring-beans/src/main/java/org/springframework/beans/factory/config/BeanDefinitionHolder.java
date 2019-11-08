@@ -1,7 +1,6 @@
 package org.springframework.beans.factory.config;
 
 import org.springframework.beans.BeanMetadataElement;
-import org.springframework.beans.config.BeanDefinition;
 import org.springframework.util.Assert;
 
 public class BeanDefinitionHolder implements BeanMetadataElement {
