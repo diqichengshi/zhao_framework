@@ -2,15 +2,20 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.2.xsd">
 
     <!-- 扫描com.zhaojuan包下所有使用注解的类型 -->
     <context:component-scan base-package="org.springframework"/>
 
-    <bean id="user" class="org.springframework.tests.entity.User" scope="singleton">
+    <aop:aspectj-autoproxy/>
+
+    <bean id="user" class="org.springframework.tests.factory.User" scope="singleton">
         <property name="id" value="1"/>
         <property name="name" value="张三"/>
         <property name="password" value="12456"/>
@@ -20,4 +25,5 @@
         <property name="id" value="2"/>
         <property name="name" value="李四"/>
     </bean>-->
+
 </beans>

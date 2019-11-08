@@ -1,10 +1,12 @@
 package org.springframework.aop.config;
+
 import org.w3c.dom.Element;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.ParserContext;
+
 public class AopNamespaceUtils {
     /**
      * The {@code proxy-target-class} attribute as found on AOP-related XML tags.
@@ -35,12 +37,16 @@ public class AopNamespaceUtils {
         registerComponentIfNecessary(beanDefinition, parserContext);
     }
 
+    /**
+     * 主要就是为了注册AnnotationAwareAspectJAutoProxyCreator类
+     */
     public static void registerAspectJAnnotationAutoProxyCreatorIfNecessary(
             ParserContext parserContext, Element sourceElement) {
-
+        // TODO 注册AnnotationAwareAspectJAutoProxyCreator类
         BeanDefinition beanDefinition = AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(
                 parserContext.getRegistry(), parserContext.extractSource(sourceElement));
-        useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
+        useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement); // 设置proxy-target-class和expose-proxy
+
         registerComponentIfNecessary(beanDefinition, parserContext);
     }
 

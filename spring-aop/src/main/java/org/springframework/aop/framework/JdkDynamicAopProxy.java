@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
 
-public class JdkDynamicAopProxy  implements AopProxy, InvocationHandler, Serializable {
+public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializable {
 
     private static final Log logger = LogFactory.getLog(JdkDynamicAopProxy.class);
     private final AdvisedSupport advised;
@@ -44,6 +44,7 @@ public class JdkDynamicAopProxy  implements AopProxy, InvocationHandler, Seriali
         }
         Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised);
         findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
+        // TODO JDK动态代理的标准用法
         return Proxy.newProxyInstance(classLoader, proxiedInterfaces, this);
     }
 
@@ -64,6 +65,9 @@ public class JdkDynamicAopProxy  implements AopProxy, InvocationHandler, Seriali
         }
     }
 
+    /**
+     * 以上的代码模式可以很明确的看出来，使用了JDK动态代理模式，真正的方法执行在invoke()方法里
+     */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         MethodInvocation invocation;
@@ -75,6 +79,7 @@ public class JdkDynamicAopProxy  implements AopProxy, InvocationHandler, Seriali
         Object target = null;
 
         try {
+            // 1.以下的几个判断,主要是为了判断method是否为equals、hashCode等Object的方法
             if (!this.equalsDefined && AopUtils.isEqualsMethod(method)) {
                 // The target does not implement the equals(Object) method itself.
                 return equals(args[0]);
@@ -105,6 +110,7 @@ public class JdkDynamicAopProxy  implements AopProxy, InvocationHandler, Seriali
             }
 
             // Get the interception chain for this method.
+            // 2.获取当前bean被拦截方法链表
             List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 
             // Check whether we have any advice. If we don't, we can fallback on direct
@@ -113,13 +119,14 @@ public class JdkDynamicAopProxy  implements AopProxy, InvocationHandler, Seriali
                 // We can skip creating a MethodInvocation: just invoke the target directly
                 // Note that the final invoker must be an InvokerInterceptor so we know it does
                 // nothing but a reflective operation on the target, and no hot swapping or fancy proxying.
+                // 3.如果为空，则直接调用target的method
                 Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);
                 retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
-            }
-            else {
+            } else {
                 // We need to create a method invocation...
                 invocation = new ReflectiveMethodInvocation(proxy, target, method, args, targetClass, chain);
                 // Proceed to the joinpoint through the interceptor chain.
+                // TODO 不为空,则逐一调用chain中的每一个拦截方法的proceed,拦截方法真正被执行调用
                 retVal = invocation.proceed();
             }
 
@@ -131,14 +138,12 @@ public class JdkDynamicAopProxy  implements AopProxy, InvocationHandler, Seriali
                 // is type-compatible. Note that we can't help if the target sets
                 // a reference to itself in another returned object.
                 retVal = proxy;
-            }
-            else if (retVal == null && returnType != Void.TYPE && returnType.isPrimitive()) {
+            } else if (retVal == null && returnType != Void.TYPE && returnType.isPrimitive()) {
                 throw new AopInvocationException(
                         "Null return value from advice does not match primitive return type for: " + method);
             }
             return retVal;
-        }
-        finally {
+        } finally {
             if (target != null && !targetSource.isStatic()) {
                 // Must have come from TargetSource.
                 targetSource.releaseTarget(target);
@@ -167,15 +172,13 @@ public class JdkDynamicAopProxy  implements AopProxy, InvocationHandler, Seriali
         JdkDynamicAopProxy otherProxy;
         if (other instanceof JdkDynamicAopProxy) {
             otherProxy = (JdkDynamicAopProxy) other;
-        }
-        else if (Proxy.isProxyClass(other.getClass())) {
+        } else if (Proxy.isProxyClass(other.getClass())) {
             InvocationHandler ih = Proxy.getInvocationHandler(other);
             if (!(ih instanceof JdkDynamicAopProxy)) {
                 return false;
             }
             otherProxy = (JdkDynamicAopProxy) ih;
-        }
-        else {
+        } else {
             // Not a valid comparison...
             return false;
         }

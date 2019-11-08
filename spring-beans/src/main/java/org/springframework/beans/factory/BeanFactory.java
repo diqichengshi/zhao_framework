@@ -90,6 +90,23 @@ public interface BeanFactory {
     boolean isSingleton(String name) throws NoSuchBeanDefinitionException;
 
     /**
+     * Is this bean a prototype? That is, will {@link #getBean} always return
+     * independent instances?
+     * <p>Note: This method returning {@code false} does not clearly indicate
+     * a singleton object. It indicates non-independent instances, which may correspond
+     * to a scoped bean as well. Use the {@link #isSingleton} operation to explicitly
+     * check for a shared singleton instance.
+     * <p>Translates aliases back to the corresponding canonical bean name.
+     * Will ask the parent factory if the bean cannot be found in this factory instance.
+     * @param name the name of the bean to query
+     * @return whether this bean will always deliver independent instances
+     * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+     * @since 2.0.3
+     * @see #getBean
+     * @see #isSingleton
+     */
+    boolean isPrototype(String name) throws NoSuchBeanDefinitionException;
+    /**
      * Check whether the bean with the given name matches the specified type.
      * More specifically, check whether a {@link #getBean} call for the given name
      * would return an object that is assignable to the specified target type.
@@ -138,4 +155,17 @@ public interface BeanFactory {
      * @see #isTypeMatch
      */
     Class<?> getType(String name) throws NoSuchBeanDefinitionException;
+
+    /**
+     * Return the aliases for the given bean name, if any.
+     * All of those aliases point to the same bean when used in a {@link #getBean} call.
+     * <p>If the given name is an alias, the corresponding original bean name
+     * and other aliases (if any) will be returned, with the original bean name
+     * being the first element in the array.
+     * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
+     * @param name the bean name to check for aliases
+     * @return the aliases, or an empty array if none
+     * @see #getBean
+     */
+    String[] getAliases(String name);
 }

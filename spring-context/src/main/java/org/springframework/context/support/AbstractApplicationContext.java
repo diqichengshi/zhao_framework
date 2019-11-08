@@ -444,6 +444,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
         return getBeanFactory().isSingleton(name);
     }
+
+    @Override
+    public boolean isPrototype(String name) throws NoSuchBeanDefinitionException {
+        return getBeanFactory().isPrototype(name);
+    }
+
     @Override
     public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
         return getBeanFactory().isTypeMatch(name,typeToMatch);
@@ -452,6 +458,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public boolean isTypeMatch(String name, Class<?> typeToMatch) {
         assertBeanFactoryActive();
         return getBeanFactory().isTypeMatch(name, typeToMatch);
+    }
+
+    @Override
+    public String[] getAliases(String name) {
+        return getBeanFactory().getAliases(name);
     }
 
     @Override

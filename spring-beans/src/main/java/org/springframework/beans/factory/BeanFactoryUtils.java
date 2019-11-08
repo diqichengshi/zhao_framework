@@ -12,6 +12,11 @@ import java.util.List;
 public class BeanFactoryUtils {
     public static final String GENERATED_BEAN_NAME_SEPARATOR = "#";
 
+
+    public static boolean isFactoryDereference(String name) {
+        return (name != null && name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX));
+    }
+
     public static String transformedBeanName(String name) {
         Assert.notNull(name, "'name' must not be null");
         String beanName = name;
@@ -21,10 +26,18 @@ public class BeanFactoryUtils {
         return beanName;
     }
 
-    public static boolean isFactoryDereference(String name) {
-        return (name != null && name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX));
+    /**
+     * Return whether the given name is a bean name which has been generated
+     * by the default naming strategy (containing a "#..." part).
+     * @param name the name of the bean
+     * @return whether the given name is a generated bean name
+     * @see #GENERATED_BEAN_NAME_SEPARATOR
+     * @see org.springframework.beans.factory.support.BeanDefinitionReaderUtils#generateBeanName
+     * @see org.springframework.beans.factory.support.DefaultBeanNameGenerator
+     */
+    public static boolean isGeneratedBeanName(String name) {
+        return (name != null && name.contains(GENERATED_BEAN_NAME_SEPARATOR));
     }
-
 
     /**
      * Get all bean names for the given type, including those defined in ancestor

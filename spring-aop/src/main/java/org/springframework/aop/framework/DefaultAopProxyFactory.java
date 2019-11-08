@@ -8,15 +8,20 @@ import java.lang.reflect.Proxy;
 public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
     @Override
     public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+        // 1.config.isOptimize()是否使用优化的代理策略，目前使用与CGLIB
+        // config.isProxyTargetClass() 是否目标类本身被代理而不是目标类的接口
+        // hasNoUserSuppliedProxyInterfaces()是否存在代理接口
         if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
             Class<?> targetClass = config.getTargetClass();
             if (targetClass == null) {
                 throw new AopConfigException("TargetSource cannot determine target class: " +
                         "Either an interface or a target is required for proxy creation.");
             }
+            // 2.如果目标类是接口或者是代理类，则直接使用JDKproxy
             if (targetClass.isInterface() || Proxy.isProxyClass(targetClass)) {
                 return new JdkDynamicAopProxy(config);
             }
+            // 3.其他情况则使用CGLIBproxy
             return new ObjenesisCglibAopProxy(config);
         }
         else {

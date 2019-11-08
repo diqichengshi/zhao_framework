@@ -8,13 +8,24 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-public class AspectJAutoProxyBeanDefinitionParser implements BeanDefinitionParser{
+/**
+ * {@link BeanDefinitionParser} for the {@code aspectj-autoproxy} tag,
+ * enabling the automatic application of @AspectJ-style aspects found in
+ * the {@link org.springframework.beans.factory.BeanFactory}.
+ * AspectJAutoProxyBeanDefinitionParser主要的功能就是将AnnotationAwareAspectJAutoProxyCreator注册到Spring容器中,把bean交给Spring去托管。
+ * AnnotationAwareAspectJAutoProxyCreator的功能我们大胆猜测一下:应该也就是生成对象的代理类的相关功能,这个我们接下来再看。
+ * 那么问题来了,我们最开始的类AopNamespaceHandler.init()方法是在什么时候被调用的呢?
+ * 什么时候生效的? 这个决定了我们注册到Spring的AnnotationAwareAspectJAutoProxyCreator的生效时间?
+ * @author Rob Harrop
+ * @author Juergen Hoeller
+ * @since 2.0
+ */
+public class AspectJAutoProxyBeanDefinitionParser implements BeanDefinitionParser {
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        // 1.注册proxy creator
+        // TODO 1.注册proxyCreator
         AopNamespaceUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(parserContext, element);
-        extendBeanDefinition(element, parserContext);
+        extendBeanDefinition(element, parserContext); // 对子标签<aop:include/>的解析
         return null;
     }
 

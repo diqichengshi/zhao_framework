@@ -23,7 +23,6 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
      */
     boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException;
 
-
     /**
      * Post-process the given property values before the factory applies them
      * to the given bean. Allows for checking whether all dependencies have been

@@ -9,7 +9,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Cloneable{
+public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Cloneable {
     protected final Object proxy;
     protected final Object target;
     protected final Method method;
@@ -50,6 +50,9 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
         return (this.arguments != null ? this.arguments : new Object[0]);
     }
 
+    /**
+     * 拦截方法真正被执行调用
+     */
     @Override
     public Object proceed() throws Throwable {
         //	We start with an index of -1 and increment early.
@@ -66,14 +69,12 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
                     (InterceptorAndDynamicMethodMatcher) interceptorOrInterceptionAdvice;
             if (dm.methodMatcher.matches(this.method, this.targetClass, this.arguments)) {
                 return dm.interceptor.invoke(this);
-            }
-            else {
+            } else {
                 // Dynamic matching failed.
                 // Skip this interceptor and invoke the next in the chain.
                 return proceed();
             }
-        }
-        else {
+        } else {
             // It's an interceptor, so we just invoke it: The pointcut will have
             // been evaluated statically before this object was constructed.
             return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);
@@ -83,6 +84,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
     /**
      * Invoke the joinpoint using reflection.
      * Subclasses can override this to use custom invocation.
+     *
      * @return the return value of the joinpoint
      * @throws Throwable if invoking the joinpoint resulted in an exception
      */
@@ -97,8 +99,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
         sb.append(this.method).append("; ");
         if (this.target == null) {
             sb.append("target is null");
-        }
-        else {
+        } else {
             sb.append("target is of class [").append(this.target.getClass().getName()).append(']');
         }
         return sb.toString();

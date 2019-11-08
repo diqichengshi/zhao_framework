@@ -1,7 +1,7 @@
-package org.springframework.context;
+package org.springframework;
 
-import org.springframework.tests.entity.User;
-import org.springframework.tests.entity.Menu;
+import org.springframework.tests.factory.User;
+import org.springframework.tests.factory.Menu;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class XmlApplicationContextTest {

@@ -24,8 +24,8 @@ import org.springframework.util.Assert;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @author Mark Fisher
- * @since 2.5
  * @see AopNamespaceUtils
+ * @since 2.5
  */
 
 public abstract class AopConfigUtils {
@@ -70,7 +70,11 @@ public abstract class AopConfigUtils {
         return registerAspectJAnnotationAutoProxyCreatorIfNecessary(registry, null);
     }
 
+    /**
+     * 主要就是为了注册AnnotationAwareAspectJAutoProxyCreator类
+     */
     public static BeanDefinition registerAspectJAnnotationAutoProxyCreatorIfNecessary(BeanDefinitionRegistry registry, Object source) {
+        // TODO 向Spring容器注册AnnotationAwareAspectJAutoProxyCreator类
         return registerOrEscalateApcAsRequired(AnnotationAwareAspectJAutoProxyCreator.class, registry, source);
     }
 
@@ -88,28 +92,34 @@ public abstract class AopConfigUtils {
         }
     }
 
-
+    /**
+     * 注册类相关代码
+     */
     private static BeanDefinition registerOrEscalateApcAsRequired(Class<?> cls, BeanDefinitionRegistry registry, Object source) {
         Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
-        if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
+        if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) { // 如果已存在代理创建器
             BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
-            if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
+            if (!cls.getName().equals(apcDefinition.getBeanClassName())) { // 判断已存在的代理创建器和本次要注册的代理创建器是否是相等的
                 int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName());
                 int requiredPriority = findPriorityForClass(cls);
-                if (currentPriority < requiredPriority) {
+                if (currentPriority < requiredPriority) { // 判断优先级,使用优先级高的代理创建器
                     apcDefinition.setBeanClassName(cls.getName());
                 }
             }
-            return null;
+            return null; // 如果相同直接返回,无需再次注册
         }
+        // 类似于我们在使用BeanFactory.getBean()时候的操作,生成一个RootBeanDefinition,然后放入map中
         RootBeanDefinition beanDefinition = new RootBeanDefinition(cls);
         beanDefinition.setSource(source);
         beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);
         beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);
+        registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition); // 注册代理创建器
         return beanDefinition;
     }
 
+    /**
+     * 查找代理创建器的优先级
+     */
     private static int findPriorityForClass(Class<?> clazz) {
         return APC_PRIORITY_LIST.indexOf(clazz);
     }

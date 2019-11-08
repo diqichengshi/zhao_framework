@@ -265,6 +265,38 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     }
 
     @Override
+    public boolean isPrototype(String name) throws NoSuchBeanDefinitionException {
+        String beanName = transformedBeanName(name);
+
+        BeanFactory parentBeanFactory = getParentBeanFactory();
+        if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
+            // No bean definition found in this factory -> delegate to parent.
+            return parentBeanFactory.isPrototype(originalBeanName(name));
+        }
+
+        RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+        if (mbd.isPrototype()) {
+            // In case of FactoryBean, return singleton status of created object if not a dereference.
+            return (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(beanName, mbd));
+        }
+        else {
+            // Singleton or scoped - not a prototype.
+            // However, FactoryBean may still produce a prototype object...
+            if (BeanFactoryUtils.isFactoryDereference(name)) {
+                return false;
+            }
+            if (isFactoryBean(beanName, mbd)) {
+                final FactoryBean<?> factoryBean = (FactoryBean<?>) getBean(FACTORY_BEAN_PREFIX + beanName);
+                return ((factoryBean instanceof SmartFactoryBean && ((SmartFactoryBean<?>) factoryBean).isPrototype()) ||
+                        !factoryBean.isSingleton());
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
+    @Override
     public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
         String beanName = transformedBeanName(name);
 
@@ -401,14 +433,42 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         }
     }
 
+    @Override
+    public String[] getAliases(String name) {
+        String beanName = transformedBeanName(name);
+        List<String> aliases = new ArrayList<String>();
+        boolean factoryPrefix = name.startsWith(FACTORY_BEAN_PREFIX);
+        String fullBeanName = beanName;
+        if (factoryPrefix) {
+            fullBeanName = FACTORY_BEAN_PREFIX + beanName;
+        }
+        if (!fullBeanName.equals(name)) {
+            aliases.add(fullBeanName);
+        }
+        String[] retrievedAliases = super.getAliases(beanName);
+        for (String retrievedAlias : retrievedAliases) {
+            String alias = (factoryPrefix ? FACTORY_BEAN_PREFIX : "") + retrievedAlias;
+            if (!alias.equals(name)) {
+                aliases.add(alias);
+            }
+        }
+        if (!containsSingleton(beanName) && !containsBeanDefinition(beanName)) {
+            BeanFactory parentBeanFactory = getParentBeanFactory();
+            if (parentBeanFactory != null) {
+                aliases.addAll(Arrays.asList(parentBeanFactory.getAliases(fullBeanName)));
+            }
+        }
+        return StringUtils.toStringArray(aliases);
+    }
+
     //-----------------------------------------------------------------------------------
     // Implementation of HierarchicalBeanFactory interface开始
     //-----------------------------------------------------------------------------------
-
+    @Override
     public BeanFactory getParentBeanFactory() {
         return this.parentBeanFactory;
     }
-
+    @Override
     public boolean containsLocalBean(String name) {
         String beanName = transformedBeanName(name);
         return ((containsSingleton(beanName) || containsBeanDefinition(beanName)) &&

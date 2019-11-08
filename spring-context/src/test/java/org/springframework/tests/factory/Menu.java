@@ -1,4 +1,4 @@
-package org.springframework.tests.entity;
+package org.springframework.tests.factory;
 
 import org.springframework.stereotype.Component;
 
