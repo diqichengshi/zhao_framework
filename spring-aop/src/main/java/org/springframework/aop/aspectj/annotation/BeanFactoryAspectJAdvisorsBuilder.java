@@ -71,6 +71,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
             if (aspectNames == null) {
                 List<Advisor> advisors = new LinkedList<Advisor>();
                 aspectNames = new LinkedList<String>();
+                // 获取所有的beanName
                 String[] beanNames =
                         BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.beanFactory, Object.class, true, false);
                 for (String beanName : beanNames) {
@@ -84,12 +85,14 @@ public class BeanFactoryAspectJAdvisorsBuilder {
                     if (beanType == null) {
                         continue;
                     }
+                    // 判断是否存在AspectJ注解
                     if (this.advisorFactory.isAspect(beanType)) {
                         aspectNames.add(beanName);
                         AspectMetadata amd = new AspectMetadata(beanType, beanName);
-                        if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
+                        if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) { // 单例
                             MetadataAwareAspectInstanceFactory factory =
                                     new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
+                            // 解析注解的配置
                             List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
                             if (this.beanFactory.isSingleton(beanName)) {
                                 this.advisorsCache.put(beanName, classAdvisors);
@@ -99,7 +102,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
                             }
                             advisors.addAll(classAdvisors);
                         }
-                        else {
+                        else { // 原型
                             // Per target or per this.
                             if (this.beanFactory.isSingleton(beanName)) {
                                 throw new IllegalArgumentException("Bean with name '" + beanName +

@@ -325,8 +325,6 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 			thisObject = pmi.getProxy();
 		}
 		catch (IllegalStateException ex) {
-			// No current invocation...
-			// TODO: Should we really proceed here?
 			if (logger.isDebugEnabled()) {
 				logger.debug("Could not access current invocation - matching with limited context: " + ex);
 			}

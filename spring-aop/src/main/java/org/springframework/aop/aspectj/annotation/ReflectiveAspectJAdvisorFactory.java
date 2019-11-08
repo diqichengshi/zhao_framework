@@ -63,7 +63,9 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
                 new LazySingletonAspectInstanceFactoryDecorator(maaif);
 
         final List<Advisor> advisors = new LinkedList<Advisor>();
+        // 获取增强方法
         for (Method method : getAdvisorMethods(aspectClass)) {
+            // TODO 获取增强器
             Advisor advisor = getAdvisor(method, lazySingletonAspectInstanceFactory, advisors.size(), aspectName);
             if (advisor != null) {
                 advisors.add(advisor);
@@ -73,11 +75,13 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
         // If it's a per target aspect, emit the dummy instantiating aspect.
         if (!advisors.isEmpty() && lazySingletonAspectInstanceFactory.getAspectMetadata().isLazilyInstantiated()) {
             Advisor instantiationAdvisor = new SyntheticInstantiationAdvisor(lazySingletonAspectInstanceFactory);
+            // 如果需要增强并且aspectj的初始化模式配置为延迟初始化则需要在增强器集合首位加入同步实例化增强器
             advisors.add(0, instantiationAdvisor);
         }
 
         // Find introduction fields.
         for (Field field : aspectClass.getDeclaredFields()) {
+            // declared标签的解析
             Advisor advisor = getDeclareParentsAdvisor(field);
             if (advisor != null) {
                 advisors.add(advisor);
@@ -106,6 +110,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
      * Build a {@link org.springframework.aop.aspectj.DeclareParentsAdvisor}
      * for the given introduction field.
      * <p>Resulting Advisors will need to be evaluated for targets.
+     *
      * @param introductionField the field to introspect
      * @return {@code null} if not an Advisor
      */
@@ -118,7 +123,6 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
         if (DeclareParents.class == declareParents.defaultImpl()) {
             // This is what comes back if it wasn't set. This seems bizarre...
-            // TODO this restriction possibly should be relaxed
             throw new IllegalStateException("defaultImpl must be set on DeclareParents");
         }
 
@@ -126,22 +130,29 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
                 introductionField.getType(), declareParents.value(), declareParents.defaultImpl());
     }
 
-
+    /**
+     * 获取增强器
+     */
     @Override
     public Advisor getAdvisor(Method candidateAdviceMethod, MetadataAwareAspectInstanceFactory aif,
                               int declarationOrderInAspect, String aspectName) {
         validate(aif.getAspectMetadata().getAspectClass());
 
-        // 指定注解的表达式信息的获取
+        // TODO 切点信息的获取
         AspectJExpressionPointcut ajexp =
                 getPointcut(candidateAdviceMethod, aif.getAspectMetadata().getAspectClass());
         if (ajexp == null) {
             return null;
         }
+        // TODO 根据切点信息生成增强器
+        // 所有的增强都由Advisor的实现类InstantiationModelAwarePointcutAdvisorImpl统一封装的
         return new InstantiationModelAwarePointcutAdvisorImpl(
                 this, ajexp, aif, candidateAdviceMethod, declarationOrderInAspect, aspectName);
     }
 
+    /**
+     * 根据注解类型的不同封装对应的增强器
+     */
     @Override
     public Advice getAdvice(Method candidateAdviceMethod, AspectJExpressionPointcut ajexp,
                             MetadataAwareAspectInstanceFactory aif, int declarationOrderInAspect, String aspectName) {
@@ -167,7 +178,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
         }
 
         AbstractAspectJAdvice springAdvice;
-
+        // 根据注解类型的不同封装不同的增强器
         switch (aspectJAnnotation.getAnnotationType()) {
             case AtBefore:
                 springAdvice = new AspectJMethodBeforeAdvice(candidateAdviceMethod, ajexp, aif);
@@ -214,15 +225,16 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
     }
 
     private AspectJExpressionPointcut getPointcut(Method candidateAdviceMethod, Class<?> candidateAspectClass) {
-        //找到方法上的注解
+        // 找到方法上的注解
         AspectJAnnotation<?> aspectJAnnotation =
                 AbstractAspectJAdvisorFactory.findAspectJAnnotationOnMethod(candidateAdviceMethod);
         if (aspectJAnnotation == null) {
             return null;
         }
-        //使用AspectJExpressionPointcut实例封装获取的信息
+        // 使用AspectJExpressionPointcut实例封装获取的信息
         AspectJExpressionPointcut ajexp =
                 new AspectJExpressionPointcut(candidateAspectClass, new String[0], new Class<?>[0]);
+        // 提取注解上的表达式,例如:execution(org.springframework.tests.aop.say(..))
         ajexp.setExpression(aspectJAnnotation.getPointcutExpression());
         return ajexp;
     }

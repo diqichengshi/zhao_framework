@@ -79,11 +79,12 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
         Object target = null;
 
         try {
-            // 1.以下的几个判断,主要是为了判断method是否为equals、hashCode等Object的方法
+            // equals方法的处理
             if (!this.equalsDefined && AopUtils.isEqualsMethod(method)) {
                 // The target does not implement the equals(Object) method itself.
                 return equals(args[0]);
             }
+            // hash方法的处理
             if (!this.hashCodeDefined && AopUtils.isHashCodeMethod(method)) {
                 // The target does not implement the hashCode() method itself.
                 return hashCode();
@@ -110,7 +111,7 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
             }
 
             // Get the interception chain for this method.
-            // 2.获取当前bean被拦截方法链表
+            // 获取当前bean被拦截方法链表
             List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 
             // Check whether we have any advice. If we don't, we can fallback on direct
@@ -119,18 +120,18 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
                 // We can skip creating a MethodInvocation: just invoke the target directly
                 // Note that the final invoker must be an InvokerInterceptor so we know it does
                 // nothing but a reflective operation on the target, and no hot swapping or fancy proxying.
-                // 3.如果为空，则直接调用target的method
+                // 如果没有发现任何拦截器那么直接调用切点方法
                 Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);
                 retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
             } else {
                 // We need to create a method invocation...
                 invocation = new ReflectiveMethodInvocation(proxy, target, method, args, targetClass, chain);
                 // Proceed to the joinpoint through the interceptor chain.
-                // TODO 不为空,则逐一调用chain中的每一个拦截方法的proceed,拦截方法真正被执行调用
+                // TODO 拦截器链不为空,则逐一调用chain中的每一个拦截方法的proceed,拦截方法真正被执行调用
                 retVal = invocation.proceed();
             }
 
-            // Massage return value if necessary.
+            // Massage return value if necessary. 返回结果
             Class<?> returnType = method.getReturnType();
             if (retVal != null && retVal == target && returnType.isInstance(proxy) &&
                     !RawTargetAccess.class.isAssignableFrom(method.getDeclaringClass())) {

@@ -102,7 +102,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
             // 根据指定的bean的class和name构建出一个key,格式:beanClassName_beanName
             Object cacheKey = getCacheKey(bean.getClass(), beanName);
             if (!this.earlyProxyReferences.contains(cacheKey)) {
-                // TODO 在bean初始化之后对生产出的bean进行包装(此类实现了BeanPastProcessor)
+                // TODO wrapIfNecessary()在bean初始化之后对生产出的bean进行包装(此类实现了BeanPastProcessor)
                 return wrapIfNecessary(bean, beanName, cacheKey); // 如果它适合被代理,则需要封装指定的bean
             }
         }
@@ -139,12 +139,12 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
         }
 
         // Create proxy if we have advice.
-        // 如果存在增强方法则创建代理(意思就是如果该类有advice则创建proxy)
+        // TODO getAdvicesAndAdvisorsForBean()获取bean匹配的增强器,如果存在增强方法则创建代理
         Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
         // 如果获取到了增强则需要针对增强创建代理
         if (specificInterceptors != DO_NOT_PROXY) {
             this.advisedBeans.put(cacheKey, Boolean.TRUE);
-            // TODO 1.把bean包装为proxy的主要方法
+            // TODO 创建代理,把bean包装为proxy的主要方法
             Object proxy = createProxy(bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
             this.proxyTypes.put(cacheKey, proxy.getClass());
             // 2.返回该proxy代替原来的bean
@@ -207,10 +207,13 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
      */
     protected Object createProxy(
             Class<?> beanClass, String beanName, Object[] specificInterceptors, TargetSource targetSource) {
-        // 1.创建proxyFactory，proxy的生产主要就是在proxyFactory做的
+        // 创建proxyFactory,proxy的生产主要就是在proxyFactory做的
         ProxyFactory proxyFactory = new ProxyFactory();
+        // 获取相关类中相关属性
         proxyFactory.copyFrom(this);
 
+        // 决定对于给定的bean是否应该使用targetClass而不是它的接口代理
+        // 检查proxyTargetClass设置以及preserveTargetClass属性
         if (!proxyFactory.isProxyTargetClass()) {
             if (shouldProxyTargetClass(beanClass, beanName)) {
                 proxyFactory.setProxyTargetClass(true);
@@ -219,13 +222,16 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
             }
         }
 
-        // 2.将当前bean适合的advice,重新封装下,封装为Advisor类,然后添加到ProxyFactory中
+        // TODO 将拦截器封装为增强器
         Advisor[] advisors = buildAdvisors(beanName, specificInterceptors);
         for (Advisor advisor : advisors) {
+            // 加入增强器
             proxyFactory.addAdvisor(advisor);
         }
 
+        // 设置要代理的类
         proxyFactory.setTargetSource(targetSource);
+        // 定制代理
         customizeProxyFactory(proxyFactory);
 
         proxyFactory.setFrozen(this.freezeProxy);
@@ -233,7 +239,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
             proxyFactory.setPreFiltered(true);
         }
 
-        // 3.调用getProxy获取bean对应的proxy
+        // TODO 把对代理类的创建和处理委托给ProxyFactory去处理
         return proxyFactory.getProxy(getProxyClassLoader());
     }
 
@@ -278,10 +284,12 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
      */
     protected Advisor[] buildAdvisors(String beanName, Object[] specificInterceptors) {
         // Handle prototypes correctly...
+        // 解析注册的所有InterceptorName
         Advisor[] commonInterceptors = resolveInterceptorNames();
 
         List<Object> allInterceptors = new ArrayList<Object>();
         if (specificInterceptors != null) {
+            // 加入拦截器
             allInterceptors.addAll(Arrays.asList(specificInterceptors));
             if (commonInterceptors != null) {
                 if (this.applyCommonInterceptorsFirst) {
@@ -300,6 +308,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
         Advisor[] advisors = new Advisor[allInterceptors.size()];
         for (int i = 0; i < allInterceptors.size(); i++) {
+            // 拦截器封装转化为Advisor
             advisors[i] = this.advisorAdapterRegistry.wrap(allInterceptors.get(i));
         }
         return advisors;
