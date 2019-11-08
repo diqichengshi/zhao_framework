@@ -90,7 +90,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
     }
 
     /**
-     * 主要看这个方法,在bean初始化之后对生产出的bean进行包装,包装成proxy
+     * 主要看这个方法,在bean初始化之后对生产出的bean进行包装,包装成proxy对象
      * Create a proxy with the configured interceptors if the bean is
      * identified as one to proxy by the subclass.
      *
@@ -139,9 +139,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
         }
 
         // Create proxy if we have advice.
-        // TODO getAdvicesAndAdvisorsForBean()获取bean匹配的增强器,如果存在增强方法则创建代理
+        // TODO getAdvicesAndAdvisorsForBean()获取bean匹配的增强拦截器
         Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
-        // 如果获取到了增强则需要针对增强创建代理
+        // 如果获取到了增强方法则需要针对增强创建代理
         if (specificInterceptors != DO_NOT_PROXY) {
             this.advisedBeans.put(cacheKey, Boolean.TRUE);
             // TODO 创建代理,把bean包装为proxy的主要方法
@@ -207,7 +207,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
      */
     protected Object createProxy(
             Class<?> beanClass, String beanName, Object[] specificInterceptors, TargetSource targetSource) {
-        // 创建proxyFactory,proxy的生产主要就是在proxyFactory做的
+        // 创建proxyFactory,代理的生产主要就是在proxyFactory做的
         ProxyFactory proxyFactory = new ProxyFactory();
         // 获取相关类中相关属性
         proxyFactory.copyFrom(this);

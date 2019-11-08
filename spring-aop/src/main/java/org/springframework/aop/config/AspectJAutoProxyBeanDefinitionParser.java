@@ -23,7 +23,7 @@ import org.w3c.dom.NodeList;
 public class AspectJAutoProxyBeanDefinitionParser implements BeanDefinitionParser {
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        // TODO 1.注册proxyCreator
+        // TODO 注册proxyCreator
         AopNamespaceUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(parserContext, element);
         extendBeanDefinition(element, parserContext); // 对子标签<aop:include/>的解析
         return null;
