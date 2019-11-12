@@ -54,6 +54,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     public DefaultListableBeanFactory(BeanFactory parentBeanFactory) {
         super(parentBeanFactory);
     }
+
     public void setSerializationId(String serializationId) {
         if (serializationId != null) {
             serializableFactories.put(serializationId, new WeakReference<DefaultListableBeanFactory>(this));
@@ -63,8 +64,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         }
         this.serializationId = serializationId;
     }
+
     public void setAllowBeanDefinitionOverriding(boolean allowBeanDefinitionOverriding) {
         this.allowBeanDefinitionOverriding = allowBeanDefinitionOverriding;
+    }
+
+    public boolean isAllowBeanDefinitionOverriding() {
+        return this.allowBeanDefinitionOverriding;
     }
 
     public Comparator<Object> getDependencyComparator() {
@@ -203,7 +209,14 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     }
     @Override
     public BeanDefinition getBeanDefinition(String beanName) {
-        return beanDefinitionMap.get(beanName);
+        BeanDefinition bd = this.beanDefinitionMap.get(beanName);
+        if (bd == null) {
+            if (this.logger.isTraceEnabled()) {
+                this.logger.trace("No bean named '" + beanName + "' found in " + this);
+            }
+            throw new NoSuchBeanDefinitionException(beanName);
+        }
+        return bd;
     }
     @Override
     public void clearMetadataCache() {
@@ -214,16 +227,112 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     public boolean isConfigurationFrozen() {
         return this.configurationFrozen;
     }
+    //---------------------------------------------------------------------
+    // Implementation of BeanDefinitionRegistry interface
+    //---------------------------------------------------------------------
     /*
      * 注册bean定义，需要给定唯一bean的名称和bean的定义,放到bean定义集合中
      */
+    @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
-        Objects.requireNonNull(beanName, "beanName不能为空");
-        Objects.requireNonNull(beanDefinition, "beanDefinition不能为空");
-        if (beanDefinitionMap.containsKey(beanName)) {
-            throw new BeanDefinitionStoreException("已存在【" + beanName + "】的bean定义" + getBeanDefinition(beanName));
+        Assert.hasText(beanName, "Bean name must not be empty");
+        Assert.notNull(beanDefinition, "BeanDefinition must not be null");
+
+        if (beanDefinition instanceof AbstractBeanDefinition) {
+            try {
+                ((AbstractBeanDefinition) beanDefinition).validate();
+            }
+            catch (BeanDefinitionValidationException ex) {
+                throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
+                        "Validation of bean definition failed", ex);
+            }
         }
-        beanDefinitionMap.put(beanName, beanDefinition);
+        BeanDefinition oldBeanDefinition;
+
+        oldBeanDefinition = this.beanDefinitionMap.get(beanName);
+        if (oldBeanDefinition != null) {
+            if (!isAllowBeanDefinitionOverriding()) {
+                throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
+                        "Cannot register bean definition [" + beanDefinition + "] for bean '" + beanName +
+                                "': There is already [" + oldBeanDefinition + "] bound.");
+            }
+            else if (oldBeanDefinition.getRole() < beanDefinition.getRole()) {
+                // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
+                if (this.logger.isWarnEnabled()) {
+                    this.logger.warn("Overriding user-defined bean definition for bean '" + beanName +
+                            "' with a framework-generated bean definition: replacing [" +
+                            oldBeanDefinition + "] with [" + beanDefinition + "]");
+                }
+            }
+            else if (!beanDefinition.equals(oldBeanDefinition)) {
+                if (this.logger.isInfoEnabled()) {
+                    this.logger.info("Overriding bean definition for bean '" + beanName +
+                            "' with a different definition: replacing [" + oldBeanDefinition +
+                            "] with [" + beanDefinition + "]");
+                }
+            }
+            else {
+                if (this.logger.isDebugEnabled()) {
+                    this.logger.debug("Overriding bean definition for bean '" + beanName +
+                            "' with an equivalent definition: replacing [" + oldBeanDefinition +
+                            "] with [" + beanDefinition + "]");
+                }
+            }
+            this.beanDefinitionMap.put(beanName, beanDefinition);
+        }
+        else {
+            if (hasBeanCreationStarted()) {
+                // Cannot modify startup-time collection elements anymore (for stable iteration)
+                synchronized (this.beanDefinitionMap) {
+                    this.beanDefinitionMap.put(beanName, beanDefinition);
+                    List<String> updatedDefinitions = new ArrayList<String>(this.beanDefinitionNames.size() + 1);
+                    updatedDefinitions.addAll(this.beanDefinitionNames);
+                    updatedDefinitions.add(beanName);
+                    this.beanDefinitionNames = updatedDefinitions;
+                    if (this.manualSingletonNames.contains(beanName)) {
+                        Set<String> updatedSingletons = new LinkedHashSet<String>(this.manualSingletonNames);
+                        updatedSingletons.remove(beanName);
+                        this.manualSingletonNames = updatedSingletons;
+                    }
+                }
+            }
+            else {
+                // Still in startup registration phase
+                this.beanDefinitionMap.put(beanName, beanDefinition);
+                this.beanDefinitionNames.add(beanName);
+                this.manualSingletonNames.remove(beanName);
+            }
+            this.frozenBeanDefinitionNames = null;
+        }
+
+        if (oldBeanDefinition != null || containsSingleton(beanName)) {
+            resetBeanDefinition(beanName);
+        }
+
+    }
+    /**
+     * Reset all bean definition caches for the given bean,
+     * including the caches of beans that are derived from it.
+     * @param beanName the name of the bean to reset
+     */
+    protected void resetBeanDefinition(String beanName) {
+        // Remove the merged bean definition for the given bean, if already created.
+        clearMergedBeanDefinition(beanName);
+
+        // Remove corresponding bean from singleton cache, if any. Shouldn't usually
+        // be necessary, rather just meant for overriding a context's default beans
+        // (e.g. the default StaticMessageSource in a StaticApplicationContext).
+        destroySingleton(beanName);
+
+        // Reset all bean definitions that have the given bean as parent (recursively).
+        for (String bdName : this.beanDefinitionNames) {
+            if (!beanName.equals(bdName)) {
+                BeanDefinition bd = this.beanDefinitionMap.get(bdName);
+                if (beanName.equals(bd.getParentName())) {
+                    resetBeanDefinition(bdName);
+                }
+            }
+        }
     }
 
     /**

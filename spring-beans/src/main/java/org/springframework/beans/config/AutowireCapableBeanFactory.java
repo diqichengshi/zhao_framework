@@ -52,7 +52,31 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
     // Typical methods for creating and populating external bean instances
     // 创建和填充外部bean实例的典型方法
     //-------------------------------------------------------------------------
+    /**
+     * Apply {@link BeanPostProcessor BeanPostProcessors} to the given existing bean
+     * instance, invoking their {@code postProcessBeforeInitialization} methods.
+     * The returned bean instance may be a wrapper around the original.
+     * @param existingBean the new bean instance
+     * @param beanName the name of the bean
+     * @return the bean instance to use, either the original or a wrapped one
+     * @throws BeansException if any post-processing failed
+     * @see BeanPostProcessor#postProcessBeforeInitialization
+     */
+    Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName)
+            throws BeansException;
 
+    /**
+     * Apply {@link BeanPostProcessor BeanPostProcessors} to the given existing bean
+     * instance, invoking their {@code postProcessAfterInitialization} methods.
+     * The returned bean instance may be a wrapper around the original.
+     * @param existingBean the new bean instance
+     * @param beanName the name of the bean
+     * @return the bean instance to use, either the original or a wrapped one
+     * @throws BeansException if any post-processing failed
+     * @see BeanPostProcessor#postProcessAfterInitialization
+     */
+    Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
+            throws BeansException;
     /**
      * Resolve the specified dependency against the beans defined in this factory.
      * @param descriptor the descriptor for the dependency

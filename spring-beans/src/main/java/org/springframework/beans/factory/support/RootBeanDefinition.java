@@ -13,11 +13,13 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
     boolean isFactoryMethodUnique = false;
     final Object constructorArgumentLock = new Object();
     Object resolvedConstructorOrFactoryMethod;
+    volatile Class<?> resolvedFactoryMethodReturnType;
     Object[] resolvedConstructorArguments;
     Object[] preparedConstructorArguments;
     boolean constructorArgumentsResolved = false;
     final Object postProcessingLock = new Object();
     boolean postProcessed = false;
+    volatile Boolean beforeInstantiationResolved;
     private Set<String> externallyManagedDestroyMethods;
 
     public RootBeanDefinition() {
@@ -52,7 +54,20 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
             throw new IllegalArgumentException("Root bean cannot be changed into a child bean with parent reference");
         }
     }
+    /**
+     * Specify the target type of this bean definition, if known in advance.
+     */
+    public void setTargetType(Class<?> targetType) {
+        this.targetType = targetType;
+    }
 
+    /**
+     * Return the target type of this bean definition, if known
+     * (either specified in advance or resolved on first instantiation).
+     */
+    public Class<?> getTargetType() {
+        return this.targetType;
+    }
     @Override
     public RootBeanDefinition cloneBeanDefinition() {
         return new RootBeanDefinition(this);

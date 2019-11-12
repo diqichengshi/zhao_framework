@@ -113,6 +113,7 @@ public abstract class AopConfigUtils {
         beanDefinition.setSource(source);
         beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);
         beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        // TODO 注册代理创建器 name是internalAutoProxyCreator,class是AnnotationAwareAspectJAutoProxyCreator.class
         registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition); // 注册代理创建器
         return beanDefinition;
     }

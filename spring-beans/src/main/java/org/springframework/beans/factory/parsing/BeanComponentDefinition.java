@@ -44,4 +44,48 @@ public class BeanComponentDefinition extends BeanDefinitionHolder implements Com
         this.beanReferences = references.toArray(new BeanReference[references.size()]);
     }
 
+    @Override
+    public String getName() {
+        return getBeanName();
+    }
+
+    @Override
+    public String getDescription() {
+        return getShortDescription();
+    }
+
+    @Override
+    public BeanDefinition[] getBeanDefinitions() {
+        return new BeanDefinition[] {getBeanDefinition()};
+    }
+
+    @Override
+    public BeanDefinition[] getInnerBeanDefinitions() {
+        return this.innerBeanDefinitions;
+    }
+
+    @Override
+    public BeanReference[] getBeanReferences() {
+        return this.beanReferences;
+    }
+
+
+    /**
+     * This implementation returns this ComponentDefinition's description.
+     * @see #getDescription()
+     */
+    @Override
+    public String toString() {
+        return getDescription();
+    }
+
+    /**
+     * This implementations expects the other object to be of type BeanComponentDefinition
+     * as well, in addition to the superclass's equality requirements.
+     */
+    @Override
+    public boolean equals(Object other) {
+        return (this == other || (other instanceof BeanComponentDefinition && super.equals(other)));
+    }
+
 }

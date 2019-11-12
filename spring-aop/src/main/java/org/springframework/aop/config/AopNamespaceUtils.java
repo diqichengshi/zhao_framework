@@ -21,20 +21,20 @@ public class AopNamespaceUtils {
 
     public static void registerAutoProxyCreatorIfNecessary(
             ParserContext parserContext, Element sourceElement) {
-
+        // 注册InfrastructureAdvisorAutoProxyCreator类
         BeanDefinition beanDefinition = AopConfigUtils.registerAutoProxyCreatorIfNecessary(
                 parserContext.getRegistry(), parserContext.extractSource(sourceElement));
         useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
-        registerComponentIfNecessary(beanDefinition, parserContext);
+        registerComponentIfNecessary(beanDefinition, parserContext); // 注册Component
     }
 
     public static void registerAspectJAutoProxyCreatorIfNecessary(
             ParserContext parserContext, Element sourceElement) {
-
+        // TODO 注册AspectJAwareAdvisorAutoProxyCreator类
         BeanDefinition beanDefinition = AopConfigUtils.registerAspectJAutoProxyCreatorIfNecessary(
                 parserContext.getRegistry(), parserContext.extractSource(sourceElement));
         useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
-        registerComponentIfNecessary(beanDefinition, parserContext);
+        registerComponentIfNecessary(beanDefinition, parserContext); // 注册Component
     }
 
     /**
@@ -45,11 +45,11 @@ public class AopNamespaceUtils {
         // TODO 注册AnnotationAwareAspectJAutoProxyCreator类
         BeanDefinition beanDefinition = AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(
                 parserContext.getRegistry(), parserContext.extractSource(sourceElement));
-        useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement); // 设置proxy-target-class和expose-proxy
+        useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
 
-        registerComponentIfNecessary(beanDefinition, parserContext);
+        registerComponentIfNecessary(beanDefinition, parserContext); // 注册Component
     }
-
+    /**设置proxy-target-class和expose-proxy*/
     private static void useClassProxyingIfNecessary(BeanDefinitionRegistry registry, Element sourceElement) {
         if (sourceElement != null) {
             boolean proxyTargetClass = Boolean.valueOf(sourceElement.getAttribute(PROXY_TARGET_CLASS_ATTRIBUTE));

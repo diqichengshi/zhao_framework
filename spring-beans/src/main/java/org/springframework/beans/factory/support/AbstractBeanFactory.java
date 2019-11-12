@@ -34,6 +34,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     private final ThreadLocal<Object> prototypesCurrentlyInCreation = new ThreadLocal<Object>();
     private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>(64));
     private final Map<String, Scope> scopes = new LinkedHashMap<String, Scope>(8);
+    /**
+     * BeanPostProcessors to apply in createBean
+     */
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
     private boolean hasInstantiationAwareBeanPostProcessors;
     private boolean hasDestructionAwareBeanPostProcessors;
@@ -79,16 +82,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
      * @如果无法创建bean，则抛出BeansException
      */
     private <T> T doGetBean(String name, final Class<T> requiredType, final Object[] args, boolean typeCheckOnly) throws BeansException {
-        String beanName = name;
-        Assert.notNull(beanName, "beanName不能为空");
+        final String beanName = transformedBeanName(name);
         Object bean;
         // Eagerly check singleton cache for manually registered singletons.
-        //1.是否创建过，yes(正常情况在第一次refreash，单线程的情况下走这个case) 直接返回，否走2
-        //2.是否正在创建，yes ，在获取一次bean，如果还没有，则获取singletonFactory去createcreate bean
-        //3.singletonFactories数据填充流程，后面getBean的时候详细分析，这个地方先认为没有创建
+        // 1.是否创建过，yes(正常情况在第一次refreash，单线程的情况下走这个case) 直接返回，否走2
+        // 2.是否正在创建，yes ，在获取一次bean，如果还没有，则获取singletonFactory去createcreate bean
+        // 3.singletonFactories数据填充流程，后面getBean的时候详细分析，这个地方先认为没有创建
         Object sharedInstance = getSingleton(beanName);
-        //如果args不为空，不管有没有缓存，都要重新根据args 创建一个新的bean
-        //case:有缓存且不需要根据args重新创建的
+        // 如果args不为空，不管有没有缓存，都要重新根据args 创建一个新的bean
+        // case:有缓存且不需要根据args重新创建的
         if (sharedInstance != null) {
             if (logger.isDebugEnabled()) {
                 if (isSingletonCurrentlyInCreation(beanName)) {
@@ -98,15 +100,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                     logger.debug("Returning cached instance of singleton bean '" + beanName + "'");
                 }
             }
-            //1.不同bean实例，直接返回该bean   2.是factoryBean，则返回该生成的bean，单例情况下，缓存该factorybean
+            // 1.不同bean实例,直接返回该bean
+            // 2.是factoryBean,则返回该生成的bean,单例情况下,缓存该factorybean
             bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
         } else {
-            //必须创建一个新Bean
+            // 必须创建一个新Bean
             // Fail if we're already creating this bean instance:
             // We're assumably within a circular reference.
-            //当前线程正在创建Prototype类型bean，抛异常
             if (isPrototypeCurrentlyInCreation(beanName)) {
-                throw new BeanCurrentlyInCreationException(beanName + "正在创建中");
+                // 当前线程正在创建Prototype类型bean,抛异常
+                throw new BeanCurrentlyInCreationException(beanName);
             }
 
             // Check if bean definition exists in this factory.
@@ -137,9 +140,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                     for (String dependsOnBean : dependsOn) {
                         //检查是否有循环依赖
                         if (isDependent(beanName, dependsOnBean)) {
-                            throw new BeanCreationException(beanName + "循环依赖 between '" + beanName + "' and '" + dependsOnBean + "'");
+                            logger.error(beanName + "循环依赖 between '" + beanName + "' and '" + dependsOnBean + "'");
+                            throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+                                    "Circular depends-on relationship between '" + beanName + "' and '" + dependsOnBean + "'");
                         }
-                        //注册依赖，Map<String, Set<String>>保存，beanName为key，dependsOnBean add 到set中
+                        //注册依赖，Map<String, Set<String>>保存,beanName为key,dependsOnBean add 到set中
                         registerDependentBean(dependsOnBean, beanName);
                         //先初始化依赖
                         getBean(dependsOnBean);
@@ -148,11 +153,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
                 //单例,开始创建bean
                 if (mbd.isSingleton()) {
-                    //getSingleton方法比较简单，不进行分析了，依次做了以下功能：
-                    //1.创建前各个状态位校验，正在销毁，不是正在创建状态，抛出异常
-                    //2.调用ObjectFactory匿名内部类的的getObject()
-                    //3.getObject以后，判断各个状态位是否正常
-                    //4.把getObject的bean放放入缓存
+                    // getSingleton方法比较简单,不进行分析了,依次做了以下功能：
+                    // 1.创建前各个状态位校验,正在销毁,不是正在创建状态,抛出异常
+                    // 2.调用ObjectFactory匿名内部类的的getObject()
+                    // 3.getObject以后,判断各个状态位是否正常
+                    // 4.把getObject的bean放放入缓存
                     sharedInstance = getSingleton(beanName, new ObjectFactory<Object>() {
                         @Override
                         public Object getObject() throws BeansException {
@@ -173,10 +178,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                     try {
                         //设置当前线程在create此bean
                         beforePrototypeCreation(beanName);
-                        //和单例一个方法，后面会分析到
+                        //和单例一个方法,后面会分析到
                         prototypeInstance = createBean(beanName, mbd, args); // 由子类实现
                     } finally {
-                        afterPrototypeCreation(beanName);  //移除当前创建
+                        afterPrototypeCreation(beanName);  // 移除当前创建
                     }
                     bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
                 } else {
@@ -200,7 +205,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                         });
                         bean = getObjectForBeanInstance(scopedInstance, name, beanName, mbd);
                     } catch (IllegalStateException ex) {
-                        throw new BeanCreationException(beanName + "当前线程不支持'" + scopeName + "'作用域 ", ex);
+                        throw new BeanCreationException(beanName,
+                                "Scope '" + scopeName + "' is not active for the current thread; " +
+                                        "consider defining a scoped proxy for this bean if you intend to refer to it from a singleton",
+                                ex);
                     }
                 }
             } catch (BeansException ex) {
@@ -278,8 +286,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         if (mbd.isPrototype()) {
             // In case of FactoryBean, return singleton status of created object if not a dereference.
             return (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(beanName, mbd));
-        }
-        else {
+        } else {
             // Singleton or scoped - not a prototype.
             // However, FactoryBean may still produce a prototype object...
             if (BeanFactoryUtils.isFactoryDereference(name)) {
@@ -289,8 +296,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                 final FactoryBean<?> factoryBean = (FactoryBean<?>) getBean(FACTORY_BEAN_PREFIX + beanName);
                 return ((factoryBean instanceof SmartFactoryBean && ((SmartFactoryBean<?>) factoryBean).isPrototype()) ||
                         !factoryBean.isSingleton());
-            }
-            else {
+            } else {
                 return false;
             }
         }
@@ -307,21 +313,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                 if (!BeanFactoryUtils.isFactoryDereference(name)) {
                     Class<?> type = getTypeForFactoryBean((FactoryBean<?>) beanInstance);
                     return (type != null && typeToMatch.isAssignableFrom(type));
-                }
-                else {
+                } else {
                     return typeToMatch.isInstance(beanInstance);
                 }
-            }
-            else {
+            } else {
                 return (!BeanFactoryUtils.isFactoryDereference(name) && typeToMatch.isInstance(beanInstance));
             }
-        }
-        else if (containsSingleton(beanName) && !containsBeanDefinition(beanName)) {
+        } else if (containsSingleton(beanName) && !containsBeanDefinition(beanName)) {
             // null instance registered
             return false;
-        }
-
-        else {
+        } else {
             // No singleton instance found -> check bean definition.
             BeanFactory parentBeanFactory = getParentBeanFactory();
             if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
@@ -334,7 +335,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
             Class<?> classToMatch = typeToMatch.getRawClass();
             Class<?>[] typesToMatch = (FactoryBean.class == classToMatch ?
-                    new Class<?>[] {classToMatch} : new Class<?>[] {FactoryBean.class, classToMatch});
+                    new Class<?>[]{classToMatch} : new Class<?>[]{FactoryBean.class, classToMatch});
 
             // Check decorated bean definition, if any: We assume it'll be easier
             // to determine the decorated bean's type than the proxy's type.
@@ -361,8 +362,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                         return false;
                     }
                 }
-            }
-            else if (BeanFactoryUtils.isFactoryDereference(name)) {
+            } else if (BeanFactoryUtils.isFactoryDereference(name)) {
                 // Special case: A SmartInstantiationAwareBeanPostProcessor returned a non-FactoryBean
                 // type but we nevertheless are being asked to dereference a FactoryBean...
                 // Let's check the original bean class and proceed with it if it is a FactoryBean.
@@ -468,6 +468,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     public BeanFactory getParentBeanFactory() {
         return this.parentBeanFactory;
     }
+
     @Override
     public boolean containsLocalBean(String name) {
         String beanName = transformedBeanName(name);
@@ -758,6 +759,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         }
     }
 
+    /**
+     * Remove the merged bean definition for the specified bean,
+     * recreating it on next access.
+     * @param beanName the bean name to clear the merged definition for
+     */
+    protected void clearMergedBeanDefinition(String beanName) {
+        this.mergedBeanDefinitions.remove(beanName);
+    }
+
+
     public void clearMetadataCache() {
         Iterator<String> mergedBeans = this.mergedBeanDefinitions.keySet().iterator();
         while (mergedBeans.hasNext()) {
@@ -918,6 +929,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         } else {
             return false;
         }
+    }
+
+    /**
+     * Check whether this factory's bean creation phase already started,
+     * i.e. whether any bean has been marked as created in the meantime.
+     * @since 4.2.2
+     * @see #markBeanAsCreated
+     */
+    protected boolean hasBeanCreationStarted() {
+        return !this.alreadyCreated.isEmpty();
     }
 
     /**

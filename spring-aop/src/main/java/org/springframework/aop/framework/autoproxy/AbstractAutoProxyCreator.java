@@ -37,6 +37,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
     private boolean freezeProxy = false;
     private String[] interceptorNames = new String[0];
     private boolean applyCommonInterceptorsFirst = true;
+    private TargetSourceCreator[] customTargetSourceCreators;
     private BeanFactory beanFactory;
     private final Map<Object, Boolean> advisedBeans = new ConcurrentHashMap<Object, Boolean>(64);
     private final Set<String> targetSourcedBeans =
@@ -70,6 +71,37 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
         return wrapIfNecessary(bean, beanName, cacheKey);
     }
 
+
+    @Override
+    public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+        Object cacheKey = getCacheKey(beanClass, beanName);
+
+        if (beanName == null || !this.targetSourcedBeans.contains(beanName)) {
+            if (this.advisedBeans.containsKey(cacheKey)) {
+                return null;
+            }
+            if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
+                this.advisedBeans.put(cacheKey, Boolean.FALSE);
+                return null;
+            }
+        }
+
+        // Create proxy here if we have a custom TargetSource.
+        // Suppresses unnecessary default instantiation of the target bean:
+        // The TargetSource will handle target instances in a custom fashion.
+        if (beanName != null) {
+            TargetSource targetSource = getCustomTargetSource(beanClass, beanName);
+            if (targetSource != null) {
+                this.targetSourcedBeans.add(beanName);
+                Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
+                Object proxy = createProxy(beanClass, beanName, specificInterceptors, targetSource);
+                this.proxyTypes.put(cacheKey, proxy.getClass());
+                return proxy;
+            }
+        }
+
+        return null;
+    }
 
     @Override
     public boolean postProcessAfterInstantiation(Object bean, String beanName) {
@@ -190,6 +222,36 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
      */
     protected boolean shouldSkip(Class<?> beanClass, String beanName) {
         return false;
+    }
+    /**
+     * Create a target source for bean instances. Uses any TargetSourceCreators if set.
+     * Returns {@code null} if no custom TargetSource should be used.
+     * <p>This implementation uses the "customTargetSourceCreators" property.
+     * Subclasses can override this method to use a different mechanism.
+     * @param beanClass the class of the bean to create a TargetSource for
+     * @param beanName the name of the bean
+     * @return a TargetSource for this bean
+     * @see #setCustomTargetSourceCreators
+     */
+    protected TargetSource getCustomTargetSource(Class<?> beanClass, String beanName) {
+        // We can't create fancy target sources for directly registered singletons.
+        if (this.customTargetSourceCreators != null &&
+                this.beanFactory != null && this.beanFactory.containsBean(beanName)) {
+            for (TargetSourceCreator tsc : this.customTargetSourceCreators) {
+                TargetSource ts = tsc.getTargetSource(beanClass, beanName);
+                if (ts != null) {
+                    // Found a matching TargetSource.
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("TargetSourceCreator [" + tsc +
+                                " found custom TargetSource for bean with name '" + beanName + "'");
+                    }
+                    return ts;
+                }
+            }
+        }
+
+        // No custom TargetSource found.
+        return null;
     }
 
     /**

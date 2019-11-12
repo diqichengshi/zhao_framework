@@ -44,6 +44,18 @@ public class ParserContext {
                 (CompositeComponentDefinition) this.containingComponents.lastElement() : null);
     }
 
+    public void pushContainingComponent(CompositeComponentDefinition containingComponent) {
+        this.containingComponents.push(containingComponent);
+    }
+
+    public CompositeComponentDefinition popContainingComponent() {
+        return (CompositeComponentDefinition) this.containingComponents.pop();
+    }
+
+    public void popAndRegisterContainingComponent() {
+        registerComponent(popContainingComponent());
+    }
+
     public void registerComponent(ComponentDefinition component) {
         CompositeComponentDefinition containingComponent = getContainingComponent();
         if (containingComponent != null) {

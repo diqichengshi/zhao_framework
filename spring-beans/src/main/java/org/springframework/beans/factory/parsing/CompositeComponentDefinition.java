@@ -5,7 +5,7 @@ import org.springframework.util.Assert;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CompositeComponentDefinition implements ComponentDefinition {
+public class CompositeComponentDefinition extends AbstractComponentDefinition {
 
     private final String name;
 
@@ -23,5 +23,13 @@ public class CompositeComponentDefinition implements ComponentDefinition {
         Assert.notNull(component, "ComponentDefinition must not be null");
         this.nestedComponents.add(component);
     }
+    @Override
+    public String getName() {
+        return this.name;
+    }
 
+    @Override
+    public Object getSource() {
+        return this.source;
+    }
 }

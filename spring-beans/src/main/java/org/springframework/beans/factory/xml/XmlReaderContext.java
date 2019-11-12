@@ -52,4 +52,9 @@ public class XmlReaderContext extends ReaderContext {
         return this.reader.getBeanNameGenerator().generateBeanName(beanDefinition, getRegistry());
     }
 
+    public String registerWithGeneratedName(BeanDefinition beanDefinition) {
+        String generatedName = generateBeanName(beanDefinition);
+        getRegistry().registerBeanDefinition(generatedName, beanDefinition);
+        return generatedName;
+    }
 }
