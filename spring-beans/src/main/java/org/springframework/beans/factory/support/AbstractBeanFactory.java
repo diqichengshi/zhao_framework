@@ -30,6 +30,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     private TypeConverter typeConverter;
     private final Map<Class<?>, Class<? extends PropertyEditor>> customEditors =
             new HashMap<Class<?>, Class<? extends PropertyEditor>>(4);
+    private final List<StringValueResolver> embeddedValueResolvers = new LinkedList<StringValueResolver>();
     private BeanExpressionResolver beanExpressionResolver;
     private final ThreadLocal<Object> prototypesCurrentlyInCreation = new ThreadLocal<Object>();
     private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>(64));
@@ -485,7 +486,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         }
         this.parentBeanFactory = parentBeanFactory;
     }
-
+    @Override
+    public void setBeanClassLoader(ClassLoader beanClassLoader) {
+        this.beanClassLoader = (beanClassLoader != null ? beanClassLoader : ClassUtils.getDefaultClassLoader());
+    }
     public ClassLoader getBeanClassLoader() {
         return this.beanClassLoader;
     }
@@ -503,6 +507,17 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     public void addPropertyEditorRegistrar(PropertyEditorRegistrar registrar) {
         Assert.notNull(registrar, "PropertyEditorRegistrar must not be null");
         this.propertyEditorRegistrars.add(registrar);
+    }
+    @Override
+    public String resolveEmbeddedValue(String value) {
+        String result = value;
+        for (StringValueResolver resolver : this.embeddedValueResolvers) {
+            if (result == null) {
+                return null;
+            }
+            result = resolver.resolveStringValue(result);
+        }
+        return result;
     }
 
     @Override
@@ -560,6 +575,28 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
     protected boolean hasInstantiationAwareBeanPostProcessors() {
         return this.hasInstantiationAwareBeanPostProcessors;
+    }
+    /**
+     * Return a 'merged' BeanDefinition for the given bean name,
+     * merging a child bean definition with its parent if necessary.
+     * <p>This {@code getMergedBeanDefinition} considers bean definition
+     * in ancestors as well.
+     * @param name the name of the bean to retrieve the merged definition for
+     * (may be an alias)
+     * @return a (potentially merged) RootBeanDefinition for the given bean
+     * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+     * @throws BeanDefinitionStoreException in case of an invalid bean definition
+     */
+    @Override
+    public BeanDefinition getMergedBeanDefinition(String name) throws BeansException {
+        String beanName = transformedBeanName(name);
+
+        // Efficiently check whether bean definition exists in this factory.
+        if (!containsBeanDefinition(beanName) && getParentBeanFactory() instanceof ConfigurableBeanFactory) {
+            return ((ConfigurableBeanFactory) getParentBeanFactory()).getMergedBeanDefinition(beanName);
+        }
+        // Resolve merged bean definition locally.
+        return getMergedLocalBeanDefinition(beanName);
     }
 
     // @Override

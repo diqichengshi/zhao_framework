@@ -80,6 +80,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
     @Override
     public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
         if (beanType != null) {
+            // TODO 搜索每个Bean内@Autowired注解的信息
             InjectionMetadata metadata = findAutowiringMetadata(beanName, beanType, null);
             metadata.checkConfigMembers(beanDefinition);
         }
@@ -91,8 +92,9 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
     @Override
     public PropertyValues postProcessPropertyValues(
             PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName) throws BeansException {
-        // 首先找到需要注入的哪些元数据，然后metadata.inject(注入)，注入方法点进去，来到InjectionMetadata的inject方法，
-        // 在一个 for循环里面依次执行element.inject (target, beanName, pvs)，来对属性进行注入。
+        // TODO Spring IOC容器从找到合适的Bean,注入属性
+        // 首先找到需要注入的哪些元数据,然后metadata.inject(注入),注入方法点进去,来到InjectionMetadata的inject方法，
+        // 在一个 for循环里面依次执行element.inject(target, beanName, pvs),来对属性进行注入。
         InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), pvs);
         try {
             metadata.inject(bean, beanName, pvs);
@@ -118,6 +120,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
                         metadata.clear(pvs);
                     }
                     try {
+                        // 解析@Autowired注解的信息,生成元数据,缓存起来
                         metadata = buildAutowiringMetadata(clazz);
                         this.injectionMetadataCache.put(cacheKey, metadata);
                     } catch (NoClassDefFoundError err) {
@@ -141,6 +144,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
             ReflectionUtils.doWithLocalFields(targetClass, new ReflectionUtils.FieldCallback() {
                 @Override
                 public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+                    // 如果类内的属性上有@Autowired注解,则用工具类获取注解信息
                     AnnotationAttributes ann = findAutowiredAnnotation(field);
                     if (ann != null) {
                         if (Modifier.isStatic(field.getModifiers())) {
@@ -149,6 +153,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
                             }
                             return;
                         }
+                        //获取@Autowired注解的required的属性值,如果true,但注入失败会抛出异常,false则不会
                         boolean required = determineRequiredStatus(ann);
                         currElements.add(new AutowiredFieldElement(field, required));
                     }
@@ -162,14 +167,17 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
                     if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
                         return;
                     }
+                    // 如果方法上有@Autowired注解,则获取注解信息
                     AnnotationAttributes ann = findAutowiredAnnotation(bridgedMethod);
                     if (ann != null && method.equals(ClassUtils.getMostSpecificMethod(method, clazz))) {
+                        // @Autowired不支持静态方法
                         if (Modifier.isStatic(method.getModifiers())) {
                             if (logger.isWarnEnabled()) {
                                 logger.warn("Autowired annotation is not supported on static methods: " + method);
                             }
                             return;
                         }
+                        // @Autowired注解标识在方法上的目的就是将容器内的Bean注入到方法的参数中,没有参数就违背了初衷
                         if (method.getParameterTypes().length == 0) {
                             if (logger.isWarnEnabled()) {
                                 logger.warn("Autowired annotation should be used on methods with parameters: " + method);
@@ -183,6 +191,8 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
             });
 
             elements.addAll(0, currElements);
+            // 在解析完Bean的类型之后,递归的解析其父类,将所有的@Autowired的属性和方法收集起来,
+            // 且类的层级越高其属性会被越优先注入
             targetClass = targetClass.getSuperclass();
         }
         while (targetClass != null && targetClass != Object.class);
@@ -306,6 +316,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
                     field.set(bean, value);
                 }
             } catch (Throwable ex) {
+                ex.printStackTrace();
                 throw new BeanCreationException("Could not autowire field: " + field, ex);
             }
         }

@@ -16,6 +16,7 @@
         <module>spring-context</module>
         <module>spring-jdbc</module>
         <module>spring-tx</module>
+        <module>spring-expression</module>
     </modules>
 
     <properties>

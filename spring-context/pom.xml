@@ -27,6 +27,11 @@
             <artifactId>spring-aop</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.zhaojuan.framework</groupId>
+            <artifactId>spring-expression</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

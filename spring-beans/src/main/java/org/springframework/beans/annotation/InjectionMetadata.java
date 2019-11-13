@@ -35,7 +35,7 @@ public class InjectionMetadata {
 
     public void checkConfigMembers(RootBeanDefinition beanDefinition) {
         Set<InjectedElement> checkedElements = new LinkedHashSet<InjectedElement>(this.injectedElements.size());
-        /*for (InjectedElement element : this.injectedElements) {
+        for (InjectedElement element : this.injectedElements) {
             Member member = element.getMember();
             if (!beanDefinition.isExternallyManagedConfigMember(member)) {
                 beanDefinition.registerExternallyManagedConfigMember(member);
@@ -44,7 +44,7 @@ public class InjectionMetadata {
                     logger.debug("Registered injected element on class [" + this.targetClass.getName() + "]: " + element);
                 }
             }
-        }*/
+        }
         this.checkedElements = checkedElements;
     }
 

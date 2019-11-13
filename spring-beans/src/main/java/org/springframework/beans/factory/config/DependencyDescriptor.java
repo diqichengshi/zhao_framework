@@ -9,10 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import org.springframework.core.GenericCollectionTypeResolver;
-import org.springframework.core.GenericTypeResolver;
-import org.springframework.core.MethodParameter;
-import org.springframework.core.ResolvableType;
+import org.springframework.core.*;
 import org.springframework.util.Assert;
 
 /**
@@ -233,11 +230,11 @@ public class DependencyDescriptor implements Serializable {
      * this point; it just allows discovery to happen when the application calls
      * {@link #getDependencyName()} (if ever).
      */
-    /*public void initParameterNameDiscovery(ParameterNameDiscoverer parameterNameDiscoverer) {
+    public void initParameterNameDiscovery(ParameterNameDiscoverer parameterNameDiscoverer) {
         if (this.methodParameter != null) {
             this.methodParameter.initParameterNameDiscovery(parameterNameDiscoverer);
         }
-    }*/
+    }
 
     /**
      * Determine the name of the wrapped parameter/field.

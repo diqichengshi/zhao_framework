@@ -124,6 +124,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     public <T> T execute(StatementCallback<T> action) throws DataAccessException {
         Assert.notNull(action, "Callback object must not be null");
 
+        // 获取数据库连接
         Connection con = DataSourceUtils.getConnection(getDataSource());
         Statement stmt = null;
         try {
@@ -138,6 +139,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             if (this.nativeJdbcExtractor != null) {
                 stmtToUse = this.nativeJdbcExtractor.getNativeStatement(stmt);
             }
+            // 调用回调函数(此处使用模板方法模式)
             T result = action.doInStatement(stmtToUse);
             handleWarnings(stmt);
             return result;
@@ -193,30 +195,6 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         return query(sql, new RowMapperResultSetExtractor<T>(rowMapper));
     }
 
-
-    @Override
-    public int update(final String sql) throws DataAccessException {
-        Assert.notNull(sql, "SQL must not be null");
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing SQL update [" + sql + "]");
-        }
-        class UpdateStatementCallback implements StatementCallback<Integer>, SqlProvider {
-            @Override
-            public Integer doInStatement(Statement stmt) throws SQLException {
-                int rows = stmt.executeUpdate(sql);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SQL update affected " + rows + " rows");
-                }
-                return rows;
-            }
-            @Override
-            public String getSql() {
-                return sql;
-            }
-        }
-        return execute(new UpdateStatementCallback());
-    }
-
     //-------------------------------------------------------------------------
     // Methods dealing with prepared statements
     //-------------------------------------------------------------------------
@@ -232,6 +210,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             logger.debug("Executing prepared SQL statement" + (sql != null ? " [" + sql + "]" : ""));
         }
 
+        // 获取数据库的连接
         Connection con = DataSourceUtils.getConnection(getDataSource());
         PreparedStatement ps = null;
         try {
@@ -241,11 +220,13 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
                 conToUse = this.nativeJdbcExtractor.getNativeConnection(con);
             }
             ps = psc.createPreparedStatement(conToUse);
+            // 应用用户输入的参数
             applyStatementSettings(ps);
             PreparedStatement psToUse = ps;
             if (this.nativeJdbcExtractor != null) {
                 psToUse = this.nativeJdbcExtractor.getNativePreparedStatement(ps);
             }
+            // 调用回调函数(此处使用模板方法模式)
             T result = action.doInPreparedStatement(psToUse);
             handleWarnings(ps);
             return result;

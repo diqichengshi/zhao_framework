@@ -11,7 +11,7 @@ public class SpringJdbcTest {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("datasource.xml");
         UserService userService= (UserService) context.getBean("userService");
         User user=new User();
-        user.setName("张三");
+        user.setName("zhangsan");
         user.setAge(18);
         // 保存一条记录
         userService.save(user);

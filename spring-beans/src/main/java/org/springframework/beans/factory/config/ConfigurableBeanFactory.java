@@ -3,6 +3,7 @@ package org.springframework.beans.factory.config;
 import org.springframework.beans.PropertyEditorRegistrar;
 import org.springframework.beans.TypeConverter;
 import org.springframework.beans.config.SingletonBeanRegistry;
+import org.springframework.beans.exception.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.HierarchicalBeanFactory;
 /**
@@ -80,6 +81,13 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
     TypeConverter getTypeConverter();
 
     /**
+     * Resolve the given embedded value, e.g. an annotation attribute.
+     * @param value the value to resolve
+     * @return the resolved value (may be the original value as-is)
+     * @since 3.0
+     */
+    String resolveEmbeddedValue(String value);
+    /**
      * Add a new BeanPostProcessor that will get applied to beans created
      * by this factory. To be invoked during factory configuration.
      * <p>Note: Post-processors submitted here will be applied in the order of
@@ -94,6 +102,17 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
      * Return the current number of registered BeanPostProcessors, if any.
      */
     int getBeanPostProcessorCount();
+
+    /**
+     * Return a merged BeanDefinition for the given bean name,
+     * merging a child bean definition with its parent if necessary.
+     * Considers bean definitions in ancestor factories as well.
+     * @param beanName the name of the bean to retrieve the merged definition for
+     * @return a (potentially merged) BeanDefinition for the given bean
+     * @throws NoSuchBeanDefinitionException if there is no bean definition with the given name
+     * @since 2.5
+     */
+    BeanDefinition getMergedBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
     /**
      * Determine whether the specified bean is currently in creation.
      * @param beanName the name of the bean

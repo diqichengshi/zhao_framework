@@ -32,11 +32,17 @@
             <artifactId>spring-tx</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--测试依赖的连接池jar包-->
+        <!--测试依赖-->
         <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
             <version>1.4</version>
+        </dependency>
+        <!--测试依赖-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.45</version>
         </dependency>
 
     </dependencies>

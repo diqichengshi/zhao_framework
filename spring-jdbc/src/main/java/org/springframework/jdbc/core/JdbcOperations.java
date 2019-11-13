@@ -69,15 +69,6 @@ public interface JdbcOperations {
      */
     <T> List<T> query(String sql, RowMapper<T> rowMapper) throws DataAccessException;
 
-    /**
-     * Issue a single SQL update operation (such as an insert, update or delete statement).
-     *
-     * @param sql static SQL to execute
-     * @return the number of rows affected
-     * @throws DataAccessException if there is any problem.
-     */
-    int update(String sql) throws DataAccessException;
-
     //-------------------------------------------------------------------------
     // Methods dealing with prepared statements
     //-------------------------------------------------------------------------

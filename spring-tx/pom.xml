@@ -27,6 +27,13 @@
             <artifactId>spring-context</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--支持分布式事务处理-->
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>javax.transaction-api</artifactId>
+            <version>1.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>

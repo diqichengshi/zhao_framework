@@ -3,7 +3,9 @@ package org.springframework.beans.factory.support;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.Set;
 
 public class RootBeanDefinition extends AbstractBeanDefinition {
@@ -20,6 +22,8 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
     final Object postProcessingLock = new Object();
     boolean postProcessed = false;
     volatile Boolean beforeInstantiationResolved;
+    private Set<Member> externallyManagedConfigMembers;
+    private Set<String> externallyManagedInitMethods;
     private Set<String> externallyManagedDestroyMethods;
 
     public RootBeanDefinition() {
@@ -41,6 +45,10 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
         this.decoratedDefinition = original.decoratedDefinition;
         this.targetType = original.targetType;
         this.isFactoryMethodUnique = original.isFactoryMethodUnique;
+    }
+
+    public RootBeanDefinition(String beanClassName) {
+        setBeanClassName(beanClassName);
     }
 
     @Override
@@ -80,6 +88,39 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
     public boolean isFactoryMethod(Method candidate) {
         return (candidate != null && candidate.getName().equals(getFactoryMethodName()));
     }
+
+    public void registerExternallyManagedConfigMember(Member configMember) {
+        synchronized (this.postProcessingLock) {
+            if (this.externallyManagedConfigMembers == null) {
+                this.externallyManagedConfigMembers = new HashSet<Member>(1);
+            }
+            this.externallyManagedConfigMembers.add(configMember);
+        }
+    }
+
+    public boolean isExternallyManagedConfigMember(Member configMember) {
+        synchronized (this.postProcessingLock) {
+            return (this.externallyManagedConfigMembers != null &&
+                    this.externallyManagedConfigMembers.contains(configMember));
+        }
+    }
+
+    public void registerExternallyManagedInitMethod(String initMethod) {
+        synchronized (this.postProcessingLock) {
+            if (this.externallyManagedInitMethods == null) {
+                this.externallyManagedInitMethods = new HashSet<String>(1);
+            }
+            this.externallyManagedInitMethods.add(initMethod);
+        }
+    }
+
+    public Method getResolvedFactoryMethod() {
+        synchronized (this.constructorArgumentLock) {
+            Object candidate = this.resolvedConstructorOrFactoryMethod;
+            return (candidate instanceof Method ? (Method) candidate : null);
+        }
+    }
+
     public boolean isExternallyManagedDestroyMethod(String destroyMethod) {
         synchronized (this.postProcessingLock) {
             return (this.externallyManagedDestroyMethods != null &&

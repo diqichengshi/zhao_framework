@@ -58,9 +58,6 @@ public class MethodParameter {
 
     private int nestingLevel = 1;
 
-    /**
-     * Map from Integer level to Integer type index
-     */
     Map<Integer, Integer> typeIndexesPerLevel;
 
     private volatile Class<?> containingClass;
@@ -70,6 +67,8 @@ public class MethodParameter {
     private volatile Type genericParameterType;
 
     private volatile Annotation[] parameterAnnotations;
+
+    private volatile ParameterNameDiscoverer parameterNameDiscoverer;
 
     private volatile String parameterName;
 
@@ -472,10 +471,9 @@ public class MethodParameter {
      * this point; it just allows discovery to happen when the application calls
      * {@link #getParameterName()} (if ever).
      */
-	/*public void initParameterNameDiscovery(ParameterNameDiscoverer parameterNameDiscoverer) {
+	public void initParameterNameDiscovery(ParameterNameDiscoverer parameterNameDiscoverer) {
 		this.parameterNameDiscoverer = parameterNameDiscoverer;
 	}
-*/
 
     /**
      * Return the name of the method/constructor parameter.

@@ -55,6 +55,18 @@ public interface ConfigurableListableBeanFactory extends ListableBeanFactory, Au
      * interface, which allows for lazy resolution of the actual target value.
      */
     void registerResolvableDependency(Class<?> dependencyType, Object autowiredValue);
+
+    /**
+     * Determine whether the specified bean qualifies as an autowire candidate,
+     * to be injected into other beans which declare a dependency of matching type.
+     * <p>This method checks ancestor factories as well.
+     * @param beanName the name of the bean to check
+     * @param descriptor the descriptor of the dependency to resolve
+     * @return whether the bean should be considered as autowire candidate
+     * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+     */
+    boolean isAutowireCandidate(String beanName, DependencyDescriptor descriptor)
+            throws NoSuchBeanDefinitionException;
     /**
      * Return the registered BeanDefinition for the specified bean, allowing access
      * to its property values and constructor argument value (which can be
