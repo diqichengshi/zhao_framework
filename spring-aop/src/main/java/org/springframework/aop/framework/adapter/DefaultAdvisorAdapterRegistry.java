@@ -65,6 +65,8 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
             interceptors.add((MethodInterceptor) advice);
         }
         for (AdvisorAdapter adapter : this.adapters) {
+            // 判断通知是否可被适配器理解
+            // 实际上是对advice类型的判断,如AfterReturningAdvice等
             if (adapter.supportsAdvice(advice)) {
                 interceptors.add(adapter.getInterceptor(advisor));
             }

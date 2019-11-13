@@ -60,7 +60,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
         List<Advisor> candidateAdvisors = findCandidateAdvisors();
         // TODO 寻找匹配的增强器
         List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
-        extendAdvisors(eligibleAdvisors);
+        extendAdvisors(eligibleAdvisors); //  扩展Advisors,添加一个ExposeInvocationInterceptor拦截器
         if (!eligibleAdvisors.isEmpty()) {
             eligibleAdvisors = sortAdvisors(eligibleAdvisors);
         }
@@ -135,6 +135,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
      *                          applying to a given bean
      */
     protected void extendAdvisors(List<Advisor> candidateAdvisors) {
+        // 该方法被子类重写
     }
 
     /**

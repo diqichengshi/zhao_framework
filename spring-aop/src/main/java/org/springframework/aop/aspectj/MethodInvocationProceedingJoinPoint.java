@@ -144,10 +144,10 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
 		return ProceedingJoinPoint.METHOD_EXECUTION;
 	}
 
-	/*@Override
+	@Override
 	public int getId() {
 		return 0;
-	}*/
+	}
 
 	@Override
 	public StaticPart getStaticPart() {

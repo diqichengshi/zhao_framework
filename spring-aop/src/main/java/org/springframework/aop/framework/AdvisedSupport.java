@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AdvisedSupport extends ProxyConfig implements Advised{
 
@@ -24,6 +25,20 @@ public class AdvisedSupport extends ProxyConfig implements Advised{
     private List<Class<?>> interfaces = new ArrayList<Class<?>>();
     private List<Advisor> advisors = new LinkedList<Advisor>();
     private Advisor[] advisorArray = new Advisor[0];
+
+    public AdvisedSupport() {
+        initMethodCache();
+    }
+
+    public AdvisedSupport(Class<?>[] interfaces) {
+        this();
+        setInterfaces(interfaces);
+    }
+
+    private void initMethodCache() {
+        this.methodCache = new ConcurrentHashMap<MethodCacheKey, List<Object>>(32);
+    }
+
     /**
      * Set the given object as target.
      * Will create a SingletonTargetSource for the object.

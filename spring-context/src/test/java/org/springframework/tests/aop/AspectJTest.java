@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Aspect
 public class AspectJTest {
-    @Pointcut("execution(org.springframework.tests.aop.say(..))")
+    @Pointcut("execution(* org.springframework.tests.aop.*.say(..))")
     public void test(){}
 
     @Before("test()")
