@@ -28,7 +28,7 @@ public class ProxyFactory extends ProxyCreatorSupport{
      * @param target the target object to be proxied
      */
     public ProxyFactory(Object target) {
-        setTarget(target);
+        setTarget(target); // 为代理类设置目标对象
         setInterfaces(ClassUtils.getAllInterfaces(target));
     }
 

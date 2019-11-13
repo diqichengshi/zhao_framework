@@ -10,7 +10,7 @@
         http://www.springframework.org/schema/aop
         http://www.springframework.org/schema/aop/spring-aop-4.2.xsd">
 
-    <!-- 扫描com.zhaojuan包下所有使用注解的类型 -->
+    <!-- 扫描org.springframework包下所有使用注解的类型 -->
     <context:component-scan base-package="org.springframework.tests.aop"/>
 
     <aop:aspectj-autoproxy/>

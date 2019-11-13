@@ -14,6 +14,8 @@
         <module>spring-beans</module>
         <module>spring-core</module>
         <module>spring-context</module>
+        <module>spring-jdbc</module>
+        <module>spring-tx</module>
     </modules>
 
     <properties>

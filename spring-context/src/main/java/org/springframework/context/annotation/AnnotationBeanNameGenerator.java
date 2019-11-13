@@ -17,11 +17,12 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 
     private static final String COMPONENT_ANNOTATION_CLASSNAME = "org.springframework.stereotype.Component";
 
-
     @Override
     public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+        // 判断是AnnotatedBeanDefinition的实现,就从annotation获得
         if (definition instanceof AnnotatedBeanDefinition) {
             String beanName = determineBeanNameFromAnnotation((AnnotatedBeanDefinition) definition);
+            // 是文本就返回这个beanName,但是也有可能annotation的value是null,就后从buildDefaultBeanName获得
             if (StringUtils.hasText(beanName)) {
                 // Explicit bean name found.
                 return beanName;
@@ -38,12 +39,17 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
      * @return the bean name, or {@code null} if none is found
      */
     protected String determineBeanNameFromAnnotation(AnnotatedBeanDefinition annotatedDef) {
+        // 获得类或者方法上所有的Annotation
         AnnotationMetadata amd = annotatedDef.getMetadata();
+        // 得到所有annotation的类名
         Set<String> types = amd.getAnnotationTypes();
         String beanName = null;
         for (String type : types) {
+            // 把annotation里面的字段与value,解读出来成map,字段名是key,value为value
             AnnotationAttributes attributes = AnnotationConfigUtils.attributesFor(amd, type);
+            // 判断annotation是否有效,是否存在作为beanName的字段有value
             if (isStereotypeWithNameValue(type, amd.getMetaAnnotationTypes(type), attributes)) {
+                // 从注解中获得value字段的值
                 Object value = attributes.get("value");
                 if (value instanceof String) {
                     String strVal = (String) value;

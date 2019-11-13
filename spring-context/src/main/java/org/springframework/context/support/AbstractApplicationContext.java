@@ -20,10 +20,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractApplicationContext extends DefaultResourceLoader implements ConfigurableApplicationContext {
@@ -469,6 +466,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public Class<?> getType(String name) throws NoSuchBeanDefinitionException {
         return getBeanFactory().getType(name);
     }
+
     //---------------------------------------------------------------------
     // Implementation of ListableBeanFactory interface
     //---------------------------------------------------------------------
@@ -485,6 +483,20 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public String[] getBeanNamesForType(Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
         assertBeanFactoryActive();
         return getBeanFactory().getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
+    }
+
+    @Override
+    public <T> Map<String, T> getBeansOfType(Class<T> type) throws BeansException {
+        assertBeanFactoryActive();
+        return getBeanFactory().getBeansOfType(type);
+    }
+
+    @Override
+    public <T> Map<String, T> getBeansOfType(Class<T> type, boolean includeNonSingletons, boolean allowEagerInit)
+            throws BeansException {
+
+        assertBeanFactoryActive();
+        return getBeanFactory().getBeansOfType(type, includeNonSingletons, allowEagerInit);
     }
     /**
      * 抽象方法由子类实现

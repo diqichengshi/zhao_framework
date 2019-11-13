@@ -1,14 +1,11 @@
 package org.springframework.beans.factory.support;
 
 import org.springframework.beans.TypeConverter;
+import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.exception.NoSuchBeanDefinitionException;
 import org.springframework.beans.exception.NoUniqueBeanDefinitionException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.CannotLoadBeanClassException;
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.core.OrderComparator;
@@ -192,7 +189,41 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     private boolean requiresEagerInitForType(String factoryBeanName) {
         return (factoryBeanName != null && isFactoryBean(factoryBeanName) && !containsSingleton(factoryBeanName));
     }
+    @Override
+    public <T> Map<String, T> getBeansOfType(Class<T> type) throws BeansException {
+        return getBeansOfType(type, true, true);
+    }
 
+    @Override
+    public <T> Map<String, T> getBeansOfType(Class<T> type, boolean includeNonSingletons, boolean allowEagerInit)
+            throws BeansException {
+
+        String[] beanNames = getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
+        Map<String, T> result = new LinkedHashMap<String, T>(beanNames.length);
+        for (String beanName : beanNames) {
+            try {
+                result.put(beanName, getBean(beanName, type));
+            }
+            catch (BeanCreationException ex) {
+                Throwable rootCause = ex.getMostSpecificCause();
+                if (rootCause instanceof BeanCurrentlyInCreationException) {
+                    BeanCreationException bce = (BeanCreationException) rootCause;
+                    if (isCurrentlyInCreation(bce.getBeanName())) {
+                        if (this.logger.isDebugEnabled()) {
+                            this.logger.debug("Ignoring match to currently created bean '" + beanName + "': " +
+                                    ex.getMessage());
+                        }
+                        onSuppressedException(ex);
+                        // Ignore: indicates a circular reference when autowiring constructors.
+                        // We want to find matches other than the currently created bean itself.
+                        continue;
+                    }
+                }
+                throw ex;
+            }
+        }
+        return result;
+    }
 
 
     //---------------------------------------------------------------------
