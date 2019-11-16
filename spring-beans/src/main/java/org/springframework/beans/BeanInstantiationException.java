@@ -16,8 +16,6 @@
 
 package org.springframework.beans;
 
-import org.springframework.beans.exception.FatalBeanException;
-
 /**
  * Exception thrown when instantiation of a bean failed.
  * Carries the offending bean class.

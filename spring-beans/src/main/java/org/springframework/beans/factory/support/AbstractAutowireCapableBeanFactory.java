@@ -248,7 +248,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             populateBean(beanName, mbd, instanceWrapper);
             if (exposedObject != null) {
                 // TODO 这里就是处理bean初始化完成后的各种回调,例如init-method配置,BeanPostProcessor接口
-                exposedObject = initializeBean(mbd.getResourceDescription(), exposedObject, mbd);
+                exposedObject = initializeBean(beanName, exposedObject, mbd);
             }
         } catch (Throwable ex) {
             ex.printStackTrace();

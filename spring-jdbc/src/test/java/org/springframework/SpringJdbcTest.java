@@ -8,7 +8,7 @@ import java.util.List;
 
 public class SpringJdbcTest {
     public static void main(String[] args) {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("datasource.xml");
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("ApplicationContext.xml");
         UserService userService= (UserService) context.getBean("userService");
         User user=new User();
         user.setName("zhangsan");

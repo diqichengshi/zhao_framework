@@ -39,6 +39,7 @@ abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPoi
 		}
 		// TODO 自定义标签解析时注入
 		TransactionAttributeSource tas = getTransactionAttributeSource();
+		// 在AbstractFallbackTransactionAttributeSource中实现
 		return (tas == null || tas.getTransactionAttribute(method, targetClass) != null);
 	}
 

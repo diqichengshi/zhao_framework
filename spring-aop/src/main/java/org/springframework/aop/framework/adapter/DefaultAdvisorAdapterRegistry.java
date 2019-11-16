@@ -29,6 +29,7 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
      * Create a new DefaultAdvisorAdapterRegistry, registering well-known adapters.
      */
     public DefaultAdvisorAdapterRegistry() {
+        // TODO 依次注册三个适配器在List中(保证了责任链的顺序)
         registerAdvisorAdapter(new MethodBeforeAdviceAdapter());
         registerAdvisorAdapter(new AfterReturningAdviceAdapter());
         registerAdvisorAdapter(new ThrowsAdviceAdapter());

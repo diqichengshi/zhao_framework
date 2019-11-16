@@ -1,6 +1,6 @@
 package org.springframework.context;
 
-import org.springframework.beans.exception.FatalBeanException;
+import org.springframework.beans.FatalBeanException;
 
 public class ApplicationContextException extends FatalBeanException {
 

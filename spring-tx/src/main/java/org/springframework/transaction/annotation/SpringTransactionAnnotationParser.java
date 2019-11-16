@@ -37,63 +37,74 @@ import org.springframework.transaction.interceptor.TransactionAttribute;
 @SuppressWarnings("serial")
 public class SpringTransactionAnnotationParser implements TransactionAnnotationParser, Serializable {
 
-	@Override
-	public TransactionAttribute parseTransactionAnnotation(AnnotatedElement ae) {
-		AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(ae, Transactional.class);
-		if (attributes != null) {
-			return parseTransactionAnnotation(attributes);
-		}
-		else {
-			return null;
-		}
-	}
+    @Override
+    public TransactionAttribute parseTransactionAnnotation(AnnotatedElement ae) {
+        AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(ae, Transactional.class);
+        if (attributes != null) {
+            return parseTransactionAnnotation(attributes);
+        } else {
+            return null;
+        }
+    }
 
-	public TransactionAttribute parseTransactionAnnotation(Transactional ann) {
-		return parseTransactionAnnotation(AnnotationUtils.getAnnotationAttributes(ann, false, false));
-	}
+    public TransactionAttribute parseTransactionAnnotation(Transactional ann) {
+        return parseTransactionAnnotation(AnnotationUtils.getAnnotationAttributes(ann, false, false));
+    }
 
-	protected TransactionAttribute parseTransactionAnnotation(AnnotationAttributes attributes) {
-		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-		Propagation propagation = attributes.getEnum("propagation");
-		rbta.setPropagationBehavior(propagation.value());
-		Isolation isolation = attributes.getEnum("isolation");
-		rbta.setIsolationLevel(isolation.value());
-		rbta.setTimeout(attributes.getNumber("timeout").intValue());
-		rbta.setReadOnly(attributes.getBoolean("readOnly"));
-		rbta.setQualifier(attributes.getString("value"));
-		ArrayList<RollbackRuleAttribute> rollBackRules = new ArrayList<RollbackRuleAttribute>();
-		Class<?>[] rbf = attributes.getClassArray("rollbackFor");
-		for (Class<?> rbRule : rbf) {
-			RollbackRuleAttribute rule = new RollbackRuleAttribute(rbRule);
-			rollBackRules.add(rule);
-		}
-		String[] rbfc = attributes.getStringArray("rollbackForClassName");
-		for (String rbRule : rbfc) {
-			RollbackRuleAttribute rule = new RollbackRuleAttribute(rbRule);
-			rollBackRules.add(rule);
-		}
-		Class<?>[] nrbf = attributes.getClassArray("noRollbackFor");
-		for (Class<?> rbRule : nrbf) {
-			NoRollbackRuleAttribute rule = new NoRollbackRuleAttribute(rbRule);
-			rollBackRules.add(rule);
-		}
-		String[] nrbfc = attributes.getStringArray("noRollbackForClassName");
-		for (String rbRule : nrbfc) {
-			NoRollbackRuleAttribute rule = new NoRollbackRuleAttribute(rbRule);
-			rollBackRules.add(rule);
-		}
-		rbta.getRollbackRules().addAll(rollBackRules);
-		return rbta;
-	}
+    /**
+     * 解析事务属性
+     */
+    protected TransactionAttribute parseTransactionAnnotation(AnnotationAttributes attributes) {
+        RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+        // 解析propagation
+        Propagation propagation = attributes.getEnum("propagation");
+        rbta.setPropagationBehavior(propagation.value());
+        // 解析isolation
+        Isolation isolation = attributes.getEnum("isolation");
+        rbta.setIsolationLevel(isolation.value());
+        // 解析timeout
+        rbta.setTimeout(attributes.getNumber("timeout").intValue());
+        // 解析readOnly
+        rbta.setReadOnly(attributes.getBoolean("readOnly"));
+        // 解析value
+        rbta.setQualifier(attributes.getString("value"));
+        ArrayList<RollbackRuleAttribute> rollBackRules = new ArrayList<RollbackRuleAttribute>();
+        // 解析rollbackFor
+        Class<?>[] rbf = attributes.getClassArray("rollbackFor");
+        for (Class<?> rbRule : rbf) {
+            RollbackRuleAttribute rule = new RollbackRuleAttribute(rbRule);
+            rollBackRules.add(rule);
+        }
+        // 解析rollbackForClassName
+        String[] rbfc = attributes.getStringArray("rollbackForClassName");
+        for (String rbRule : rbfc) {
+            RollbackRuleAttribute rule = new RollbackRuleAttribute(rbRule);
+            rollBackRules.add(rule);
+        }
+        // 解析noRollbackFor
+        Class<?>[] nrbf = attributes.getClassArray("noRollbackFor");
+        for (Class<?> rbRule : nrbf) {
+            NoRollbackRuleAttribute rule = new NoRollbackRuleAttribute(rbRule);
+            rollBackRules.add(rule);
+        }
+        // 解析noRollbackForClassName
+        String[] nrbfc = attributes.getStringArray("noRollbackForClassName");
+        for (String rbRule : nrbfc) {
+            NoRollbackRuleAttribute rule = new NoRollbackRuleAttribute(rbRule);
+            rollBackRules.add(rule);
+        }
+        rbta.getRollbackRules().addAll(rollBackRules);
+        return rbta;
+    }
 
-	@Override
-	public boolean equals(Object other) {
-		return (this == other || other instanceof SpringTransactionAnnotationParser);
-	}
+    @Override
+    public boolean equals(Object other) {
+        return (this == other || other instanceof SpringTransactionAnnotationParser);
+    }
 
-	@Override
-	public int hashCode() {
-		return SpringTransactionAnnotationParser.class.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return SpringTransactionAnnotationParser.class.hashCode();
+    }
 
 }

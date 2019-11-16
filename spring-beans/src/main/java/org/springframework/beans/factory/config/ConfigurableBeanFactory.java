@@ -3,8 +3,7 @@ package org.springframework.beans.factory.config;
 import org.springframework.beans.PropertyEditorRegistrar;
 import org.springframework.beans.TypeConverter;
 import org.springframework.beans.config.SingletonBeanRegistry;
-import org.springframework.beans.exception.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.HierarchicalBeanFactory;
 /**
  * Configuration interface to be implemented by most bean factories. Provides

@@ -1,7 +1,7 @@
 package org.springframework.context.annotation;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.exception.FatalBeanException;
+import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;

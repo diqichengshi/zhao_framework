@@ -1,7 +1,6 @@
 package org.springframework.beans.factory;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.exception.NoSuchBeanDefinitionException;
 import org.springframework.core.ResolvableType;
 
 public interface BeanFactory {
@@ -40,6 +39,24 @@ public interface BeanFactory {
      * @throws BeansException if the bean could not be created
      */
     <T> T getBean(String name, Class<T> requiredType) throws BeansException;
+
+    /**
+     * Return the bean instance that uniquely matches the given object type, if any.
+     * @param requiredType type the bean must match; can be an interface or superclass.
+     * {@code null} is disallowed.
+     * <p>This method goes into {@link ListableBeanFactory} by-type lookup territory
+     * but may also be translated into a conventional by-name lookup based on the name
+     * of the given type. For more extensive retrieval operations across sets of beans,
+     * use {@link ListableBeanFactory} and/or {@link BeanFactoryUtils}.
+     * @return an instance of the single bean matching the required type
+     * @throws NoSuchBeanDefinitionException if no bean of the given type was found
+     * @throws NoUniqueBeanDefinitionException if more than one bean of the given type was found
+     * @throws BeansException if the bean could not be created
+     * @since 3.0
+     * @see ListableBeanFactory
+     */
+    <T> T getBean(Class<T> requiredType) throws BeansException;
+
     /**
      * Return an instance, which may be shared or independent, of the specified bean.
      * <p>Allows for specifying explicit constructor arguments / factory method arguments,
@@ -55,6 +72,27 @@ public interface BeanFactory {
      * @since 2.5
      */
     Object getBean(String name, Object... args) throws BeansException;
+
+    /**
+     * Return an instance, which may be shared or independent, of the specified bean.
+     * <p>Allows for specifying explicit constructor arguments / factory method arguments,
+     * overriding the specified default arguments (if any) in the bean definition.
+     * @param requiredType type the bean must match; can be an interface or superclass.
+     * {@code null} is disallowed.
+     * <p>This method goes into {@link ListableBeanFactory} by-type lookup territory
+     * but may also be translated into a conventional by-name lookup based on the name
+     * of the given type. For more extensive retrieval operations across sets of beans,
+     * use {@link ListableBeanFactory} and/or {@link BeanFactoryUtils}.
+     * @param args arguments to use when creating a bean instance using explicit arguments
+     * (only applied when creating a new instance as opposed to retrieving an existing one)
+     * @return an instance of the bean
+     * @throws NoSuchBeanDefinitionException if there is no such bean definition
+     * @throws BeanDefinitionStoreException if arguments have been given but
+     * the affected bean isn't a prototype
+     * @throws BeansException if the bean could not be created
+     * @since 4.1
+     */
+    <T> T getBean(Class<T> requiredType, Object... args) throws BeansException;
     /**
      * Does this bean factory contain a bean definition or externally registered singleton
      * instance with the given name?

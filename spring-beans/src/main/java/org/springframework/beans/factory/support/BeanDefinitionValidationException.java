@@ -1,6 +1,6 @@
 package org.springframework.beans.factory.support;
 
-import org.springframework.beans.exception.FatalBeanException;
+import org.springframework.beans.FatalBeanException;
 
 public class BeanDefinitionValidationException extends FatalBeanException {
 

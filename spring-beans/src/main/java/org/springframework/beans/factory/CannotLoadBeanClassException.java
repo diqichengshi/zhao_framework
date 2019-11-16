@@ -1,6 +1,6 @@
 package org.springframework.beans.factory;
 
-import org.springframework.beans.exception.FatalBeanException;
+import org.springframework.beans.FatalBeanException;
 
 public class CannotLoadBeanClassException extends FatalBeanException {
 

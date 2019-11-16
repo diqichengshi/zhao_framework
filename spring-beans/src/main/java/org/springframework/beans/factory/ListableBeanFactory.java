@@ -1,6 +1,7 @@
 package org.springframework.beans.factory;
 
 import org.springframework.beans.BeansException;
+import org.springframework.core.ResolvableType;
 
 import java.util.Map;
 
@@ -60,6 +61,33 @@ public interface ListableBeanFactory extends BeanFactory {
      * @return the number of beans defined in the factory
      */
     int getBeanDefinitionCount();
+
+    /**
+     * Return the names of beans matching the given type (including subclasses),
+     * judging from either bean definitions or the value of {@code getObjectType}
+     * in the case of FactoryBeans.
+     * <p><b>NOTE: This method introspects top-level beans only.</b> It does <i>not</i>
+     * check nested beans which might match the specified type as well.
+     * <p>Does consider objects created by FactoryBeans, which means that FactoryBeans
+     * will get initialized. If the object created by the FactoryBean doesn't match,
+     * the raw FactoryBean itself will be matched against the type.
+     * <p>Does not consider any hierarchy this factory may participate in.
+     * Use BeanFactoryUtils' {@code beanNamesForTypeIncludingAncestors}
+     * to include beans in ancestor factories too.
+     * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
+     * by other means than bean definitions.
+     * <p>This version of {@code getBeanNamesForType} matches all kinds of beans,
+     * be it singletons, prototypes, or FactoryBeans. In most implementations, the
+     * result will be the same as for {@code getBeanNamesForType(type, true, true)}.
+     * <p>Bean names returned by this method should always return bean names <i>in the
+     * order of definition</i> in the backend configuration, as far as possible.
+     * @param type the class or interface to match, or {@code null} for all bean names
+     * @return the names of beans (or objects created by FactoryBeans) matching
+     * the given object type (including subclasses), or an empty array if none
+     * @see FactoryBean#getObjectType
+     * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(ListableBeanFactory, Class)
+     */
+    String[] getBeanNamesForType(Class<?> type);
     /**
      * Return the names of beans matching the given type (including subclasses),
      * judging from either bean definitions or the value of {@code getObjectType}

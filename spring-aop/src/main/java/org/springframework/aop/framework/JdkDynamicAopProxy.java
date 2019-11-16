@@ -112,7 +112,13 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
 
             // Get the interception chain for this method.
             // 获取当前bean被拦截方法链表
-            List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
+            logger.info("proxy开始获取"+targetClass.getName()+"的拦截器链");
+            List<Object> chain = null;
+            try {
+                chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             // Check whether we have any advice. If we don't, we can fallback on direct
             // reflective invocation of the target, and avoid creating a MethodInvocation.

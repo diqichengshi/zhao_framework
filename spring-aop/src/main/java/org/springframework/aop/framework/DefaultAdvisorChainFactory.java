@@ -9,10 +9,7 @@ import java.util.List;
 import org.aopalliance.intercept.Interceptor;
 import org.aopalliance.intercept.MethodInterceptor;
 
-import org.springframework.aop.Advisor;
-import org.springframework.aop.IntroductionAdvisor;
-import org.springframework.aop.MethodMatcher;
-import org.springframework.aop.PointcutAdvisor;
+import org.springframework.aop.*;
 import org.springframework.aop.framework.adapter.AdvisorAdapterRegistry;
 import org.springframework.aop.framework.adapter.GlobalAdvisorAdapterRegistry;
 import org.springframework.aop.support.MethodMatchers;
@@ -40,12 +37,13 @@ public class DefaultAdvisorChainFactory  implements AdvisorChainFactory, Seriali
         Class<?> actualClass = (targetClass != null ? targetClass : method.getDeclaringClass());
         boolean hasIntroductions = hasMatchingIntroductions(config, actualClass);
         AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();
-
+        // config就是代理工厂的实例
         for (Advisor advisor : config.getAdvisors()) {
             if (advisor instanceof PointcutAdvisor) {
                 // Add it conditionally.
                 PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
                 if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
+                    // TODO AdvisorAdapterRegistry顺序获取责任链
                     MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
                     MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();
                     if (MethodMatchers.matches(mm, method, actualClass, hasIntroductions)) {
@@ -65,11 +63,13 @@ public class DefaultAdvisorChainFactory  implements AdvisorChainFactory, Seriali
             else if (advisor instanceof IntroductionAdvisor) {
                 IntroductionAdvisor ia = (IntroductionAdvisor) advisor;
                 if (config.isPreFiltered() || ia.getClassFilter().matches(actualClass)) {
+                    // 顺序获取责任链
                     Interceptor[] interceptors = registry.getInterceptors(advisor);
                     interceptorList.addAll(Arrays.asList(interceptors));
                 }
             }
             else {
+                // 顺序获取责任链
                 Interceptor[] interceptors = registry.getInterceptors(advisor);
                 interceptorList.addAll(Arrays.asList(interceptors));
             }

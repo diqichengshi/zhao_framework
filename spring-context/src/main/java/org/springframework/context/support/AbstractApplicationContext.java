@@ -3,7 +3,7 @@ package org.springframework.context.support;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.exception.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -427,9 +427,21 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     }
 
     @Override
+    public <T> T getBean(Class<T> requiredType) throws BeansException {
+        assertBeanFactoryActive();
+        return getBeanFactory().getBean(requiredType);
+    }
+
+    @Override
     public Object getBean(String name, Object... args) throws BeansException {
         assertBeanFactoryActive();
         return getBeanFactory().getBean(name, args);
+    }
+
+    @Override
+    public <T> T getBean(Class<T> requiredType, Object... args) throws BeansException {
+        assertBeanFactoryActive();
+        return getBeanFactory().getBean(requiredType, args);
     }
 
     @Override
@@ -479,6 +491,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public int getBeanDefinitionCount() {
         return getBeanFactory().getBeanDefinitionCount();
     }
+
+    @Override
+    public String[] getBeanNamesForType(Class<?> type) {
+        assertBeanFactoryActive();
+        return getBeanFactory().getBeanNamesForType(type);
+    }
+
     @Override
     public String[] getBeanNamesForType(Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
         assertBeanFactoryActive();

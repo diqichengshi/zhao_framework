@@ -54,6 +54,7 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
 
     /**
      * Inner class to just introduce an AOP framework dependency when actually in proxy mode.
+     * 注册BeanFactoryTransactionAttributeSourceAdvisor
      */
     private static class AopAutoProxyConfigurer {
 
@@ -81,16 +82,17 @@ public class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParse
                 String interceptorName = parserContext.getReaderContext().registerWithGeneratedName(interceptorDef);
 
                 // Create the TransactionAttributeSourceAdvisor definition.
+                // TODO 创建一个TransactionAttributeSourceAdvisor对象
                 RootBeanDefinition advisorDef = new RootBeanDefinition(BeanFactoryTransactionAttributeSourceAdvisor.class);
                 advisorDef.setSource(eleSource);
                 advisorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-                // TODO 为BeanFactoryTransactionAttributeSourceAdvisor注册transactionAttributeSource属性
+                // 为transAdvisor注入transactionAttributeSource属性
                 advisorDef.getPropertyValues().add("transactionAttributeSource", new RuntimeBeanReference(sourceName));
+                // 为transAdvisor注入一个TransactionInterceptor拦截器
                 advisorDef.getPropertyValues().add("adviceBeanName", interceptorName);
                 if (element.hasAttribute("order")) {
                     advisorDef.getPropertyValues().add("order", element.getAttribute("order"));
                 }
-                // TODO 注册BeanFactoryTransactionAttributeSourceAdvisor,并使用Spring中的定义规则生成beanName
                 parserContext.getRegistry().registerBeanDefinition(txAdvisorBeanName, advisorDef);
 
                 CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(element.getTagName(), eleSource);

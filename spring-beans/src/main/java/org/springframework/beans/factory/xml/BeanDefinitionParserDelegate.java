@@ -274,6 +274,9 @@ public class BeanDefinitionParserDelegate {
         return node.getLocalName();
     }
 
+    public DocumentDefaultsDefinition getDefaults() {
+        return this.defaults;
+    }
 
     public BeanDefinitionDefaults getBeanDefinitionDefaults() {
         BeanDefinitionDefaults bdd = new BeanDefinitionDefaults();

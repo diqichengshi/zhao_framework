@@ -57,14 +57,17 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     }
 
     @Override
+    public <T> T getBean(String name, Class<T> requiredType) throws BeansException {
+        return doGetBean(name, requiredType, null, false);
+    }
+
+    @Override
     public Object getBean(String name, Object... args) throws BeansException {
         return doGetBean(name, null, args, false);
     }
 
-    @Override
-    public <T> T getBean(String name, Class<T> requiredType) throws BeansException {
-        return doGetBean(name, requiredType, null, false);
-
+    public <T> T getBean(String name, Class<T> requiredType, Object... args) throws BeansException {
+        return doGetBean(name, requiredType, args, false);
     }
 
     @Override

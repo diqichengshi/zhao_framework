@@ -16,6 +16,8 @@
 
 package org.springframework.beans.exception;
 
+import org.springframework.beans.FatalBeanException;
+
 /**
  * Exception thrown when referring to an invalid bean property.
  * Carries the offending bean class and property name.

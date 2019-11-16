@@ -1,6 +1,7 @@
-package org.springframework.beans.exception;
+package org.springframework.beans.factory;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.exception.NoUniqueBeanDefinitionException;
 import org.springframework.util.StringUtils;
 
 public class NoSuchBeanDefinitionException extends BeansException {

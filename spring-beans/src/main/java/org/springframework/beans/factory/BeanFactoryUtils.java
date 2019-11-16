@@ -1,13 +1,12 @@
 package org.springframework.beans.factory;
 
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class BeanFactoryUtils {
     public static final String GENERATED_BEAN_NAME_SEPARATOR = "#";
@@ -77,6 +76,46 @@ public class BeanFactoryUtils {
                     }
                 }
                 result = StringUtils.toStringArray(resultList);
+            }
+        }
+        return result;
+    }
+
+
+    /**
+     * Return all beans of the given type or subtypes, also picking up beans defined in
+     * ancestor bean factories if the current bean factory is a HierarchicalBeanFactory.
+     * The returned Map will only contain beans of this type.
+     * <p>Does consider objects created by FactoryBeans, which means that FactoryBeans
+     * will get initialized. If the object created by the FactoryBean doesn't match,
+     * the raw FactoryBean itself will be matched against the type.
+     * <p><b>Note: Beans of the same name will take precedence at the 'lowest' factory level,
+     * i.e. such beans will be returned from the lowest factory that they are being found in,
+     * hiding corresponding beans in ancestor factories.</b> This feature allows for
+     * 'replacing' beans by explicitly choosing the same bean name in a child factory;
+     * the bean in the ancestor factory won't be visible then, not even for by-type lookups.
+     * @param lbf the bean factory
+     * @param type type of bean to match
+     * @return the Map of matching bean instances, or an empty Map if none
+     * @throws BeansException if a bean could not be created
+     */
+    public static <T> Map<String, T> beansOfTypeIncludingAncestors(ListableBeanFactory lbf, Class<T> type)
+            throws BeansException {
+
+        Assert.notNull(lbf, "ListableBeanFactory must not be null");
+        Map<String, T> result = new LinkedHashMap<String, T>(4);
+        result.putAll(lbf.getBeansOfType(type));
+        if (lbf instanceof HierarchicalBeanFactory) {
+            HierarchicalBeanFactory hbf = (HierarchicalBeanFactory) lbf;
+            if (hbf.getParentBeanFactory() instanceof ListableBeanFactory) {
+                Map<String, T> parentResult = beansOfTypeIncludingAncestors(
+                        (ListableBeanFactory) hbf.getParentBeanFactory(), type);
+                for (Map.Entry<String, T> entry : parentResult.entrySet()) {
+                    String beanName = entry.getKey();
+                    if (!result.containsKey(beanName) && !hbf.containsLocalBean(beanName)) {
+                        result.put(beanName, entry.getValue());
+                    }
+                }
             }
         }
         return result;

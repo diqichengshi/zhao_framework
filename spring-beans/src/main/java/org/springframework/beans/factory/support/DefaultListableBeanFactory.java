@@ -1,24 +1,22 @@
 package org.springframework.beans.factory.support;
 
 import org.springframework.beans.TypeConverter;
-import org.springframework.beans.exception.FatalBeanException;
+import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.exception.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.exception.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.ResolvableType;
-import org.springframework.lang.UsesJava8;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
@@ -86,6 +84,56 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     }
 
 
+
+    //---------------------------------------------------------------------
+    // Implementation of remaining BeanFactory methods
+    //---------------------------------------------------------------------
+
+    @Override
+    public <T> T getBean(Class<T> requiredType) throws BeansException {
+        return getBean(requiredType, (Object[]) null);
+    }
+
+    @Override
+    public <T> T getBean(Class<T> requiredType, Object... args) throws BeansException {
+        Assert.notNull(requiredType, "Required type must not be null");
+        String[] beanNames = getBeanNamesForType(requiredType);
+        if (beanNames.length > 1) {
+            ArrayList<String> autowireCandidates = new ArrayList<String>();
+            for (String beanName : beanNames) {
+                if (!containsBeanDefinition(beanName) || getBeanDefinition(beanName).isAutowireCandidate()) {
+                    autowireCandidates.add(beanName);
+                }
+            }
+            if (autowireCandidates.size() > 0) {
+                beanNames = autowireCandidates.toArray(new String[autowireCandidates.size()]);
+            }
+        }
+        if (beanNames.length == 1) {
+            return getBean(beanNames[0], requiredType, args);
+        }
+        else if (beanNames.length > 1) {
+            Map<String, Object> candidates = new HashMap<String, Object>();
+            for (String beanName : beanNames) {
+                candidates.put(beanName, getBean(beanName, requiredType, args));
+            }
+            String primaryCandidate = determinePrimaryCandidate(candidates, requiredType);
+            if (primaryCandidate != null) {
+                return getBean(primaryCandidate, requiredType, args);
+            }
+            String priorityCandidate = determineHighestPriorityCandidate(candidates, requiredType);
+            if (priorityCandidate != null) {
+                return getBean(priorityCandidate, requiredType, args);
+            }
+            throw new NoUniqueBeanDefinitionException(requiredType, candidates.keySet());
+        }
+        else if (getParentBeanFactory() != null) {
+            return getParentBeanFactory().getBean(requiredType, args);
+        }
+        else {
+            throw new NoSuchBeanDefinitionException(requiredType);
+        }
+    }
     //---------------------------------------------------------------------
     // Implementation of ListableBeanFactory interface
     //---------------------------------------------------------------------
@@ -96,6 +144,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     @Override
     public int getBeanDefinitionCount() {
         return beanDefinitionMap.size();
+    }
+
+    @Override
+    public String[] getBeanNamesForType(Class<?> type) {
+        return getBeanNamesForType(type, true, true);
     }
 
     @Override
@@ -702,6 +755,39 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     }
 
     /**
+     * Determine the primary candidate in the given set of beans.
+     * @param candidateBeans a Map of candidate names and candidate instances
+     * that match the required type
+     * @param requiredType the target dependency type to match against
+     * @return the name of the primary candidate, or {@code null} if none found
+     * @see #isPrimary(String, Object)
+     */
+    protected String determinePrimaryCandidate(Map<String, Object> candidateBeans, Class<?> requiredType) {
+        String primaryBeanName = null;
+        for (Map.Entry<String, Object> entry : candidateBeans.entrySet()) {
+            String candidateBeanName = entry.getKey();
+            Object beanInstance = entry.getValue();
+            if (isPrimary(candidateBeanName, beanInstance)) {
+                if (primaryBeanName != null) {
+                    boolean candidateLocal = containsBeanDefinition(candidateBeanName);
+                    boolean primaryLocal = containsBeanDefinition(primaryBeanName);
+                    if (candidateLocal && primaryLocal) {
+                        throw new NoUniqueBeanDefinitionException(requiredType, candidateBeans.size(),
+                                "more than one 'primary' bean found among candidates: " + candidateBeans.keySet());
+                    }
+                    else if (candidateLocal) {
+                        primaryBeanName = candidateBeanName;
+                    }
+                }
+                else {
+                    primaryBeanName = candidateBeanName;
+                }
+            }
+        }
+        return primaryBeanName;
+    }
+
+    /**
      * 在为指定bean自动注入期间调用
      * 符合依赖条件的bean不止一个,确定优先级较高的bean
      */
@@ -729,6 +815,15 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
             }
         }
         return highestPriorityBeanName;
+    }
+
+    protected boolean isPrimary(String beanName, Object beanInstance) {
+        if (containsBeanDefinition(beanName)) {
+            return getMergedLocalBeanDefinition(beanName).isPrimary();
+        }
+        BeanFactory parentFactory = getParentBeanFactory();
+        return (parentFactory instanceof DefaultListableBeanFactory &&
+                ((DefaultListableBeanFactory) parentFactory).isPrimary(beanName, beanInstance));
     }
 
     /**

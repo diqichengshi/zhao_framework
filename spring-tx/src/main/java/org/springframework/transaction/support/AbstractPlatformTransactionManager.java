@@ -317,7 +317,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
      */
     @Override
     public final TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException {
-        Object transaction = doGetTransaction();
+        Object transaction = doGetTransaction(); // TODO 创建事务管理器对象
 
         // Cache debug flag to avoid repeated checks.
         boolean debugEnabled = logger.isDebugEnabled();
@@ -327,6 +327,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
             definition = new DefaultTransactionDefinition();
         }
 
+        // 判断事务属性,是否超时,传播行为
         if (isExistingTransaction(transaction)) {
             // Existing transaction found -> check propagation behavior to find out how to behave.
             return handleExistingTransaction(definition, transaction, debugEnabled);
@@ -353,7 +354,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
                 boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
                 DefaultTransactionStatus status = newTransactionStatus(
                         definition, transaction, true, newSynchronization, debugEnabled, suspendedResources);
-                doBegin(transaction, definition);
+                doBegin(transaction, definition); // TODO 开启事务
                 prepareSynchronization(status, definition);
                 return status;
             }
@@ -723,6 +724,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
         try {
             boolean beforeCompletionInvoked = false;
             try {
+                // 事务提交的准备工作由事务处理器来完成
                 prepareForCommit(status);
                 triggerBeforeCommit(status);
                 triggerBeforeCompletion(status);
@@ -737,10 +739,12 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
                     }
                     status.releaseHeldSavepoint();
                 }
+                // 如果当前事务是新事务,调用事务处理器进行提交,如果不是新事务,则不提交,由已经存在事务来完成提交
                 else if (status.isNewTransaction()) {
                     if (status.isDebug()) {
                         logger.debug("Initiating transaction commit");
                     }
+                    // TODO 具体的事务提交由具体的事务处理器来完成
                     doCommit(status);
                 }
                 // Throw UnexpectedRollbackException if we have a global rollback-only
@@ -783,6 +787,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
             // Trigger afterCommit callbacks, with an exception thrown there
             // propagated to callers but the transaction still considered as committed.
             try {
+                // 触发回滚
                 triggerAfterCommit(status);
             }
             finally {

@@ -1,5 +1,6 @@
 package org.springframework.beans.exception;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;

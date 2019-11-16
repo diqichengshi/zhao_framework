@@ -34,7 +34,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.beans.exception.FatalBeanException;
 import org.springframework.core.MethodParameter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;

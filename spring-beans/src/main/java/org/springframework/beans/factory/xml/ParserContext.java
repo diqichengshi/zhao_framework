@@ -33,8 +33,21 @@ public class ParserContext {
     public final BeanDefinitionRegistry getRegistry() {
         return this.readerContext.getRegistry();
     }
+
     public final BeanDefinitionParserDelegate getDelegate() {
         return this.delegate;
+    }
+
+    public final BeanDefinition getContainingBeanDefinition() {
+        return this.containingBeanDefinition;
+    }
+
+    public final boolean isNested() {
+        return (this.containingBeanDefinition != null);
+    }
+
+    public boolean isDefaultLazyInit() {
+        return BeanDefinitionParserDelegate.TRUE_VALUE.equals(this.delegate.getDefaults().getLazyInit());
     }
 
     public Object extractSource(Object sourceCandidate) {
