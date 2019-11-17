@@ -1,11 +1,10 @@
-package org.springframework.tests;
+package com.zhaojuan.tests;
 
 import org.springframework.beans.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
-import java.sql.Types;
 import java.util.List;
 
 @Service("userService")

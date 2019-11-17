@@ -56,12 +56,7 @@ public class AnnotationTransactionAttributeSource extends AbstractFallbackTransa
 
 	private static final boolean jta12Present = ClassUtils.isPresent(
 			"javax.transaction.Transactional", AnnotationTransactionAttributeSource.class.getClassLoader());
-
-	/*private static final boolean ejb3Present = ClassUtils.isPresent(
-			"javax.ejb.TransactionAttribute", AnnotationTransactionAttributeSource.class.getClassLoader());*/
-
 	private final boolean publicMethodsOnly;
-
 	private final Set<TransactionAnnotationParser> annotationParsers;
 
 	public AnnotationTransactionAttributeSource() {
@@ -75,9 +70,6 @@ public class AnnotationTransactionAttributeSource extends AbstractFallbackTransa
 		if (jta12Present) {
 			this.annotationParsers.add(new JtaTransactionAnnotationParser());
 		}
-		/*if (ejb3Present) {
-			this.annotationParsers.add(new Ejb3TransactionAnnotationParser());
-		}*/
 	}
 
 	public AnnotationTransactionAttributeSource(TransactionAnnotationParser annotationParser) {

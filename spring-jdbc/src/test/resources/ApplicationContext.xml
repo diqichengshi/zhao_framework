@@ -14,8 +14,10 @@
         http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
 
     <!-- 扫描org.springframework包下所有使用注解的类型 -->
-    <context:component-scan base-package="org.springframework.tests"/>
-    <aop:aspectj-autoproxy/>
+    <context:component-scan base-package="com.zhaojuan.tests"/>
+
+    <!--<aop:aspectj-autoproxy/>-->
+
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
@@ -29,7 +31,7 @@
         <property name="password" value="morningSMjeNA0heeW*Hy8$"/>
     </bean>
 
-    <!--<tx:advice id="txAdvice" transaction-manager="transactionManager">
+   <!-- <tx:advice id="txAdvice" transaction-manager="transactionManager">
         <tx:attributes>
             <tx:method name="insert*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
             <tx:method name="update*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
@@ -37,6 +39,6 @@
             <tx:method name="add*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
             <tx:method name="*"/>
         </tx:attributes>
-    </tx:advice>-->
-
+    </tx:advice>
+-->
 </beans>

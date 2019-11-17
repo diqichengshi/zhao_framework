@@ -18,16 +18,22 @@ public class AopNamespaceUtils {
      */
     private static final String EXPOSE_PROXY_ATTRIBUTE = "expose-proxy";
 
-
+    /**
+     * 注册的是InfrastructureAdvisorAutoProxyCreator
+     */
     public static void registerAutoProxyCreatorIfNecessary(
             ParserContext parserContext, Element sourceElement) {
-        // 注册InfrastructureAdvisorAutoProxyCreator类
+        // 注意:区分 @AspectJ:@AspectJ注册的是AnnotationAwareAspectJAutoProxyCreator
+        // @Transaction注册的是InfrastructureAdvisorAutoProxyCreator类
         BeanDefinition beanDefinition = AopConfigUtils.registerAutoProxyCreatorIfNecessary(
                 parserContext.getRegistry(), parserContext.extractSource(sourceElement));
         useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
         registerComponentIfNecessary(beanDefinition, parserContext); // 注册Component
     }
 
+    /**
+     * 注册AspectJAwareAdvisorAutoProxyCreator类
+     */
     public static void registerAspectJAutoProxyCreatorIfNecessary(
             ParserContext parserContext, Element sourceElement) {
         // TODO 注册AspectJAwareAdvisorAutoProxyCreator类
@@ -49,7 +55,10 @@ public class AopNamespaceUtils {
 
         registerComponentIfNecessary(beanDefinition, parserContext); // 注册Component
     }
-    /**设置proxy-target-class和expose-proxy*/
+
+    /**
+     * 设置proxy-target-class和expose-proxy
+     */
     private static void useClassProxyingIfNecessary(BeanDefinitionRegistry registry, Element sourceElement) {
         if (sourceElement != null) {
             boolean proxyTargetClass = Boolean.valueOf(sourceElement.getAttribute(PROXY_TARGET_CLASS_ATTRIBUTE));

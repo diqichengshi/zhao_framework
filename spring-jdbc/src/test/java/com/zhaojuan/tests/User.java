@@ -1,4 +1,4 @@
-package org.springframework.tests;
+package com.zhaojuan.tests;
 
 public class User {
     private String id;

@@ -42,21 +42,10 @@ public class BeanFactoryTransactionAttributeSourceAdvisor extends AbstractBeanFa
 		}
 	};
 
-
-	/**
-	 * Set the transaction attribute source which is used to find transaction
-	 * attributes. This should usually be identical to the source reference
-	 * set on the transaction interceptor itself.
-	 * @see TransactionInterceptor#setTransactionAttributeSource
-	 */
 	public void setTransactionAttributeSource(TransactionAttributeSource transactionAttributeSource) {
 		this.transactionAttributeSource = transactionAttributeSource;
 	}
 
-	/**
-	 * Set the {@link ClassFilter} to use for this pointcut.
-	 * Default is {@link ClassFilter#TRUE}.
-	 */
 	public void setClassFilter(ClassFilter classFilter) {
 		this.pointcut.setClassFilter(classFilter);
 	}

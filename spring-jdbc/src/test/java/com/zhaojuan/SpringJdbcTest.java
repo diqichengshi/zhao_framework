@@ -1,8 +1,8 @@
-package org.springframework;
+package com.zhaojuan;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.tests.User;
-import org.springframework.tests.UserService;
+import com.zhaojuan.tests.User;
+import com.zhaojuan.tests.UserService;
 
 import java.util.List;
 

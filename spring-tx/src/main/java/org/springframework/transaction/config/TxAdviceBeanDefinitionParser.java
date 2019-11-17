@@ -24,7 +24,7 @@ import java.util.List;
  * @author Chris Beams
  * @since 2.0
  */
-public class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     private static final String METHOD_ELEMENT = "method";
 
     private static final String METHOD_NAME_ATTRIBUTE = "name";

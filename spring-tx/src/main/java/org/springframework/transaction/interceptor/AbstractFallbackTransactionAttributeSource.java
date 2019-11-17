@@ -50,44 +50,22 @@ import org.springframework.util.ObjectUtils;
  */
 public abstract class AbstractFallbackTransactionAttributeSource implements TransactionAttributeSource {
 
-	/**
-	 * Canonical value held in cache to indicate no transaction attribute was
-	 * found for this method, and we don't need to look again.
-	 */
 	private final static TransactionAttribute NULL_TRANSACTION_ATTRIBUTE = new DefaultTransactionAttribute();
 
-
-	/**
-	 * Logger available to subclasses.
-	 * <p>As this base class is not marked Serializable, the logger will be recreated
-	 * after serialization - provided that the concrete subclass is Serializable.
-	 */
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	/**
-	 * Cache of TransactionAttributes, keyed by DefaultCacheKey (Method + target Class).
-	 * <p>As this base class is not marked Serializable, the cache will be recreated
-	 * after serialization - provided that the concrete subclass is Serializable.
-	 */
 	final Map<Object, TransactionAttribute> attributeCache = new ConcurrentHashMap<Object, TransactionAttribute>(1024);
 
-
-	/**
-	 * Determine the transaction attribute for this method invocation.
-	 * <p>Defaults to the class's transaction attribute if no method attribute is found.
-	 * @param method the method for the current invocation (never {@code null})
-	 * @param targetClass the target class for this invocation (may be {@code null})
-	 * @return TransactionAttribute for this method, or {@code null} if the method
-	 * is not transactional
-	 */
 	@Override
 	public TransactionAttribute getTransactionAttribute(Method method, Class<?> targetClass) {
 		// First, see if we have a cached value.
+		// 1.检查是否缓存过该方法上的事物标签
 		Object cacheKey = getCacheKey(method, targetClass);
 		Object cached = this.attributeCache.get(cacheKey);
 		if (cached != null) {
 			// Value will either be canonical value indicating there is no transaction attribute,
 			// or an actual transaction attribute.
+			// 判断缓存的事物标签,如果缓存的方法上没有具体的事物标签,返回null;否则返回对应的事物标签
 			if (cached == NULL_TRANSACTION_ATTRIBUTE) {
 				return null;
 			}
@@ -95,8 +73,10 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 				return (TransactionAttribute) cached;
 			}
 		}
+		// 2.如果没有缓存的事物标签,则重新提取事物标签并缓存
 		else {
 			// We need to work it out.
+			// 提取事物标签
 			TransactionAttribute txAtt = computeTransactionAttribute(method, targetClass);
 			// Put it in the cache.
 			if (txAtt == null) {
@@ -114,25 +94,12 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 		}
 	}
 
-	/**
-	 * Determine a cache key for the given method and target class.
-	 * <p>Must not produce same key for overloaded methods.
-	 * Must produce same key for different instances of the same method.
-	 * @param method the method (never {@code null})
-	 * @param targetClass the target class (may be {@code null})
-	 * @return the cache key (never {@code null})
-	 */
+
 	protected Object getCacheKey(Method method, Class<?> targetClass) {
 		return new DefaultCacheKey(method, targetClass);
 	}
 
-	/**
-	 * Same signature as {@link #getTransactionAttribute}, but doesn't cache the result.
-	 * {@link #getTransactionAttribute} is effectively a caching decorator for this method.
-	 * <p>As of 4.1.8, this method can be overridden.
-	 * @since 4.1.8
-	 * @see #getTransactionAttribute
-	 */
+
 	protected TransactionAttribute computeTransactionAttribute(Method method, Class<?> targetClass) {
 		// Don't allow no-public methods as required.
 		if (allowPublicMethodsOnly() && !Modifier.isPublic(method.getModifiers())) {
@@ -172,37 +139,14 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 	}
 
 
-	/**
-	 * Subclasses need to implement this to return the transaction attribute
-	 * for the given method, if any.
-	 * @param method the method to retrieve the attribute for
-	 * @return all transaction attribute associated with this method
-	 * (or {@code null} if none)
-	 */
 	protected abstract TransactionAttribute findTransactionAttribute(Method method);
 
-	/**
-	 * Subclasses need to implement this to return the transaction attribute
-	 * for the given class, if any.
-	 * @param clazz the class to retrieve the attribute for
-	 * @return all transaction attribute associated with this class
-	 * (or {@code null} if none)
-	 */
 	protected abstract TransactionAttribute findTransactionAttribute(Class<?> clazz);
 
-
-	/**
-	 * Should only public methods be allowed to have transactional semantics?
-	 * <p>The default implementation returns {@code false}.
-	 */
 	protected boolean allowPublicMethodsOnly() {
 		return false;
 	}
 
-
-	/**
-	 * Default cache key for the TransactionAttribute cache.
-	 */
 	private static class DefaultCacheKey {
 
 		private final Method method;

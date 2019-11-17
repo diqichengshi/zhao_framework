@@ -123,102 +123,47 @@ public abstract class TransactionAspectSupport  implements BeanFactoryAware, Ini
 
     private BeanFactory beanFactory;
 
-
-    /**
-     * Specify the name of the default transaction manager bean.
-     */
     public void setTransactionManagerBeanName(String transactionManagerBeanName) {
         this.transactionManagerBeanName = transactionManagerBeanName;
     }
 
-    /**
-     * Return the name of the default transaction manager bean.
-     */
     protected final String getTransactionManagerBeanName() {
         return this.transactionManagerBeanName;
     }
 
-    /**
-     * Specify the <em>default</em> transaction manager to use to drive transactions.
-     * <p>The default transaction manager will be used if a <em>qualifier</em>
-     * has not been declared for a given transaction or if an explicit name for the
-     * default transaction manager bean has not been specified.
-     * @see #setTransactionManagerBeanName
-     */
     public void setTransactionManager(PlatformTransactionManager transactionManager) {
         if (transactionManager != null) {
             this.transactionManagerCache.put(DEFAULT_TRANSACTION_MANAGER_KEY, transactionManager);
         }
     }
 
-    /**
-     * Return the default transaction manager, or {@code null} if unknown.
-     */
     public PlatformTransactionManager getTransactionManager() {
         return this.transactionManagerCache.get(DEFAULT_TRANSACTION_MANAGER_KEY);
     }
 
-    /**
-     * Set properties with method names as keys and transaction attribute
-     * descriptors (parsed via TransactionAttributeEditor) as values:
-     * e.g. key = "myMethod", value = "PROPAGATION_REQUIRED,readOnly".
-     * <p>Note: Method names are always applied to the target class,
-     * no matter if defined in an interface or the class itself.
-     * <p>Internally, a NameMatchTransactionAttributeSource will be
-     * created from the given properties.
-     * @see #setTransactionAttributeSource
-     * @see TransactionAttributeEditor
-     * @see NameMatchTransactionAttributeSource
-     */
     public void setTransactionAttributes(Properties transactionAttributes) {
         NameMatchTransactionAttributeSource tas = new NameMatchTransactionAttributeSource();
         tas.setProperties(transactionAttributes);
         this.transactionAttributeSource = tas;
     }
 
-    /**
-     * Set multiple transaction attribute sources which are used to find transaction
-     * attributes. Will build a CompositeTransactionAttributeSource for the given sources.
-     * @see CompositeTransactionAttributeSource
-     * @see MethodMapTransactionAttributeSource
-     * @see NameMatchTransactionAttributeSource
-     * @see org.springframework.transaction.annotation.AnnotationTransactionAttributeSource
-     */
     public void setTransactionAttributeSources(TransactionAttributeSource[] transactionAttributeSources) {
         this.transactionAttributeSource = new CompositeTransactionAttributeSource(transactionAttributeSources);
     }
 
-    /**
-     * Set the transaction attribute source which is used to find transaction
-     * attributes. If specifying a String property value, a PropertyEditor
-     * will create a MethodMapTransactionAttributeSource from the value.
-     * @see TransactionAttributeSourceEditor
-     * @see MethodMapTransactionAttributeSource
-     * @see NameMatchTransactionAttributeSource
-     * @see org.springframework.transaction.annotation.AnnotationTransactionAttributeSource
-     */
     public void setTransactionAttributeSource(TransactionAttributeSource transactionAttributeSource) {
         this.transactionAttributeSource = transactionAttributeSource;
     }
 
-    /**
-     * Return the transaction attribute source.
-     */
     public TransactionAttributeSource getTransactionAttributeSource() {
         return this.transactionAttributeSource;
     }
 
-    /**
-     * Set the BeanFactory to use for retrieving PlatformTransactionManager beans.
-     */
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
-    /**
-     * Return the BeanFactory to use for retrieving PlatformTransactionManager beans.
-     */
     protected final BeanFactory getBeanFactory() {
         return this.beanFactory;
     }
@@ -378,32 +323,10 @@ public abstract class TransactionAspectSupport  implements BeanFactoryAware, Ini
         return txManager;
     }
 
-    /**
-     * Convenience method to return a String representation of this Method
-     * for use in logging. Can be overridden in subclasses to provide a
-     * different identifier for the given method.
-     * @param method the method we're interested in
-     * @param targetClass the class that the method is being invoked on
-     * @return a String representation identifying this method
-     * @see org.springframework.util.ClassUtils#getQualifiedMethodName
-     */
     protected String methodIdentification(Method method, Class<?> targetClass) {
         return (targetClass != null ? targetClass : method.getDeclaringClass()).getName() + "." + method.getName();
     }
 
-    /**
-     * Create a transaction if necessary based on the given TransactionAttribute.
-     * <p>Allows callers to perform custom TransactionAttribute lookups through
-     * the TransactionAttributeSource.
-     * @param txAttr the TransactionAttribute (may be {@code null})
-     * @param joinpointIdentification the fully qualified method name
-     * (used for monitoring and logging purposes)
-     * @return a TransactionInfo object, whether or not a transaction was created.
-     * The {@code hasTransaction()} method on TransactionInfo can be used to
-     * tell if there was a transaction created.
-     * @see #getTransactionAttributeSource()
-     */
-    @SuppressWarnings("serial")
     protected TransactionInfo createTransactionIfNecessary(
             PlatformTransactionManager tm, TransactionAttribute txAttr, final String joinpointIdentification) {
 
@@ -433,14 +356,6 @@ public abstract class TransactionAspectSupport  implements BeanFactoryAware, Ini
         return prepareTransactionInfo(tm, txAttr, joinpointIdentification, status);
     }
 
-    /**
-     * Prepare a TransactionInfo for the given attribute and status object.
-     * @param txAttr the TransactionAttribute (may be {@code null})
-     * @param joinpointIdentification the fully qualified method name
-     * (used for monitoring and logging purposes)
-     * @param status the TransactionStatus for the current transaction
-     * @return the prepared TransactionInfo object
-     */
     protected TransactionInfo prepareTransactionInfo(PlatformTransactionManager tm,
                                                      TransactionAttribute txAttr, String joinpointIdentification, TransactionStatus status) {
 
@@ -469,11 +384,6 @@ public abstract class TransactionAspectSupport  implements BeanFactoryAware, Ini
         return txInfo;
     }
 
-    /**
-     * Execute after successful completion of call, but not after an exception was handled.
-     * Do nothing if we didn't create a transaction.
-     * @param txInfo information about the current transaction
-     */
     protected void commitTransactionAfterReturning(TransactionInfo txInfo) {
         if (txInfo != null && txInfo.hasTransaction()) {
             if (logger.isTraceEnabled()) {
@@ -483,12 +393,6 @@ public abstract class TransactionAspectSupport  implements BeanFactoryAware, Ini
         }
     }
 
-    /**
-     * Handle a throwable, completing the transaction.
-     * We may commit or roll back, depending on the configuration.
-     * @param txInfo information about the current transaction
-     * @param ex throwable encountered
-     */
     protected void completeTransactionAfterThrowing(TransactionInfo txInfo, Throwable ex) {
         if (txInfo != null && txInfo.hasTransaction()) {
             if (logger.isTraceEnabled()) {
@@ -536,11 +440,6 @@ public abstract class TransactionAspectSupport  implements BeanFactoryAware, Ini
         }
     }
 
-    /**
-     * Reset the TransactionInfo ThreadLocal.
-     * <p>Call this in all cases: exception or normal return!
-     * @param txInfo information about the current transaction (may be {@code null})
-     */
     protected void cleanupTransactionInfo(TransactionInfo txInfo) {
         if (txInfo != null) {
             txInfo.restoreThreadLocalStatus();

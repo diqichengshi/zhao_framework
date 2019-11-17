@@ -28,11 +28,6 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  * Spring transaction management facilities and offers two approaches
  * to declaratively manage transactions.
  *
- * <p>One approach uses transaction semantics defined in XML using the
- * {@code &lt;tx:advice&gt;} elements, the other uses annotations
- * in combination with the {@code &lt;tx:annotation-driven&gt;} element.
- * Both approached are detailed to great extent in the Spring reference manual.
- *
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @since 2.0

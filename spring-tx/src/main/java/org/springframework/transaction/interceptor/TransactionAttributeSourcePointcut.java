@@ -37,7 +37,7 @@ abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPoi
 		if (TransactionalProxy.class.isAssignableFrom(targetClass)) {
 			return false;
 		}
-		// TODO 自定义标签解析时注入
+		// TODO 事务自定义标签解析时注入
 		TransactionAttributeSource tas = getTransactionAttributeSource();
 		// 在AbstractFallbackTransactionAttributeSource中实现
 		return (tas == null || tas.getTransactionAttribute(method, targetClass) != null);
@@ -66,10 +66,6 @@ abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPoi
 	}
 
 
-	/**
-	 * Obtain the underlying TransactionAttributeSource (may be {@code null}).
-	 * To be implemented by subclasses.
-	 */
 	protected abstract TransactionAttributeSource getTransactionAttributeSource();
 
 }
