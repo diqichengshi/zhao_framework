@@ -1,4 +1,6 @@
-package org.springframework.beans.exception;
+package org.springframework.beans;
+
+import org.springframework.beans.InvalidPropertyException;
 
 /**
  * Exception thrown when navigation of a valid nested property

@@ -37,12 +37,14 @@
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
             <version>1.4</version>
+            <scope>provided</scope>
         </dependency>
         <!--测试依赖-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.45</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

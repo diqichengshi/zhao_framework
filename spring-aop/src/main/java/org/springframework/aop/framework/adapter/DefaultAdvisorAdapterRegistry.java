@@ -62,6 +62,9 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
     public MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {
         List<MethodInterceptor> interceptors = new ArrayList<MethodInterceptor>(3);
         Advice advice = advisor.getAdvice();
+        if (advice == null){
+            throw new AdviceNotFoundException(advisor);
+        }
         if (advice instanceof MethodInterceptor) {
             interceptors.add((MethodInterceptor) advice);
         }

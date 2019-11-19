@@ -1,4 +1,4 @@
-package org.springframework.beans.factory.xml;
+package org.springframework.beans.factory.support;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

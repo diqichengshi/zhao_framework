@@ -135,8 +135,10 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
             Object cacheKey = getCacheKey(bean.getClass(), beanName);
             if (!this.earlyProxyReferences.contains(cacheKey)) {
                 // TODO wrapIfNecessary()在bean初始化之后对生产出的bean进行包装(此类实现了BeanPastProcessor)
-                logger.info("AbstractAutoProxyCreator.postProcessAfterInitialization() 在bean初始化之后对生产出的"+beanName+"进行包装");
-                return wrapIfNecessary(bean, beanName, cacheKey); // 如果它适合被代理,则需要封装指定的bean
+                Object wrapBean=wrapIfNecessary(bean, beanName, cacheKey);
+                /*logger.info("AbstractAutoProxyCreator.postProcessAfterInitialization() 在bean初始化之后对生产出的"
+                        + beanName + "进行包装,包装结果:" + wrapBean);*/
+                return wrapBean; // 如果它适合被代理,则需要封装指定的bean
             }
         }
         return bean;
@@ -369,6 +371,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
             logger.debug("Creating implicit proxy for bean '" + beanName + "' with " + nrOfCommonInterceptors +
                     " common interceptors and " + nrOfSpecificInterceptors + " specific interceptors");
         }
+
 
         Advisor[] advisors = new Advisor[allInterceptors.size()];
         for (int i = 0; i < allInterceptors.size(); i++) {

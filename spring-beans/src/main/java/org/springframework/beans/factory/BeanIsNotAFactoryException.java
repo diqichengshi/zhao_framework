@@ -1,5 +1,6 @@
-package org.springframework.beans.exception;
+package org.springframework.beans.factory;
 
+import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import org.springframework.beans.factory.FactoryBean;
 
 public class BeanIsNotAFactoryException extends BeanNotOfRequiredTypeException {

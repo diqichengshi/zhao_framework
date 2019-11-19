@@ -1,4 +1,4 @@
-package org.springframework.beans.exception;
+package org.springframework.beans.factory;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.util.StringUtils;

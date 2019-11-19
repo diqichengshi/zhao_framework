@@ -1,4 +1,6 @@
-package org.springframework.beans.exception;
+package org.springframework.beans;
+
+import org.springframework.beans.InvalidPropertyException;
 
 /**
  * Exception thrown on an attempt to get the value of a property

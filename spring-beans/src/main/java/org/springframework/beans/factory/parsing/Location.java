@@ -34,49 +34,47 @@ import org.springframework.util.Assert;
  */
 public class Location {
 
-    private final Resource resource;
+	private final Resource resource;
 
-    private final Object source;
-
-
-    /**
-     * Create a new instance of the {@link Location} class.
-     *
-     * @param resource the resource with which this location is associated
-     */
-    public Location(Resource resource) {
-        this(resource, null);
-    }
-
-    /**
-     * Create a new instance of the {@link Location} class.
-     *
-     * @param resource the resource with which this location is associated
-     * @param source   the actual location within the associated resource
-     *                 (may be {@code null})
-     */
-    public Location(Resource resource, Object source) {
-        Assert.notNull(resource, "Resource must not be null");
-        this.resource = resource;
-        this.source = source;
-    }
+	private final Object source;
 
 
-    /**
-     * Get the resource with which this location is associated.
-     */
-    public Resource getResource() {
-        return this.resource;
-    }
+	/**
+	 * Create a new instance of the {@link Location} class.
+	 * @param resource the resource with which this location is associated
+	 */
+	public Location(Resource resource) {
+		this(resource, null);
+	}
 
-    /**
-     * Get the actual location within the associated {@link #getResource() resource}
-     * (may be {@code null}).
-     * <p>See the {@link Location class level javadoc for this class} for examples
-     * of what the actual type of the returned object may be.
-     */
-    public Object getSource() {
-        return this.source;
-    }
+	/**
+	 * Create a new instance of the {@link Location} class.
+	 * @param resource the resource with which this location is associated
+	 * @param source the actual location within the associated resource
+	 * (may be {@code null})
+	 */
+	public Location(Resource resource, Object source) {
+		Assert.notNull(resource, "Resource must not be null");
+		this.resource = resource;
+		this.source = source;
+	}
+
+
+	/**
+	 * Get the resource with which this location is associated.
+	 */
+	public Resource getResource() {
+		return this.resource;
+	}
+
+	/**
+	 * Get the actual location within the associated {@link #getResource() resource}
+	 * (may be {@code null}).
+	 * <p>See the {@link Location class level javadoc for this class} for examples
+	 * of what the actual type of the returned object may be.
+	 */
+	public Object getSource() {
+		return this.source;
+	}
 
 }

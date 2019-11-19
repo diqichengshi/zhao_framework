@@ -141,4 +141,11 @@ public class AnnotationTransactionAttributeSource extends AbstractFallbackTransa
 		return this.annotationParsers.hashCode();
 	}
 
+	@Override
+	public String toString() {
+		return "AnnotationTransactionAttributeSource{" +
+				"publicMethodsOnly=" + publicMethodsOnly +
+				", annotationParsers=" + annotationParsers +
+				'}';
+	}
 }

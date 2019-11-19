@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package org.springframework.beans.exception;
-
-import org.springframework.beans.BeansException;
+package org.springframework.beans;
 
 import java.beans.PropertyChangeEvent;
 
+import org.springframework.core.ErrorCoded;
 
 /**
  * Superclass for exceptions related to a property access,
@@ -29,17 +28,16 @@ import java.beans.PropertyChangeEvent;
  * @author Juergen Hoeller
  */
 @SuppressWarnings("serial")
-public abstract class PropertyAccessException extends BeansException {
+public abstract class PropertyAccessException extends BeansException implements ErrorCoded {
 
     private transient PropertyChangeEvent propertyChangeEvent;
 
 
     /**
      * Create a new PropertyAccessException.
-     *
      * @param propertyChangeEvent the PropertyChangeEvent that resulted in the problem
-     * @param msg                 the detail message
-     * @param cause               the root cause
+     * @param msg the detail message
+     * @param cause the root cause
      */
     public PropertyAccessException(PropertyChangeEvent propertyChangeEvent, String msg, Throwable cause) {
         super(msg, cause);
@@ -48,8 +46,7 @@ public abstract class PropertyAccessException extends BeansException {
 
     /**
      * Create a new PropertyAccessException without PropertyChangeEvent.
-     *
-     * @param msg   the detail message
+     * @param msg the detail message
      * @param cause the root cause
      */
     public PropertyAccessException(String msg, Throwable cause) {

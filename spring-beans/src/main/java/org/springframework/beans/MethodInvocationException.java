@@ -1,4 +1,6 @@
-package org.springframework.beans.exception;
+package org.springframework.beans;
+
+import org.springframework.beans.PropertyAccessException;
 
 import java.beans.PropertyChangeEvent;
 
@@ -27,9 +29,9 @@ public class MethodInvocationException extends PropertyAccessException {
         super(propertyChangeEvent, "Property '" + propertyChangeEvent.getPropertyName() + "' threw exception", cause);
     }
 
-    /*@Override
+    @Override
     public String getErrorCode() {
         return ERROR_CODE;
-    }*/
+    }
 
 }

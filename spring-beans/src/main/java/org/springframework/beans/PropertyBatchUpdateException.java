@@ -1,6 +1,7 @@
-package org.springframework.beans.exception;
+package org.springframework.beans;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.PropertyAccessException;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 

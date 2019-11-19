@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.beans.exception;
+package org.springframework.beans;
 
 import org.springframework.beans.FatalBeanException;
 
