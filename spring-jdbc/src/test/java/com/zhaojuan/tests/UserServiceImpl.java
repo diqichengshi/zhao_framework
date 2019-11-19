@@ -1,6 +1,6 @@
 package com.zhaojuan.tests;
 
-import org.springframework.beans.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 

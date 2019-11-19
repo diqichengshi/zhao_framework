@@ -20,6 +20,10 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
         this(configLocations, true, null);
     }
 
+    public ClassPathXmlApplicationContext(String[] configLocations, boolean refresh) throws BeansException {
+        this(configLocations, refresh, null);
+    }
+
     public ClassPathXmlApplicationContext(String[] configLocations, boolean refresh, ApplicationContext parent)
             throws BeansException {
         super(parent);

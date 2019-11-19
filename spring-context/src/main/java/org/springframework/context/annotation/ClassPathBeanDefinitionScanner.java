@@ -57,14 +57,13 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
         return new StandardEnvironment();
     }
 
-    /**
-     * Set the defaults to use for detected beans.
-     *
-     * @see BeanDefinitionDefaults
-     */
     public void setBeanDefinitionDefaults(BeanDefinitionDefaults beanDefinitionDefaults) {
         this.beanDefinitionDefaults =
                 (beanDefinitionDefaults != null ? beanDefinitionDefaults : new BeanDefinitionDefaults());
+    }
+
+    public BeanDefinitionDefaults getBeanDefinitionDefaults() {
+        return this.beanDefinitionDefaults;
     }
 
     public void setAutowireCandidatePatterns(String... autowireCandidatePatterns) {

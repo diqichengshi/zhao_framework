@@ -1,6 +1,6 @@
 package org.springframework.tests.factory;
 
-import org.springframework.beans.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class User {
     private Integer id;
