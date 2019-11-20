@@ -80,7 +80,7 @@
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
 	Specifies whether local properties override properties from files.
-	Default is "false": Properties from files override local defaults.
+	Default is "false": Properties from files override local org.apache.ibatis.defaults.
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -494,7 +494,7 @@
     "assignable" indicates a class (or interface) that the target components are assignable to (extend/implement);
     "aspectj" indicates an AspectJ type pattern expression to be matched by the target components;
     "regex" indicates a regex pattern to be matched by the target components' class names;
-    "custom" indicates a custom implementation of the org.springframework.core.type.TypeFilter interface.
+    "custom" indicates a custom implementation of the org.springframework.core.org.apache.ibatis.type.TypeFilter interface.
 
     Note: This attribute will not be inherited by child bean definitions.
     Hence, it needs to be specified per concrete bean definition.

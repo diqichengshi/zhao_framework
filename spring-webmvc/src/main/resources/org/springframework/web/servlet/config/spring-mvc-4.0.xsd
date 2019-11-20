@@ -233,7 +233,7 @@
 			<xsd:attribute name="conversion-service" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation source="java:org.springframework.core.convert.ConversionService"><![CDATA[
-	The bean name of the ConversionService that is to be used for type conversion during field binding.
+	The bean name of the ConversionService that is to be used for type conversion during field org.apache.ibatis.binding.
 	This attribute is not required, and only needs to be specified explicitly if custom converters need to be configured.
 	If not specified, a default FormattingConversionService is registered that contains converters to/from standard JDK types.
 	In addition, full support for date/time formatting will be installed if the Joda Time library is present on the classpath.

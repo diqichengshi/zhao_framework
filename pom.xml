@@ -19,6 +19,8 @@
         <module>spring-expression</module>
         <module>spring-webmvc</module>
         <module>spring-web</module>
+        <module>mybatis-spring</module>
+        <module>mybatis</module>
     </modules>
 
     <properties>

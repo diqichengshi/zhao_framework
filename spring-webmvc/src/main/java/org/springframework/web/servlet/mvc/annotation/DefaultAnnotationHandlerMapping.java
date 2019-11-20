@@ -111,14 +111,18 @@ public class DefaultAnnotationHandlerMapping extends AbstractDetectingUrlHandler
 	@Override
 	protected String[] determineUrlsForHandler(String beanName) {
 		ApplicationContext context = getApplicationContext();
+		// 从容器中获取controller
 		Class<?> handlerType = context.getType(beanName);
+		// 获取controller上的@RequestMapping注解
 		RequestMapping mapping = context.findAnnotationOnBean(beanName, RequestMapping.class);
 		if (mapping != null) {
 			// @RequestMapping found at type level
 			this.cachedMappings.put(handlerType, mapping);
 			Set<String> urls = new LinkedHashSet<String>();
+			// controller的映射url
 			String[] typeLevelPatterns = mapping.value();
 			if (typeLevelPatterns.length > 0) {
+				// 获取controller中所有方法及方法的映射url
 				// @RequestMapping specifies paths at type level
 				String[] methodLevelPatterns = determineUrlsForHandlerMethods(handlerType, true);
 				for (String typeLevelPattern : typeLevelPatterns) {
@@ -131,7 +135,9 @@ public class DefaultAnnotationHandlerMapping extends AbstractDetectingUrlHandler
 							hasEmptyMethodLevelMappings = true;
 						}
 						else {
+							// controller的映射url+方法映射的url
 							String combinedPattern = getPathMatcher().combine(typeLevelPattern, methodLevelPattern);
+							// 保存到set集合中
 							addUrlsForPath(urls, combinedPattern);
 						}
 					}
@@ -140,6 +146,7 @@ public class DefaultAnnotationHandlerMapping extends AbstractDetectingUrlHandler
 						addUrlsForPath(urls, typeLevelPattern);
 					}
 				}
+				// 以数组形式返回controller上的所有url
 				return StringUtils.toStringArray(urls);
 			}
 			else {
@@ -148,6 +155,7 @@ public class DefaultAnnotationHandlerMapping extends AbstractDetectingUrlHandler
 			}
 		}
 		else if (AnnotationUtils.findAnnotation(handlerType, Controller.class) != null) {
+			// 获取controller中方法上的映射url
 			// @RequestMapping to be introspected at method level
 			return determineUrlsForHandlerMethods(handlerType, false);
 		}

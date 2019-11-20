@@ -88,4 +88,31 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <resources>
+            <!--项目相关的所有资源路径列表,例如和项目相关的配置文件,这些资源被包含在最终的打包文件里。 -->
+            <resource>
+                <!--是否使用参数值代替参数名。参数值取自properties元素或者文件里配置的属性，文件在filters元素里列出。 -->
+                <filtering>true</filtering>
+                <!--描述存放资源的目录，该路径相对POM路径 -->
+                <directory>src/main/resources</directory>
+                <!--包含的模式列表 -->
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

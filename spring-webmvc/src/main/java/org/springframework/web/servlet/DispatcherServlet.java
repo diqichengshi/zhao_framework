@@ -916,12 +916,15 @@ public class DispatcherServlet extends FrameworkServlet {
             Exception dispatchException = null;
 
             try {
+                // 1.检查是否是文件上传的请求
                 // 如果是MultipartContent类型的request则转换request为MultipartHttpServletRequest
                 processedRequest = checkMultipart(request);
                 multipartRequestParsed = (processedRequest != request);
 
                 // Determine handler for the current request.
-                // 根据当前request获取handler,handler中包含了请求url,以及最终定位到的controller以及controller中的方法
+                // 2.取得处理当前请求的controller,这里也称为hanlder,处理器,第一个步骤的意义就在这里体现了.
+                // 这里并不是直接返回controller,而是返回的HandlerExecutionChain请求处理器链对象,
+                // 该对象封装了handler和interceptors.
                 mappedHandler = getHandler(processedRequest);
                 if (mappedHandler == null || mappedHandler.getHandler() == null) {
                     // 如果没有找到对应的handler,则通过response反馈错误信息
@@ -929,8 +932,8 @@ public class DispatcherServlet extends FrameworkServlet {
                     return;
                 }
 
+                //3. 获取处理request的处理器适配器handler adapter,主要完成参数解析
                 // Determine handler adapter for the current request.
-                 // 通过handler获取对应的适配器,主要完成参数解析
                 HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
                 // Process last-modified header, if supported by the handler.
@@ -947,12 +950,13 @@ public class DispatcherServlet extends FrameworkServlet {
                     }
                 }
 
-                // 拦截器preHandler方法的调用
+                // 4.拦截器的预处理方法
                 if (!mappedHandler.applyPreHandle(processedRequest, response)) {
                     return;
                 }
 
                 // Actually invoke the handler.
+                // 5.实际的处理器处理请求,返回结果视图对象
                 // TODO 调用Controller中的方法,真正的激活handler并返回视图
                 mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 

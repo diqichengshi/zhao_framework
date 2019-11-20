@@ -186,7 +186,7 @@
 			<xsd:attribute name="rejection-policy" use="optional">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
-	The RejectedExecutionHandler type. When a bounded queue cannot accept any
+	The RejectedExecutionHandler org.apache.ibatis.type. When a bounded queue cannot accept any
 	additional tasks, this determines the behavior. While the default is ABORT,
 	consider using CALLER_RUNS to throttle inbound tasks. In other words, by forcing
 	the caller to run the task itself, it will not be able to provide another task

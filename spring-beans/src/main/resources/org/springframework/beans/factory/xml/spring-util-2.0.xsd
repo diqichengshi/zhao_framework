@@ -179,7 +179,7 @@
 						<xsd:annotation>
 							<xsd:appinfo>
 								<tool:annotation>
-									<tool:expected-type type="org.springframework.core.io.Resource"/>
+									<tool:expected-type type="org.springframework.core.org.apache.ibatis.io.Resource"/>
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>

@@ -144,6 +144,7 @@ public class HandlerMethodInvoker {
 		Method handlerMethodToInvoke = BridgeMethodResolver.findBridgedMethod(handlerMethod);
 		try {
 			boolean debug = logger.isDebugEnabled();
+			// 处理方法上的其他注解
 			for (String attrName : this.methodResolver.getActualSessionAttributeNames()) {
 				Object attrValue = this.sessionAttributeStore.retrieveAttribute(webRequest, attrName);
 				if (attrValue != null) {
@@ -170,6 +171,7 @@ public class HandlerMethodInvoker {
 					implicitModel.addAttribute(attrName, attrValue);
 				}
 			}
+			// 核心代码,获取方法上的参数值,完成request中的参数和方法参数上数据的绑定
 			Object[] args = resolveHandlerArguments(handlerMethodToInvoke, handler, webRequest, implicitModel);
 			if (debug) {
 				logger.debug("Invoking request handler method: " + handlerMethodToInvoke);
@@ -237,10 +239,12 @@ public class HandlerMethodInvoker {
 
 	private Object[] resolveHandlerArguments(Method handlerMethod, Object handler,
 			NativeWebRequest webRequest, ExtendedModelMap implicitModel) throws Exception {
-
+		// 1.获取方法参数类型的数组
 		Class<?>[] paramTypes = handlerMethod.getParameterTypes();
+		// 声明数组,存参数的值
 		Object[] args = new Object[paramTypes.length];
 
+		// 声明数组,存参数的值
 		for (int i = 0; i < args.length; i++) {
 			MethodParameter methodParam = new SynthesizingMethodParameter(handlerMethod, i);
 			methodParam.initParameterNameDiscovery(this.parameterNameDiscoverer);
@@ -258,6 +262,7 @@ public class HandlerMethodInvoker {
 			int annotationsFound = 0;
 			Annotation[] paramAnns = methodParam.getParameterAnnotations();
 
+			// 处理参数上的注解
 			for (Annotation paramAnn : paramAnns) {
 				if (RequestParam.class.isInstance(paramAnn)) {
 					RequestParam requestParam = (RequestParam) paramAnn;
@@ -312,6 +317,7 @@ public class HandlerMethodInvoker {
 						"do not specify more than one such annotation on the same parameter: " + handlerMethod);
 			}
 
+			// 如果没有注解
 			if (annotationsFound == 0) {
 				Object argValue = resolveCommonArgument(methodParam, webRequest);
 				if (argValue != WebArgumentResolver.UNRESOLVED) {
@@ -322,6 +328,7 @@ public class HandlerMethodInvoker {
 				}
 				else {
 					Class<?> paramType = methodParam.getParameterType();
+					// 将方法声明中的Map和Model参数,放到request中,用于将数据放到request中带回页面
 					if (Model.class.isAssignableFrom(paramType) || Map.class.isAssignableFrom(paramType)) {
 						if (!paramType.isAssignableFrom(implicitModel.getClass())) {
 							throw new IllegalStateException("Argument [" + paramType.getSimpleName() + "] is of type " +
@@ -349,7 +356,9 @@ public class HandlerMethodInvoker {
 				}
 			}
 
+			// 从request中取值,并进行赋值操作
 			if (paramName != null) {
+				// 根据paramName从request中取值,如果没有通过RequestParam注解指定paramName,则使用asm读取class文件来获取paramName
 				args[i] = resolveRequestParam(paramName, required, defaultValue, methodParam, webRequest, handler);
 			}
 			else if (headerName != null) {
@@ -380,6 +389,7 @@ public class HandlerMethodInvoker {
 			}
 		}
 
+		// 返回参数值数组
 		return args;
 	}
 

@@ -428,20 +428,25 @@ public class AnnotationMethodHandlerAdapter extends WebContentGenerator
 				}
 			}
 		}
-
+		// TODO 获取处理请求的方法,执行并返回结果视图
 		return invokeHandlerMethod(request, response, handler);
 	}
 
 	protected ModelAndView invokeHandlerMethod(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
 
+		// 1.获取方法解析器
 		ServletHandlerMethodResolver methodResolver = getMethodResolver(handler);
+		// 2.解析request中的url,获取处理request的方法(核心)
 		Method handlerMethod = methodResolver.resolveHandlerMethod(request);
+		// 3.方法调用器
 		ServletHandlerMethodInvoker methodInvoker = new ServletHandlerMethodInvoker(methodResolver);
 		ServletWebRequest webRequest = new ServletWebRequest(request, response);
 		ExtendedModelMap implicitModel = new BindingAwareModelMap();
 
+		// 4.执行方法(核心)
 		Object result = methodInvoker.invokeHandlerMethod(handlerMethod, handler, webRequest, implicitModel);
+		// 5.封装结果视图
 		ModelAndView mav =
 				methodInvoker.getModelAndView(handlerMethod, handler.getClass(), result, implicitModel, webRequest);
 		methodInvoker.updateModelAttributes(handler, (mav != null ? mav.getModel() : null), implicitModel, webRequest);
@@ -562,19 +567,25 @@ public class AnnotationMethodHandlerAdapter extends WebContentGenerator
 		}
 
 		public Method resolveHandlerMethod(HttpServletRequest request) throws ServletException {
+			// 如果请求url为:localhost:8080/springmvc/helloWorldController/say.action,
+			// 则lookupPath=helloWorldController/say.action
 			String lookupPath = urlPathHelper.getLookupPathForRequest(request);
 			Comparator<String> pathComparator = pathMatcher.getPatternComparator(lookupPath);
 			Map<RequestSpecificMappingInfo, Method> targetHandlerMethods = new LinkedHashMap<RequestSpecificMappingInfo, Method>();
 			Set<String> allowedMethods = new LinkedHashSet<String>(7);
 			String resolvedMethodName = null;
+			// 遍历controller上的所有方法,获取url匹配的方法
 			for (Method handlerMethod : getHandlerMethods()) {
 				RequestSpecificMappingInfo mappingInfo = new RequestSpecificMappingInfo(this.mappings.get(handlerMethod));
 				boolean match = false;
 				if (mappingInfo.hasPatterns()) {
+					// 获取方法上的url
 					for (String pattern : mappingInfo.getPatterns()) {
+						// 方法上可能有多个url,springmvc支持方法映射多个url
 						if (!hasTypeLevelMapping() && !pattern.startsWith("/")) {
 							pattern = "/" + pattern;
 						}
+						// 获取controller上的映射和url和方法上的url,拼凑起来与lookupPath是否匹配
 						String combinedPattern = getCombinedPattern(pattern, lookupPath, request);
 						if (combinedPattern != null) {
 							if (mappingInfo.matches(request)) {

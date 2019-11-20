@@ -11,7 +11,7 @@
 
 	<tag>
 		<description>Renders an HTML 'form' tag and exposes a binding path to inner tags
-		for binding.</description>
+            for org.apache.ibatis.binding.</description>
 		<name>form</name>
 		<tag-class>org.springframework.web.servlet.tags.form.FormTag</tag-class>
 		<body-content>JSP</body-content>

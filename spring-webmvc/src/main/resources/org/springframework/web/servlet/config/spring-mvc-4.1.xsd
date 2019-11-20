@@ -257,7 +257,7 @@
 			<xsd:attribute name="conversion-service" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation source="java:org.springframework.core.convert.ConversionService"><![CDATA[
-	The bean name of the ConversionService that is to be used for type conversion during field binding.
+	The bean name of the ConversionService that is to be used for type conversion during field org.apache.ibatis.binding.
 	This attribute is not required, and only needs to be specified explicitly if custom converters need to be configured.
 	If not specified, a default FormattingConversionService is registered that contains converters to/from standard JDK types.
 	In addition, full support for date/time formatting will be installed if the Joda Time library is present on the classpath.
@@ -492,7 +492,7 @@
 				<xsd:documentation><![CDATA[
 	The name of the Cache Manager to cache resource resolution. By default, a ConcurrentCacheMap will be used.
 	Since Resources aren't serializable and can be dependent on the application host, one should not use a
-	distributed cache but rather an in-memory cache.
+	distributed cache but rather an in-memory org.apache.ibatis.cache.
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -862,7 +862,7 @@
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
 	The view class that should be used to create views.
-	Configure this if you want to provide a custom View implementation, typically a ub-class of the expected View type.
+	Configure this if you want to provide a custom View implementation, typically a ub-class of the expected View org.apache.ibatis.type.
 				]]></xsd:documentation>
 				<xsd:appinfo>
 					<tool:annotation kind="ref">

@@ -544,11 +544,11 @@
 	<xsd:element name="constructor-arg">
 		<xsd:annotation>
 			<xsd:documentation source="java:org.springframework.beans.factory.config.ConstructorArgumentValues">
-				<![CDATA[
+                <![CDATA[
 	Bean definitions can specify zero or more constructor arguments.
 	This is an alternative to "autowire constructor".
 	Arguments correspond to either a specific index of the constructor
-	argument list or are supposed to be matched generically by type.
+	argument list or are supposed to be matched generically by org.apache.ibatis.type.
 
 	Note: A single generic argument value will just be used once, rather
 	than potentially matched multiple times (as of Spring 1.1).
@@ -580,7 +580,7 @@
 					<xsd:documentation><![CDATA[
 	The exact index of the argument in the constructor argument list.
 	Only needed to avoid ambiguities, e.g. in case of 2 arguments of
-	the exact same type.
+	the exact same org.apache.ibatis.type.
 					]]></xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
@@ -598,7 +598,7 @@
 					<xsd:documentation><![CDATA[
 	The exact name of the argument in the constructor argument list.
 	Only needed to avoid ambiguities, e.g. in case of 2 arguments of
-	the exact same type. Note: This requires debug symbols to be
+	the exact same org.apache.ibatis.type. Note: This requires debug symbols to be
 	stored in the class file in order to introspect argument names!
 					]]></xsd:documentation>
 				</xsd:annotation>

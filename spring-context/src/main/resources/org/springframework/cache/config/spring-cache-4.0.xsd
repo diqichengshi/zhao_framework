@@ -28,7 +28,7 @@
 
 	The default annotations supported are Spring's @Cacheable and @CacheEvict.
 
-	See org.springframework.cache.annotation.EnableCaching Javadoc
+	See org.springframework.org.apache.ibatis.cache.annotation.EnableCaching Javadoc
 	for information on code-based alternatives to this XML element.
 				]]></xsd:documentation>
 			</xsd:annotation>
@@ -43,7 +43,7 @@
 					]]></xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.cache.CacheManager"/>
+							<tool:expected-type type="org.springframework.org.apache.ibatis.cache.CacheManager"/>
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -58,7 +58,7 @@
 					]]></xsd:documentation>
 					<xsd:appinfo>
 						<tool:annotation kind="ref">
-							<tool:expected-type type="org.springframework.cache.interceptor.KeyGenerator"/>
+							<tool:expected-type type="org.springframework.org.apache.ibatis.cache.interceptor.KeyGenerator"/>
 						</tool:annotation>
 					</xsd:appinfo>
 				</xsd:annotation>
@@ -120,7 +120,7 @@
 				]]></xsd:documentation>
 				<xsd:appinfo>
 					<tool:annotation>
-						<tool:exports type="java:org.springframework.cache.interceptor.CacheInterceptor"/>
+						<tool:exports type="java:org.springframework.org.apache.ibatis.cache.interceptor.CacheInterceptor"/>
 					</tool:annotation>
 				</xsd:appinfo>
 			</xsd:annotation>
@@ -141,7 +141,7 @@
 							]]></xsd:documentation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type="org.springframework.cache.CacheManager"/>
+									<tool:expected-type type="org.springframework.org.apache.ibatis.cache.CacheManager"/>
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>
@@ -156,7 +156,7 @@
 							]]></xsd:documentation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type="org.springframework.cache.interceptor.KeyGenerator"/>
+									<tool:expected-type type="org.springframework.org.apache.ibatis.cache.interceptor.KeyGenerator"/>
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>
