@@ -117,14 +117,19 @@ public abstract class HttpServletBean extends HttpServlet
 		if (logger.isDebugEnabled()) {
 			logger.debug("Initializing servlet '" + getServletName() + "'");
 		}
-
+		// TODO 初始化Servlet,解析init-param参数
 		// Set bean properties from init parameters.
 		try {
+			// TODO 解析init-param并封装到pvs里面
 			PropertyValues pvs = new ServletConfigPropertyValues(getServletConfig(), this.requiredProperties);
+			// 当前Servlet转换为BeanWrapper,从而能够以Spring的方式来对init-param的值进行注入
 			BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(this);
 			ResourceLoader resourceLoader = new ServletContextResourceLoader(getServletContext());
+			// 自定义属性编辑器,一旦遇到Resource类型将会使用ResourceEditor进行解析
 			bw.registerCustomEditor(Resource.class, new ResourceEditor(resourceLoader, getEnvironment()));
+			// 空方法.留给子类实现
 			initBeanWrapper(bw);
+			// 属性注入
 			bw.setPropertyValues(pvs, true);
 		}
 		catch (BeansException ex) {
@@ -132,7 +137,7 @@ public abstract class HttpServletBean extends HttpServlet
 			throw ex;
 		}
 
-		// Let subclasses do whatever initialization they like.
+		// Let subclasses do whatever initialization they like(留给子类扩展).
 		initServletBean();
 
 		if (logger.isDebugEnabled()) {
@@ -233,7 +238,7 @@ public abstract class HttpServletBean extends HttpServlet
 
 			Set<String> missingProps = (requiredProperties != null && !requiredProperties.isEmpty()) ?
 					new HashSet<String>(requiredProperties) : null;
-
+			// 解析init-param并封装到pvs里面
 			Enumeration<String> en = config.getInitParameterNames();
 			while (en.hasMoreElements()) {
 				String property = en.nextElement();
@@ -244,6 +249,7 @@ public abstract class HttpServletBean extends HttpServlet
 				}
 			}
 
+			// 对属性进行验证
 			// Fail if we are still missing properties.
 			if (missingProps != null && missingProps.size() > 0) {
 				throw new ServletException(
