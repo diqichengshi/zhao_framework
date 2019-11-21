@@ -29,6 +29,11 @@
         </dependency>
         <dependency>
             <groupId>com.zhaojuan.framework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zhaojuan.framework</groupId>
             <artifactId>spring-tx</artifactId>
             <version>${project.version}</version>
         </dependency>

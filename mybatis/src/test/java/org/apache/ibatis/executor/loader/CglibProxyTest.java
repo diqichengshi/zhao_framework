@@ -27,6 +27,7 @@ import net.sf.cglib.proxy.Factory;
 
 import org.apache.ibatis.domain.blog.Author;
 import org.apache.ibatis.executor.ExecutorException;
+import org.apache.ibatis.executor.loader.cglib.CglibProxyFactory;
 import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
 import org.apache.ibatis.session.Configuration;
 import org.junit.Test;

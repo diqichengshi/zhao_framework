@@ -1,4 +1,4 @@
-实现一个简单的Spring框架
+实现一个简单的Spring框架(基于spring4.2.3学习)
 1.实现SpringIOC容器的功能(xml和注解都支持)
 
 

@@ -48,6 +48,17 @@
             <version>1.2</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.3.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
@@ -59,8 +70,6 @@
             <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
-
-
     </dependencies>
 
     <build>
@@ -73,7 +82,7 @@
                 <directory>src/main/resources</directory>
                 <!--包含的模式列表 -->
                 <includes>
-                    <include>**/*</include>
+                    <include>*</include>
                 </includes>
             </resource>
         </resources>
