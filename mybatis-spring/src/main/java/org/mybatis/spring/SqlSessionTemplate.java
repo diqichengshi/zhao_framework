@@ -132,6 +132,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
         this.sqlSessionFactory = sqlSessionFactory;
         this.executorType = executorType;
         this.exceptionTranslator = exceptionTranslator;
+        // 创建sqlSession代理
         this.sqlSessionProxy = (SqlSession) newProxyInstance(
                 SqlSessionFactory.class.getClassLoader(),
                 new Class[] { SqlSession.class },
@@ -425,15 +426,19 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
     private class SqlSessionInterceptor implements InvocationHandler {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            // 获取sqlSession
             SqlSession sqlSession = getSqlSession(
                     SqlSessionTemplate.this.sqlSessionFactory,
                     SqlSessionTemplate.this.executorType,
                     SqlSessionTemplate.this.exceptionTranslator);
             try {
+                // 执行sqlSession的对应方法
                 Object result = method.invoke(sqlSession, args);
+                // 如果sqlSession不是由Spring管理的,则提交sqlSession
                 if (!isSqlSessionTransactional(sqlSession, SqlSessionTemplate.this.sqlSessionFactory)) {
                     // force commit even on non-dirty sessions because some databases require
                     // a commit/rollback before calling close()
+                    // 强制提交sqlSession,因为一些数据库在调用close方法之前需要提交/回滚。
                     sqlSession.commit(true);
                 }
                 return result;

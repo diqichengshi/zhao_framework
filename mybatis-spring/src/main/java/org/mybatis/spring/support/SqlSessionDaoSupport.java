@@ -46,6 +46,7 @@ public abstract class SqlSessionDaoSupport extends DaoSupport {
 
     public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
         if (!this.externalSqlSession) {
+            // TODO 创建SqlSessionTemplate
             this.sqlSession = new SqlSessionTemplate(sqlSessionFactory);
         }
     }
@@ -71,6 +72,10 @@ public abstract class SqlSessionDaoSupport extends DaoSupport {
      */
     @Override
     protected void checkDaoConfig() {
+        // 这里判断了sqlSession属性不能为null,我们在上文中分析处理扫描后的BeanDefinition的过程时,
+        // 并没有看到为mapper的BeanDefinition增加sqlSession属性m那么MapperFactoryBean创建以后这个属性不就是应该为null么?
+        // 这里的断言不就无法通过了么?我们知道,SqlSession是通过SqlSessionFactory创建的,处理扫描后的BeanDefinition时
+        // 为其添加了sqlSessionFactory属性,所以我们尝试从sqlSessionFactory的setter方法中寻找答案
         notNull(this.sqlSession, "Property 'sqlSessionFactory' or 'sqlSessionTemplate' are required");
     }
 

@@ -300,6 +300,7 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
         if (this.processPropertyPlaceHolders) {
+            //1.占位符属性处理
             processPropertyPlaceHolders();
         }
 
@@ -313,7 +314,9 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
         scanner.setSqlSessionTemplateBeanName(this.sqlSessionTemplateBeanName);
         scanner.setResourceLoader(this.applicationContext);
         scanner.setBeanNameGenerator(this.nameGenerator);
+        //2.设置过滤器
         scanner.registerFilters();
+        //3.扫描java文件
         scanner.scan(StringUtils.tokenizeToStringArray(this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
     }
 
@@ -334,15 +337,18 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
             // PropertyResourceConfigurer does not expose any methods to explicitly perform
             // property placeholder substitution. Instead, create a BeanFactory that just
             // contains this mapper scanner and post process the factory.
+            // PropertyResourceConfigurer不公开任何显式执行属性占位符替换的方法,代替的是创建一个只包含当前mapper扫描器和后处理工厂的BeanFactory
             DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
             factory.registerBeanDefinition(beanName, mapperScannerBean);
 
             for (PropertyResourceConfigurer prc : prcs.values()) {
+                // 提前执行PropertyResourceConfigurer的postProcessBeanFactory方法加载properties
                 prc.postProcessBeanFactory(factory);
             }
 
             PropertyValues values = mapperScannerBean.getPropertyValues();
 
+            // 更新需要替换的属性
             this.basePackage = updatePropertyValue("basePackage", values);
             this.sqlSessionFactoryBeanName = updatePropertyValue("sqlSessionFactoryBeanName", values);
             this.sqlSessionTemplateBeanName = updatePropertyValue("sqlSessionTemplateBeanName", values);

@@ -377,6 +377,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
         state((configuration == null && configLocation == null) || !(configuration != null && configLocation != null),
                 "Property 'configuration' and 'configLocation' can not specified with together");
 
+        // TODO 创建SqlSessionFactory
         this.sqlSessionFactory = buildSqlSessionFactory();
     }
 
@@ -395,6 +396,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
         Configuration configuration;
 
         XMLConfigBuilder xmlConfigBuilder = null;
+        // Configuration的几种配置
         if (this.configuration != null) {
             configuration = this.configuration;
             if (configuration.getVariables() == null) {
@@ -415,18 +417,22 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
             }
         }
 
+        // objectFactory配置
         if (this.objectFactory != null) {
             configuration.setObjectFactory(this.objectFactory);
         }
 
+        // objectWrapperFactory配置
         if (this.objectWrapperFactory != null) {
             configuration.setObjectWrapperFactory(this.objectWrapperFactory);
         }
 
+        // vfs配置
         if (this.vfs != null) {
             configuration.setVfsImpl(this.vfs);
         }
 
+        // typeAliasesPackage配置
         if (hasLength(this.typeAliasesPackage)) {
             String[] typeAliasPackageArray = tokenizeToStringArray(this.typeAliasesPackage,
                     ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
@@ -439,6 +445,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
             }
         }
 
+        // typeAliases配置
         if (!isEmpty(this.typeAliases)) {
             for (Class<?> typeAlias : this.typeAliases) {
                 configuration.getTypeAliasRegistry().registerAlias(typeAlias);
@@ -448,6 +455,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
             }
         }
 
+        // plugins配置
         if (!isEmpty(this.plugins)) {
             for (Interceptor plugin : this.plugins) {
                 configuration.addInterceptor(plugin);
@@ -457,6 +465,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
             }
         }
 
+        // typeHandlersPackage配置
         if (hasLength(this.typeHandlersPackage)) {
             String[] typeHandlersPackageArray = tokenizeToStringArray(this.typeHandlersPackage,
                     ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
@@ -468,6 +477,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
             }
         }
 
+        // typeHandlers配置
         if (!isEmpty(this.typeHandlers)) {
             for (TypeHandler<?> typeHandler : this.typeHandlers) {
                 configuration.getTypeHandlerRegistry().register(typeHandler);
@@ -477,6 +487,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
             }
         }
 
+        // databaseIdProvider配置
         if (this.databaseIdProvider != null) {//fix #64 set databaseId before parse mapper xmls
             try {
                 configuration.setDatabaseId(this.databaseIdProvider.getDatabaseId(this.dataSource));
@@ -485,12 +496,14 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
             }
         }
 
+        // cache配置
         if (this.cache != null) {
             configuration.addCache(this.cache);
         }
 
         if (xmlConfigBuilder != null) {
             try {
+                // TODO 如果配置了configLocation,则解析配置文件
                 xmlConfigBuilder.parse();
 
                 if (LOGGER.isDebugEnabled()) {
@@ -504,11 +517,15 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
         }
 
         if (this.transactionFactory == null) {
+            // 如果没有transactionFactory配置,应用SpringManagedTransactionFactory
+            // TODO SpringManagedTransactionFactory就可以解决共用数据库连接的问题
             this.transactionFactory = new SpringManagedTransactionFactory();
         }
 
+        // 为Configuration设置环境
         configuration.setEnvironment(new Environment(this.environment, this.transactionFactory, this.dataSource));
 
+        // mapperLocations配置
         if (!isEmpty(this.mapperLocations)) {
             for (Resource mapperLocation : this.mapperLocations) {
                 if (mapperLocation == null) {
@@ -516,6 +533,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
                 }
 
                 try {
+                    // TODO 解析mapper配置
                     XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(mapperLocation.getInputStream(),
                             configuration, mapperLocation.toString(), configuration.getSqlFragments());
                     xmlMapperBuilder.parse();
@@ -535,6 +553,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
             }
         }
 
+        // 构建SqlSessionFactory
         return this.sqlSessionFactoryBuilder.build(configuration);
     }
 
@@ -547,6 +566,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
             afterPropertiesSet();
         }
 
+        // TODO 返回SqlSessionFactory
         return this.sqlSessionFactory;
     }
 

@@ -65,6 +65,7 @@ public class SpringManagedTransaction implements Transaction {
     @Override
     public Connection getConnection() throws SQLException {
         if (this.connection == null) {
+            // 开启数据库连接
             openConnection();
         }
         return this.connection;
@@ -79,6 +80,7 @@ public class SpringManagedTransaction implements Transaction {
      * so we need to no-op that calls.
      */
     private void openConnection() throws SQLException {
+        // 获取数据库连接
         this.connection = DataSourceUtils.getConnection(this.dataSource);
         this.autoCommit = this.connection.getAutoCommit();
         this.isConnectionTransactional = DataSourceUtils.isConnectionTransactional(this.connection, this.dataSource);

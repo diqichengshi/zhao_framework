@@ -117,12 +117,14 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
         boolean acceptAllInterfaces = true;
 
         // if specified, use the given annotation and / or marker interface
+        // 如果指定了annotationClass，
         if (this.annotationClass != null) {
             addIncludeFilter(new AnnotationTypeFilter(this.annotationClass));
             acceptAllInterfaces = false;
         }
 
         // override AssignableTypeFilter to ignore matches on the actual marker interface
+        // 重写AssignableTypeFilter以忽略实际标记接口上的匹配项
         if (this.markerInterface != null) {
             addIncludeFilter(new AssignableTypeFilter(this.markerInterface) {
                 @Override
@@ -135,6 +137,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
         if (acceptAllInterfaces) {
             // default include filter that accepts all classes
+            // 默认处理所有接口
             addIncludeFilter(new TypeFilter() {
                 @Override
                 public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException {
@@ -160,11 +163,13 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
      */
     @Override
     public Set<BeanDefinitionHolder> doScan(String... basePackages) {
+        // ClassPathMapperScanner重写父类得doScan()方法,并调用父类得doScan()方法
         Set<BeanDefinitionHolder> beanDefinitions = super.doScan(basePackages);
 
         if (beanDefinitions.isEmpty()) {
             logger.warn("No MyBatis mapper was found in '" + Arrays.toString(basePackages) + "' package. Please check your configuration.");
         } else {
+            // TODO ClassPathMapperScanner处理扫描到的BeanDefinition
             processBeanDefinitions(beanDefinitions);
         }
 
@@ -183,12 +188,15 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
             // the mapper interface is the original class of the bean
             // but, the actual class of the bean is MapperFactoryBean
+            // mapper的接口是bean的原始类,但是,实际的bean类是MapperFactoryBean
             definition.getConstructorArgumentValues().addGenericArgumentValue(definition.getBeanClassName()); // issue #59
+            // TODO 设置BeanClass为MapperFactoryBean
             definition.setBeanClass(this.mapperFactoryBean.getClass());
 
             definition.getPropertyValues().add("addToConfig", this.addToConfig);
 
             boolean explicitFactoryUsed = false;
+            // 下面是一些其他属性的添加
             if (StringUtils.hasText(this.sqlSessionFactoryBeanName)) {
                 definition.getPropertyValues().add("sqlSessionFactory", new RuntimeBeanReference(this.sqlSessionFactoryBeanName));
                 explicitFactoryUsed = true;

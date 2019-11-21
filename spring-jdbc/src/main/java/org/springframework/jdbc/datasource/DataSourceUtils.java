@@ -74,6 +74,7 @@ public abstract class DataSourceUtils {
 	 */
 	public static Connection getConnection(DataSource dataSource) throws CannotGetJdbcConnectionException {
 		try {
+			// 获取数据库连接
 			return doGetConnection(dataSource);
 		}
 		catch (SQLException ex) {
@@ -96,39 +97,50 @@ public abstract class DataSourceUtils {
 	public static Connection doGetConnection(DataSource dataSource) throws SQLException {
 		Assert.notNull(dataSource, "No DataSource specified");
 
+		// 从当前线程中获取绑定的ConnectionHolder
 		ConnectionHolder conHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
+		// 如果ConnectionHolder不为null并且持有数据库连接或者与事务同步
 		if (conHolder != null && (conHolder.hasConnection() || conHolder.isSynchronizedWithTransaction())) {
+			// 将ConnectionHolder请求数+1
 			conHolder.requested();
+			// 如果ConnectionHolder没有持有数据库连接则获取数据库连接放入ConnectionHolder
 			if (!conHolder.hasConnection()) {
 				logger.debug("Fetching resumed JDBC Connection from DataSource");
 				conHolder.setConnection(dataSource.getConnection());
 			}
+			// 返回数据库连接
 			return conHolder.getConnection();
 		}
 		// Else we either got no holder or an empty thread-bound holder here.
 
 		logger.debug("Fetching JDBC Connection from DataSource");
+		// 当前线程没有ConnectionHolder,获取数据库连接
 		Connection con = dataSource.getConnection();
 
-		// 当前线程支持同步
+		// 判断当前线程的事务同步是否处于活动状态
 		if (TransactionSynchronizationManager.isSynchronizationActive()) {
 			logger.debug("Registering transaction synchronization for JDBC Connection");
 			// Use same Connection for further JDBC actions within the transaction.
 			// Thread-bound object will get removed by synchronization at transaction completion.
-			// 在事务中使用同一数据库连接
+			// 在事务中使用相同的连接进一步JDBC操作,线程绑定对象将在事务完成时被同步删除
 			ConnectionHolder holderToUse = conHolder;
 			if (holderToUse == null) {
+				// ConnectionHolder为null则创建新的ConnectionHolder
 				holderToUse = new ConnectionHolder(con);
 			}
 			else {
+				// 不为null则将数据库连接放入ConnectionHolder
 				holderToUse.setConnection(con);
 			}
-			// 记录数据库连接
+			// 将ConnectionHolder请求数+1
 			holderToUse.requested();
+			// 为当前线程注册一个新的事务同步
 			TransactionSynchronizationManager.registerSynchronization(
 					new ConnectionSynchronization(holderToUse, dataSource));
+			// 将SqlSessionHolder标记为与事务同步
 			holderToUse.setSynchronizedWithTransaction(true);
 			if (holderToUse != conHolder) {
+				// 如果是新的ConnectionHolder,则绑定到当前线程
 				TransactionSynchronizationManager.bindResource(dataSource, holderToUse);
 			}
 		}

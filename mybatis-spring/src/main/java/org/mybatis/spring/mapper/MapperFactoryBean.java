@@ -70,13 +70,16 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
      */
     @Override
     protected void checkDaoConfig() {
+        // 用父类方法进行dao配置检查
         super.checkDaoConfig();
 
+        // 检查mapper接口不能为null
         notNull(this.mapperInterface, "Property 'mapperInterface' is required");
 
         Configuration configuration = getSqlSession().getConfiguration();
         if (this.addToConfig && !configuration.hasMapper(this.mapperInterface)) {
             try {
+                // 如果Mybatis的Configuration配置中没有当前mapper,则添加
                 configuration.addMapper(this.mapperInterface);
             } catch (Exception e) {
                 logger.error("Error while adding the mapper '" + this.mapperInterface + "' to configuration.", e);
@@ -92,6 +95,7 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
      */
     @Override
     public T getObject() throws Exception {
+        // TODO 获取mapper(实际是SqlSessionTemplate.getgetMapper())
         return getSqlSession().getMapper(this.mapperInterface);
     }
 
