@@ -20,6 +20,11 @@ import org.springframework.aop.TargetSource;
  */
 public interface Advised extends TargetClassAware {
     /**
+     * Return whether the Advised configuration is frozen,
+     * in which case no advice changes can be made.
+     */
+    boolean isFrozen();
+    /**
      * Return the interfaces proxied by the AOP proxy.
      * <p>Will not include the target class, which may also be proxied.
      */

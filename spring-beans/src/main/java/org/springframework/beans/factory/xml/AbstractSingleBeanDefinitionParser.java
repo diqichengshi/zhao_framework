@@ -58,13 +58,14 @@ public abstract class AbstractSingleBeanDefinitionParser extends AbstractBeanDef
      */
     @Override
     protected final AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
+    	// 创建TransactionInterceptor
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition();
         String parentName = getParentName(element);
         if (parentName != null) {
             builder.getRawBeanDefinition().setParentName(parentName);
         }
 
-        // TODO 事务控制,getBeanClass调用到子类的方法,这个子类就是TxAdviceBeanDefinitionParser,返回TransactionInterceptor.class;
+        // TODO 创建TransactionInterceptor,getBeanClass调用到子类的方法,这个子类就是TxAdviceBeanDefinitionParser
         Class<?> beanClass = getBeanClass(element);
         if (beanClass != null) {
             builder.getRawBeanDefinition().setBeanClass(beanClass);
@@ -84,7 +85,7 @@ public abstract class AbstractSingleBeanDefinitionParser extends AbstractBeanDef
             // Default-lazy-init applies to custom bean definitions as well.
             builder.setLazyInit(true);
         }
-        // 调用子类的doPsrse()方法
+        // 调用子类TxAdviceBeanDefinitionParser方法
         doParse(element, parserContext, builder);
         return builder.getBeanDefinition();
     }

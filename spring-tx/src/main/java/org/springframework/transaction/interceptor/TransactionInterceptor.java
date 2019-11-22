@@ -59,6 +59,7 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
         // Work out the target class: may be {@code null}.
         // The TransactionAttributeSource should be passed the target class
         // as well as the method, which may be from an interface.
+        // 目标类的Class对象 com.viewscenes.netsupervisor.service.impl.UserServiceImpl
         Class<?> targetClass = (invocation.getThis() != null ? AopUtils.getTargetClass(invocation.getThis()) : null);
 
         // Adapt to TransactionAspectSupport's invokeWithinTransaction...
@@ -71,6 +72,7 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
         // 6.更新TransactionInfo信息
         // 7.事务提交
         return invokeWithinTransaction(invocation.getMethod(), targetClass, new InvocationCallback() {
+            //回调方法,就是目标类的方法调用
             @Override
             public Object proceedWithInvocation() throws Throwable {
                 return invocation.proceed();

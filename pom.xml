@@ -21,7 +21,6 @@
         <module>spring-web</module>
         <module>mybatis-spring</module>
         <module>mybatis</module>
-        <module>tomcat</module>
     </modules>
 
     <properties>

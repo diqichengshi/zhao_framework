@@ -25,6 +25,7 @@ import java.util.List;
  * @since 2.0
  */
 class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
     private static final String METHOD_ELEMENT = "method";
 
     private static final String METHOD_NAME_ATTRIBUTE = "name";
@@ -81,11 +82,12 @@ class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
         // 获取所有的子标签tx:method
         // 比如<tx:method name="insert*" propagation="REQUIRED" rollback-for="java.lang.Throwable"
         List<Element> methods = DomUtils.getChildElementsByTagName(attrEle, METHOD_ELEMENT);
-        //事务属性的Map
+        // 事务属性的Map
         ManagedMap<TypedStringValue, RuleBasedTransactionAttribute> transactionAttributeMap =
                 new ManagedMap<TypedStringValue, RuleBasedTransactionAttribute>(methods.size());
         transactionAttributeMap.setSource(parserContext.extractSource(attrEle));
 
+        // 将method标签里面的name为key，其他的事务属性为value加入Map
         for (Element methodEle : methods) {
             String name = methodEle.getAttribute(METHOD_NAME_ATTRIBUTE);
             TypedStringValue nameHolder = new TypedStringValue(name);
@@ -128,6 +130,7 @@ class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
             transactionAttributeMap.put(nameHolder, attribute);
         }
 
+        // 创建NameMatchTransactionAttributeSource类,将上面的事务属性map放入自己的属性nameMap
         RootBeanDefinition attributeSourceDefinition = new RootBeanDefinition(NameMatchTransactionAttributeSource.class);
         attributeSourceDefinition.setSource(parserContext.extractSource(attrEle));
         attributeSourceDefinition.getPropertyValues().add("nameMap", transactionAttributeMap);

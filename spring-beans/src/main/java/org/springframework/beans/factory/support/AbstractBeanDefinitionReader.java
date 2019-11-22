@@ -79,6 +79,10 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
         return this.resourceLoader;
     }
 
+    public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
+        this.beanNameGenerator = (beanNameGenerator != null ? beanNameGenerator : new DefaultBeanNameGenerator());
+    }
+
     @Override
     public BeanNameGenerator getBeanNameGenerator() {
         return this.beanNameGenerator;
