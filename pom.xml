@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.zhaojuan.framework</groupId>
-    <artifactId>zhao_framework</artifactId>
+    <groupId>com.zhaojuan</groupId>
+    <artifactId>springframework</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0</version>
 
@@ -21,6 +21,7 @@
         <module>spring-web</module>
         <module>mybatis-spring</module>
         <module>mybatis</module>
+        <module>spring-boot</module>
     </modules>
 
     <properties>
