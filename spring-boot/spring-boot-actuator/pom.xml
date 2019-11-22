@@ -3,19 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>springframework</artifactId>
+        <artifactId>spring-boot</artifactId>
         <groupId>com.zhaojuan</groupId>
         <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spring-boot</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>spring-boot-kernel</module>
-        <module>spring-boot-autoconfigure</module>
-        <module>spring-boot-starters</module>
-        <module>spring-boot-actuator</module>
-    </modules>
+    <artifactId>spring-boot-actuator</artifactId>
+
 
 </project>
