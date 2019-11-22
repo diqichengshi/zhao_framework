@@ -12,7 +12,7 @@
     <artifactId>spring-boot</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>spring-boot-1.5.x</module>
+        <module>spring-boot-kernel</module>
         <module>spring-boot-autoconfigure</module>
     </modules>
 
