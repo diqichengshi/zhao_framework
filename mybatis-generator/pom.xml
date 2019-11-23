@@ -9,11 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spring-boot</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>springboot</module>
-        <module>springboot-autoconfigure</module>
-    </modules>
+    <artifactId>mybatis-generator</artifactId>
+
 
 </project>

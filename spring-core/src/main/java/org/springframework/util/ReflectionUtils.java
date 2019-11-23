@@ -757,6 +757,14 @@ public abstract class ReflectionUtils {
         }, COPYABLE_FIELDS);
     }
 
+    /**
+     * Clear the internal method/field cache.
+     * @since 4.2.4
+     */
+    public static void clearCache() {
+        declaredMethodsCache.clear();
+        declaredFieldsCache.clear();
+    }
 
     /**
      * Action to take on each method.

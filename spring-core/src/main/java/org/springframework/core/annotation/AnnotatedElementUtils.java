@@ -20,6 +20,7 @@ public class AnnotatedElementUtils {
 
     private static final Boolean CONTINUE = null;
 
+    private static final Processor<Boolean> alwaysTrueAnnotationProcessor = new AlwaysTrueBooleanAnnotationProcessor();
 
     /**
      * Get the fully qualified class names of all meta-annotation
@@ -778,6 +779,31 @@ public class AnnotatedElementUtils {
 
 
     /**
+     * Determine if an annotation of the specified {@code annotationType}
+     * is <em>available</em> on the supplied {@link AnnotatedElement} or
+     * within the annotation hierarchy <em>above</em> the specified element.
+     * <p>If this method returns {@code true}, then {@link #findMergedAnnotationAttributes}
+     * will return a non-null value.
+     * <p>This method follows <em>find semantics</em> as described in the
+     * {@linkplain AnnotatedElementUtils class-level javadoc}.
+     * @param element the annotated element
+     * @param annotationType the annotation type to find
+     * @return {@code true} if a matching annotation is present
+     * @since 4.3
+     * @see #isAnnotated(AnnotatedElement, Class)
+     */
+    public static boolean hasAnnotation(AnnotatedElement element, Class<? extends Annotation> annotationType) {
+        Assert.notNull(element, "AnnotatedElement must not be null");
+        Assert.notNull(annotationType, "'annotationType' must not be null");
+
+        // Shortcut: directly present on the element, with no processing needed?
+        if (element.isAnnotationPresent(annotationType)) {
+            return true;
+        }
+        return Boolean.TRUE.equals(searchWithFindSemantics(element, annotationType.getName(), alwaysTrueAnnotationProcessor));
+    }
+
+    /**
      * {@link Processor} that {@linkplain #process processes} annotations
      * but does not {@linkplain #postProcess post-process} results.
      *
@@ -788,6 +814,20 @@ public class AnnotatedElementUtils {
         @Override
         public final void postProcess(AnnotatedElement annotatedElement, Annotation annotation, T result) {
             // no-op
+        }
+    }
+
+    /**
+     * {@link SimpleAnnotationProcessor} that always returns {@link Boolean#TRUE} when
+     * asked to {@linkplain #process(AnnotatedElement, Annotation, int) process} an
+     * annotation.
+     * @since 4.3
+     */
+    static class AlwaysTrueBooleanAnnotationProcessor extends SimpleAnnotationProcessor<Boolean> {
+
+        @Override
+        public final Boolean process(AnnotatedElement annotatedElement, Annotation annotation, int metaDepth) {
+            return Boolean.TRUE;
         }
     }
 

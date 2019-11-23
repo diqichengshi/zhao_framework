@@ -258,6 +258,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		if (!this.registriesPostProcessed.contains(factoryId)) {
 			// BeanDefinitionRegistryPostProcessor hook apparently not supported...
 			// Simply call processConfigurationClasses lazily at this point then.
+			// TODO 处理配置类型的bean定义
 			processConfigBeanDefinitions((BeanDefinitionRegistry) beanFactory);
 		}
 		enhanceConfigurationClasses(beanFactory);
@@ -318,6 +319,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		Set<BeanDefinitionHolder> candidates = new LinkedHashSet<BeanDefinitionHolder>(configCandidates);
 		Set<ConfigurationClass> alreadyParsed = new HashSet<ConfigurationClass>(configCandidates.size());
 		do {
+			// TODO Configuration解析开始(包括@Import)
 			parser.parse(candidates);
 			parser.validate();
 

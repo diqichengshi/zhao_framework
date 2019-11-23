@@ -228,6 +228,7 @@ class ConfigurationClassParser {
 		// Recursively process the configuration class and its superclass hierarchy.
 		SourceClass sourceClass = asSourceClass(configClass);
 		do {
+			// 处理@Import注解就是在此处
 			sourceClass = doProcessConfigurationClass(configClass, sourceClass);
 		}
 		while (sourceClass != null);
@@ -274,6 +275,7 @@ class ConfigurationClassParser {
 		}
 
 		// Process any @Import annotations
+		// TODO 处理@Import注解
 		processImports(configClass, sourceClass, getImports(sourceClass), true);
 
 		// Process any @ImportResource annotations
@@ -443,14 +445,25 @@ class ConfigurationClassParser {
 	}
 
 	private void processDeferredImportSelectors() {
+		// @EnableAutoConfiguration注解上修饰的@Import(AutoConfigurationImportSelector.class) 注解的解析是由
+		// ConfigurationClassParser.parse中开始调度完成(本类中的processImports方法),
+		// 进而载入到本类的 deferredImportSelectors 字段中.
+		// 这里要特别注意,正因为AutoConfigurationImportSelector是一个DeferredImportSelector实例,
+		// 所以其生效时机晚于@Import生效的时机,这也使得逻辑时序可以正确地运行下去.
 		List<DeferredImportSelectorHolder> deferredImports = this.deferredImportSelectors;
 		this.deferredImportSelectors = null;
 		Collections.sort(deferredImports, DEFERRED_IMPORT_COMPARATOR);
 
 		for (DeferredImportSelectorHolder deferredImport : deferredImports) {
+			// 这里取到的configClass就是我们自定义的 AutoConfigSpringBootApplication
 			ConfigurationClass configClass = deferredImport.getConfigurationClass();
 			try {
+				// 核心逻辑就是下面这两句了
+				// 首先是这行,负责回调我们上面使用@Import导入的AutoConfigurationImportSelector里的逻辑实现,详情将在本文接下来的内容
+				// 最终的返回值是经过筛选,满足要求的类名
 				String[] imports = deferredImport.getImportSelector().selectImports(configClass.getMetadata());
+				// configClass就是我们传递给SpringApplication.run 的AutoConfigSpringBootApplication类
+				// 该方法最终会跳转到本类内部的doProcessConfigurationClass方法中,来将相应Bean注册进容器,自动完成。
 				processImports(configClass, asSourceClass(configClass), asSourceClasses(imports), false);
 			}
 			catch (BeanDefinitionStoreException ex) {
@@ -487,6 +500,7 @@ class ConfigurationClassParser {
 									new DeferredImportSelectorHolder(configClass, (DeferredImportSelector) selector));
 						}
 						else {
+							// TODO 调用selectImports()方法
 							String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
 							Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames);
 							processImports(configClass, currentSourceClass, importSourceClasses, false);

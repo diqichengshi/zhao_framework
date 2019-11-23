@@ -22,6 +22,7 @@
         <module>mybatis-spring</module>
         <module>mybatis</module>
         <module>spring-boot</module>
+        <module>mybatis-generator</module>
     </modules>
 
     <properties>

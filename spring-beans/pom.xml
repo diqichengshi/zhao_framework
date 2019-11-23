@@ -48,6 +48,11 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/spring-objenesis-repack-2.2.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.16</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -145,6 +145,7 @@ public class AnnotationConfigUtils {
     public static Set<BeanDefinitionHolder> registerAnnotationConfigProcessors(
             BeanDefinitionRegistry registry, Object source) {
 
+        // 将工厂使用的比较器和解析器设置成注解形式的实例
         DefaultListableBeanFactory beanFactory = unwrapDefaultListableBeanFactory(registry);
         if (beanFactory != null) {
             if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) {
@@ -157,12 +158,16 @@ public class AnnotationConfigUtils {
 
         Set<BeanDefinitionHolder> beanDefs = new LinkedHashSet<BeanDefinitionHolder>(4);
 
+        // 判断注册器中是否存在Spring内置的ConfigurationClassPostProcessor类型的Bean
+        // 如果没有则添加到注册器中
         if (!registry.containsBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) {
             RootBeanDefinition def = new RootBeanDefinition(ConfigurationClassPostProcessor.class);
             def.setSource(source);
             beanDefs.add(registerPostProcessor(registry, def, CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME));
         }
 
+        // 判断注册器中是否存在Spring内置的AutowiredAnnotationBeanPostProcessor类型的Bean
+        // 如果没有则添加到注册器中
         if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
             RootBeanDefinition def = new RootBeanDefinition(AutowiredAnnotationBeanPostProcessor.class);
             def.setSource(source);

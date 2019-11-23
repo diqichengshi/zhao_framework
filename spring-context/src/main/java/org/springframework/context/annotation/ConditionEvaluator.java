@@ -71,6 +71,7 @@ class ConditionEvaluator {
 	 * @return if the item should be skipped
 	 */
 	public boolean shouldSkip(AnnotatedTypeMetadata metadata, ConfigurationPhase phase) {
+		// 首先判断是否属于@Conditional类型注解
 		if (metadata == null || !metadata.isAnnotated(Conditional.class.getName())) {
 			return false;
 		}
@@ -83,6 +84,7 @@ class ConditionEvaluator {
 			return shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN);
 		}
 
+		// 从@conditional中获取Condition集合
 		List<Condition> conditions = new ArrayList<Condition>();
 		for (String[] conditionClasses : getConditionClasses(metadata)) {
 			for (String conditionClass : conditionClasses) {
@@ -91,8 +93,10 @@ class ConditionEvaluator {
 			}
 		}
 
+		// 进行排序
 		AnnotationAwareOrderComparator.sort(conditions);
 
+		// 一旦发现有不匹配的Condition就表示需要跳过注册
 		for (Condition condition : conditions) {
 			ConfigurationPhase requiredPhase = null;
 			if (condition instanceof ConfigurationCondition) {

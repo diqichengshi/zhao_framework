@@ -118,6 +118,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
                 });
             }
             else {
+                // 重点
                 invokeListener(listener, event);
             }
         }
@@ -138,6 +139,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
         ErrorHandler errorHandler = getErrorHandler();
         if (errorHandler != null) {
             try {
+                // 入口
                 listener.onApplicationEvent(event);
             }
             catch (Throwable err) {
