@@ -19,7 +19,6 @@ package org.springframework.boot;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.support.BeanDefinitionReader;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -212,9 +211,9 @@ class BeanDefinitionLoader {
 		throw new IllegalArgumentException("Invalid source '" + resolvedSource + "'");
 	}
 
-	private boolean isGroovyPresent() {
-		return ClassUtils.isPresent("groovy.lang.MetaClass", null);
-	}
+	// private boolean isGroovyPresent() {
+	// 	return ClassUtils.isPresent("groovy.lang.MetaClass", null);
+	// }
 
 	private Resource[] findResources(String source) {
 		ResourceLoader loader = (this.resourceLoader != null) ? this.resourceLoader

@@ -47,8 +47,8 @@ import org.springframework.expression.spel.support.ReflectivePropertyAccessor;
  * @author Stephane Nicoll
  * @since 3.0
  */
-// TODO support multidimensional arrays
-// TODO support correct syntax for multidimensional [][][] and not [,,,]
+// support multidimensional arrays
+// support correct syntax for multidimensional [][][] and not [,,,]
 public class Indexer extends SpelNodeImpl {
 
 	private static enum IndexedType {ARRAY, LIST, MAP, STRING, OBJECT}
@@ -165,7 +165,7 @@ public class Indexer extends SpelNodeImpl {
 		}
 
 		// Try and treat the index value as a property of the context object
-		// TODO could call the conversion service to convert the value to a String
+		// could call the conversion service to convert the value to a String
 		if (String.class == indexValue.getTypeDescriptor().getType()) {
 			this.indexedType = IndexedType.OBJECT;
 			return new PropertyIndexingValueRef(targetObject, (String) indexValue.getValue(),

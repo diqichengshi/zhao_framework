@@ -330,6 +330,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 			return this.body;
 		}
 
+		@SuppressWarnings({"unused"})
 		public HttpMethod getMethod() {
 			return this.method;
 		}

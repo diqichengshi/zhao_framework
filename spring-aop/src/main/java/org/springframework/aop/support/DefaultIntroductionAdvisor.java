@@ -15,6 +15,8 @@ import java.util.Set;
 
 public class DefaultIntroductionAdvisor implements IntroductionAdvisor,ClassFilter, Ordered, Serializable {
 
+    private static final long serialVersionUID = 8508282209933397324L;
+    
     private final Advice advice;
     private final Set<Class<?>> interfaces = new LinkedHashSet<Class<?>>();
     private int order = Integer.MAX_VALUE;

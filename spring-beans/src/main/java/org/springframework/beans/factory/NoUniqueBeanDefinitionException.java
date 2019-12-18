@@ -8,6 +8,8 @@ import java.util.Collection;
 
 public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionException {
 
+    private static final long serialVersionUID = 1L;
+    
     private int numberOfBeansFound;
 
 

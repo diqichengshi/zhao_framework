@@ -29,9 +29,10 @@ import org.springframework.transaction.support.DelegatingTransactionDefinition;
  * @author Juergen Hoeller
  * @since 1.2
  */
-@SuppressWarnings("serial")
 public abstract class DelegatingTransactionAttribute extends DelegatingTransactionDefinition
 		implements TransactionAttribute, Serializable {
+	
+	private static final long serialVersionUID = -3847991797729084872L;
 
 	private final TransactionAttribute targetAttribute;
 

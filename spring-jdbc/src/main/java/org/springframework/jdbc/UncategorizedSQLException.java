@@ -6,7 +6,8 @@ import java.sql.SQLException;
 
 public class UncategorizedSQLException extends UncategorizedDataAccessException {
 
-    /** SQL that led to the problem */
+	private static final long serialVersionUID = 1L;
+	/** SQL that led to the problem */
     private final String sql;
 
 

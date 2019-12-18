@@ -15,7 +15,9 @@ import java.io.Serializable;
  */
 class MethodBeforeAdviceAdapter implements AdvisorAdapter, Serializable {
 
-     @Override
+    private static final long serialVersionUID = 1227139454465040612L;
+
+    @Override
      public boolean supportsAdvice(Advice advice) {
          return (advice instanceof MethodBeforeAdvice);
      }

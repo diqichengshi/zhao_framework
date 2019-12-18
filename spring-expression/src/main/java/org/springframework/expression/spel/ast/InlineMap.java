@@ -114,7 +114,7 @@ public class InlineMap extends SpelNodeImpl {
 			Map<Object, Object> returnValue = new LinkedHashMap<Object, Object>();
 			int childcount = getChildCount();
 			for (int c = 0; c < childcount; c++) {
-				// TODO allow for key being PropertyOrFieldReference like Indexer on maps
+				// allow for key being PropertyOrFieldReference like Indexer on maps
 				SpelNode keyChild = getChild(c++);
 				Object key = null;
 				if (keyChild instanceof PropertyOrFieldReference) {

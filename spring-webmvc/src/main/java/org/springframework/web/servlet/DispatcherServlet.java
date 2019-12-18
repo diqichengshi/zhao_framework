@@ -139,8 +139,12 @@ import org.springframework.web.util.WebUtils;
  */
 public class DispatcherServlet extends FrameworkServlet {
 
+    private static final long serialVersionUID = 6639900839378437104L;
 
-    /** Well-known name for the MultipartResolver object in the bean factory for this namespace. */
+    /**
+     * Well-known name for the MultipartResolver object in the bean factory for this
+     * namespace.
+     */
     public static final String MULTIPART_RESOLVER_BEAN_NAME = "multipartResolver";
 
     /** Well-known name for the LocaleResolver object in the bean factory for this namespace. */

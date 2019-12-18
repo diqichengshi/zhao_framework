@@ -180,7 +180,7 @@ public class SpelCompiler implements Opcodes {
 		cf.finish();
 
 		byte[] data = cw.toByteArray();
-		// TODO need to make this conditionally occur based on a debug flag
+		// need to make this conditionally occur based on a debug flag
 		// dump(expressionToCompile.toStringAST(), clazzName, data);
 		return (Class<? extends CompiledExpression>) this.ccl.defineClass(clazzName.replaceAll("/", "."), data);
 	}

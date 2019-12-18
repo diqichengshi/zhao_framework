@@ -55,8 +55,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
 	private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
 	private static final Log logger = LogFactory.getLog(DefaultCorsProcessor.class);
-
-
+	
 	@Override
 	public boolean processRequest(CorsConfiguration config, HttpServletRequest request, HttpServletResponse response)
 			throws IOException {

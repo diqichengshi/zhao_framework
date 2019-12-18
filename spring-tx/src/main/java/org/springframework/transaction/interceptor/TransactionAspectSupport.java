@@ -333,6 +333,7 @@ public abstract class TransactionAspectSupport  implements BeanFactoryAware, Ini
         return (targetClass != null ? targetClass : method.getDeclaringClass()).getName() + "." + method.getName();
     }
 
+    @SuppressWarnings("serial")
     protected TransactionInfo createTransactionIfNecessary(
             PlatformTransactionManager tm, TransactionAttribute txAttr, final String joinpointIdentification) {
 

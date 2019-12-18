@@ -4,6 +4,8 @@ import org.springframework.aop.framework.AopConfigException;
 
 public class NotAnAtAspectException extends AopConfigException {
 
+    private static final long serialVersionUID = 3851574318679334416L;
+    
     private Class<?> nonAspectClass;
 
 

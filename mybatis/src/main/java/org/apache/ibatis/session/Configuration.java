@@ -97,19 +97,29 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 public class Configuration {
 
   protected Environment environment;
-
+  // 允许在嵌套语句中使用分页(RowBounds),如果允许使用则设置为false,默认为false
   protected boolean safeRowBoundsEnabled = false;
+  // 允许在嵌套语句中使用分页(ResultHandler),如果允许使用则设置为false
   protected boolean safeResultHandlerEnabled = true;
+  // 是否开启自动驼峰命名规则(camelCase)映射,即从经典数据库列名 A_COLUMN到经典java属性名aColumn的类似映射,默认false
   protected boolean mapUnderscoreToCamelCase = false;
+  // 当开启时,任何方法的调用都会加载该对象的所有属性.否则,每个属性会按需加载,默认值false (true in ≤3.4.1)
   protected boolean aggressiveLazyLoading = true;
+  // 是否允许单一语句返回多结果集(需要兼容驱动)
   protected boolean multipleResultSetsEnabled = true;
+  // 允许JDBC支持自动生成主键,需要驱动兼容.这就是insert时获取mysql自增主键/oracle sequence的开关.注：一般来说,这是希望的结果,应该默认值为true比较合适.
   protected boolean useGeneratedKeys = false;
+  // 使用列标签代替列名,一般来说,这是希望的结果
   protected boolean useColumnLabel = true;
+  // 是否启用缓存
   protected boolean cacheEnabled = true;
+  // 指定当结果集中值为null的时候是否调用映射对象的setter(map对象时为put)方法,这对于有 Map.keySet()依赖或null值初始化的时候是有用的。
   protected boolean callSettersOnNulls = false;
   protected boolean useActualParamName = true;
 
+  // 指定MyBatis增加到日志名称的前缀。
   protected String logPrefix;
+  // 指定MyBatis所用日志的具体实现,未指定时将自动查找.一般建议指定为slf4j或log4j
   protected Class <? extends Log> logImpl;
   protected Class <? extends VFS> vfsImpl;
   protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
@@ -171,6 +181,7 @@ public class Configuration {
   }
 
   public Configuration() {
+    // 内置别名注册
     typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
     typeAliasRegistry.registerAlias("MANAGED", ManagedTransactionFactory.class);
 

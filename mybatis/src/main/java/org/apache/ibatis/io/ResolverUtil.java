@@ -214,12 +214,15 @@ public class ResolverUtil<T> {
    *        classes, e.g. {@code net.sourceforge.stripes}
    */
   public ResolverUtil<T> find(Test test, String packageName) {
+    // 根据包名获取其对应的路径
     String path = getPackagePath(packageName);
 
     try {
+      // 通过VFS.list()查找packageName包下的所有资源
       List<String> children = VFS.getInstance().list(path);
       for (String child : children) {
         if (child.endsWith(".class")) {
+          // 检测该类是否符合test条件
           addIfMatching(test, child);
         }
       }
@@ -250,14 +253,18 @@ public class ResolverUtil<T> {
   @SuppressWarnings("unchecked")
   protected void addIfMatching(Test test, String fqn) {
     try {
+      // fqn是类的完全限定名,即包括其所在包的包名
       String externalName = fqn.substring(0, fqn.indexOf('.')).replace('/', '.');
       ClassLoader loader = getClassLoader();
       if (log.isDebugEnabled()) {
         log.debug("Checking to see if class " + externalName + " matches criteria [" + test + "]");
       }
 
+      // 加载指定的类
       Class<?> type = loader.loadClass(externalName);
+      // 通过Test.mathches()方法检测条件是否满足
       if (test.matches(type)) {
+        // 将符合条件的类记录到matches集合中
         matches.add((Class<T>) type);
       }
     } catch (Throwable t) {

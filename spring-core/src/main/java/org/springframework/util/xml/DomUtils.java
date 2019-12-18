@@ -11,7 +11,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.EntityReference;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.ContentHandler;
 
 import org.springframework.util.Assert;
 

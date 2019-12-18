@@ -17,6 +17,8 @@ import org.springframework.util.Assert;
  */
 public class MethodBeforeAdviceInterceptor implements MethodInterceptor, Serializable {
 
+    private static final long serialVersionUID = 1227139454465040612L;
+    
     private MethodBeforeAdvice advice;
 
 

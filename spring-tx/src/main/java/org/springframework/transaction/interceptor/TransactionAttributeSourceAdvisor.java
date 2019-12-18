@@ -19,9 +19,15 @@ import org.springframework.aop.support.AbstractPointcutAdvisor;
  * @see TransactionProxyFactoryBean
  */
 public class TransactionAttributeSourceAdvisor extends AbstractPointcutAdvisor {
+
+    private static final long serialVersionUID = 2127981706922201142L;
+
     private TransactionInterceptor transactionInterceptor;
 
     private final TransactionAttributeSourcePointcut pointcut = new TransactionAttributeSourcePointcut() {
+       
+        private static final long serialVersionUID = -5792999681971941267L;
+
         @Override
         protected TransactionAttributeSource getTransactionAttributeSource() {
             return (transactionInterceptor != null ? transactionInterceptor.getTransactionAttributeSource() : null);

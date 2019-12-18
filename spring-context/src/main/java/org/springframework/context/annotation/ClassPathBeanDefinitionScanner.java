@@ -19,6 +19,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 
     private BeanDefinitionDefaults beanDefinitionDefaults = new BeanDefinitionDefaults();
 
+    @SuppressWarnings({"unused"})
     private String[] autowireCandidatePatterns;
 
     private boolean includeAnnotationConfig = true;

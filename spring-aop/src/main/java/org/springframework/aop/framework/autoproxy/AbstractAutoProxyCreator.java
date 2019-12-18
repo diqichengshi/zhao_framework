@@ -6,7 +6,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.AopInfrastructureBean;
-import org.springframework.aop.framework.ProxyConfig;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.framework.ProxyProcessorSupport;
 import org.springframework.aop.framework.adapter.AdvisorAdapterRegistry;

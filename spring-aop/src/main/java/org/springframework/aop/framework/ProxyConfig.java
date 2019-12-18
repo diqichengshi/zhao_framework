@@ -3,9 +3,6 @@ package org.springframework.aop.framework;
 import org.springframework.util.Assert;
 
 public class ProxyConfig {
-    /** use serialVersionUID from Spring 1.2 for interoperability */
-    private static final long serialVersionUID = -8409359707199703185L;
-
 
     private boolean proxyTargetClass = false;
 

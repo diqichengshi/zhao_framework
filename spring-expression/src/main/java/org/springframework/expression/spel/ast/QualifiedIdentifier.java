@@ -31,7 +31,7 @@ import org.springframework.expression.spel.ExpressionState;
  */
 public class QualifiedIdentifier extends SpelNodeImpl {
 
-	// TODO safe to cache? dont think so
+	// safe to cache? dont think so
 	private TypedValue value;
 
 

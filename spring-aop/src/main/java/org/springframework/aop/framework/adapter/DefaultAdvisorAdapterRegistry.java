@@ -22,6 +22,7 @@ import java.util.List;
  */
 public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Serializable {
 
+    private static final long serialVersionUID = 5316878744858885090L;
     private final List<AdvisorAdapter> adapters = new ArrayList<AdvisorAdapter>(3);
 
 

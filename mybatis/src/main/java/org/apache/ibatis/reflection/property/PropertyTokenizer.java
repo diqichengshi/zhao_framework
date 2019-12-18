@@ -27,14 +27,18 @@ public class PropertyTokenizer implements Iterable<PropertyTokenizer>, Iterator<
   private String children;
 
   public PropertyTokenizer(String fullname) {
+    // 查找.的位置
     int delim = fullname.indexOf('.');
     if (delim > -1) {
+      // 初始化name
       name = fullname.substring(0, delim);
+      // 初始化children
       children = fullname.substring(delim + 1);
     } else {
       name = fullname;
       children = null;
     }
+    // 初始化indexedName
     indexedName = name;
     delim = name.indexOf('[');
     if (delim > -1) {

@@ -74,7 +74,7 @@ public class ResponseBodyEmitterReturnValueHandler implements AsyncHandlerMethod
 		}
 		return false;
 	}
-
+	
 	@Override
 	public boolean isAsyncReturnValue(Object returnValue, MethodParameter returnType) {
 		if (returnValue != null) {

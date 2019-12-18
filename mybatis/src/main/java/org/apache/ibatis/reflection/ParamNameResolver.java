@@ -65,19 +65,25 @@ public class ParamNameResolver {
   private boolean hasParamAnnotation;
 
   public ParamNameResolver(Configuration config, Method method) {
+    // 获取参数列表中每个参数的类型
     final Class<?>[] paramTypes = method.getParameterTypes();
+    // 获取参数列表索引与参数名称的对应关系
     final Annotation[][] paramAnnotations = method.getParameterAnnotations();
     final SortedMap<Integer, String> map = new TreeMap<Integer, String>();
     int paramCount = paramAnnotations.length;
+    // 遍历所有参数
     // get names from @Param annotations
     for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
       if (isSpecialParameter(paramTypes[paramIndex])) {
+        // 如果参数是RowBounds类型或者ResultHandler类型,则跳过对该参数的解析
         // skip special parameters
         continue;
       }
       String name = null;
+      // 遍历对应的注解集合
       for (Annotation annotation : paramAnnotations[paramIndex]) {
         if (annotation instanceof Param) {
+          // @Param注解出现过一次,就将hasParamAnnotation初始化为true
           hasParamAnnotation = true;
           name = ((Param) annotation).value();
           break;

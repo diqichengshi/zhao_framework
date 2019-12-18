@@ -117,7 +117,7 @@ public abstract class CollectionFactory {
      * @see TreeSet
      * @see LinkedHashSet
      */
-    @SuppressWarnings({"unchecked", "cast", "rawtypes"})
+    @SuppressWarnings({"unchecked","rawtypes"})
     public static <E> Collection<E> createApproximateCollection(Object collection, int capacity) {
         if (collection instanceof LinkedList) {
             return new LinkedList<E>();
@@ -174,7 +174,7 @@ public abstract class CollectionFactory {
      * @see EnumSet
      * @since 4.1.3
      */
-    @SuppressWarnings({"unchecked", "cast"})
+    @SuppressWarnings({"unchecked"})
     public static <E> Collection<E> createCollection(Class<?> collectionType, Class<?> elementType, int capacity) {
         Assert.notNull(collectionType, "Collection type must not be null");
         if (collectionType.isInterface()) {

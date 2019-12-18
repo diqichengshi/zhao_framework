@@ -8,9 +8,12 @@ package org.springframework.dao;
  */
 public class UncategorizedDataAccessException  extends NonTransientDataAccessException {
 
+    private static final long serialVersionUID = 3879625551756438691L;
+
     /**
      * Constructor for UncategorizedDataAccessException.
-     * @param msg the detail message
+     * 
+     * @param msg   the detail message
      * @param cause the exception thrown by underlying data access API
      */
     public UncategorizedDataAccessException(String msg, Throwable cause) {

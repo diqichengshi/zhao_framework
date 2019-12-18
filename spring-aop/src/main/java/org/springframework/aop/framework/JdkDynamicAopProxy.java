@@ -18,6 +18,8 @@ import java.util.List;
 
 public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializable {
 
+    private static final long serialVersionUID = 1227139454465040612L;
+    
     private static final Log logger = LogFactory.getLog(JdkDynamicAopProxy.class);
     private final AdvisedSupport advised;
     private boolean equalsDefined;

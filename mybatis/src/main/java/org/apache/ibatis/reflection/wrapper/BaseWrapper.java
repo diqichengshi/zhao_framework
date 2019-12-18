@@ -45,8 +45,10 @@ public abstract class BaseWrapper implements ObjectWrapper {
 
   protected Object getCollectionValue(PropertyTokenizer prop, Object collection) {
     if (collection instanceof Map) {
+      // 如果是Map,则index为key
       return ((Map) collection).get(prop.getIndex());
     } else {
+      // 如果是其他集合类型,则index是下标
       int i = Integer.parseInt(prop.getIndex());
       if (collection instanceof List) {
         return ((List) collection).get(i);

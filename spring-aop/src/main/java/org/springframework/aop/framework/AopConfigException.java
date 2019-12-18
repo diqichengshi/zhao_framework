@@ -4,8 +4,11 @@ import org.springframework.core.NestedRuntimeException;
 
 public class AopConfigException extends NestedRuntimeException {
 
+    private static final long serialVersionUID = -1963594012763536970L;
+
     /**
      * Constructor for AopConfigException.
+     * 
      * @param msg the detail message
      */
     public AopConfigException(String msg) {

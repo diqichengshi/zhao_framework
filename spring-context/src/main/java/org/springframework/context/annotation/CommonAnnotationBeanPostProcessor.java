@@ -140,7 +140,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 		implements InstantiationAwareBeanPostProcessor, BeanFactoryAware, Serializable {
 
 	private static Class<? extends Annotation> webServiceRefClass = null;
-
+	@SuppressWarnings({"unused"})
 	private static Class<? extends Annotation> ejbRefClass = null;
 
 	static {

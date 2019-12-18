@@ -31,11 +31,16 @@ public class CacheKey implements Cloneable, Serializable {
 
   private static final int DEFAULT_MULTIPLYER = 37;
   private static final int DEFAULT_HASHCODE = 17;
-
+  
+  // 参与计算hashCode,默认值是37
   private int multiplier;
+  // CacheKey对象的hashCode,初始值是17
   private int hashcode;
+  // 校验和
   private long checksum;
+  // updateList集合的个数
   private int count;
+  // 由该集合的所有对象共同决定两个CacheKey是否相同
   private List<Object> updateList;
 
   public CacheKey() {

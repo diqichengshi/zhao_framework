@@ -5,6 +5,8 @@ import org.springframework.aop.Pointcut;
 
 public class DefaultPointcutAdvisor extends AbstractGenericPointcutAdvisor{
 
+    private static final long serialVersionUID = 8508282209933397324L;
+    
     private Pointcut pointcut = Pointcut.TRUE;
 
     public DefaultPointcutAdvisor(Advice advice) {

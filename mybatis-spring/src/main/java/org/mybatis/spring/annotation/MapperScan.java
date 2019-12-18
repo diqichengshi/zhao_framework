@@ -139,6 +139,7 @@ public @interface MapperScan {
      * Specifies a custom MapperFactoryBean to return a mybatis proxy as spring bean.
      *
      */
+    @SuppressWarnings("rawtypes")
     Class<? extends MapperFactoryBean> factoryBean() default MapperFactoryBean.class;
 
 }

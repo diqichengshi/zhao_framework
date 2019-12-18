@@ -6,6 +6,9 @@ import java.io.Serializable;
 import java.lang.reflect.Proxy;
 
 public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
+    
+    private static final long serialVersionUID = 1227139454465040612L;
+
     @Override
     public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
         // 1.config.isOptimize()是否使用优化的代理策略，目前使用与CGLIB

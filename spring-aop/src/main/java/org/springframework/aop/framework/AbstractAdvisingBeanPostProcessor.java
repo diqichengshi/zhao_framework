@@ -30,7 +30,6 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * @author Juergen Hoeller
  * @since 3.2
  */
-@SuppressWarnings("serial")
 public abstract class AbstractAdvisingBeanPostProcessor extends ProxyProcessorSupport implements BeanPostProcessor {
 
 	protected Advisor advisor;

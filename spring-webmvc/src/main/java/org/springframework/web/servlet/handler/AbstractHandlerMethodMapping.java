@@ -737,7 +737,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 
 	private static class EmptyHandler {
-
+		@SuppressWarnings({"unused"})
 		public void handle() {
 			throw new UnsupportedOperationException("not implemented");
 		}

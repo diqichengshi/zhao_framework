@@ -28,6 +28,8 @@ import org.springframework.beans.NotWritablePropertyException;
  */
 public class RelaxedBindingNotWritablePropertyException extends NotWritablePropertyException {
 
+	private static final long serialVersionUID = -3308591226627539789L;
+
 	private final String message;
 
 	private final PropertyOrigin propertyOrigin;

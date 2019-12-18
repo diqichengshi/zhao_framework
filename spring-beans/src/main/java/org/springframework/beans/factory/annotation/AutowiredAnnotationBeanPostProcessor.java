@@ -52,6 +52,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
     private DefaultListableBeanFactory beanFactory;
 
+    @SuppressWarnings({"unchecked"})
     public AutowiredAnnotationBeanPostProcessor() {
         this.autowiredAnnotationTypes.add(Autowired.class);
         this.autowiredAnnotationTypes.add(Value.class);

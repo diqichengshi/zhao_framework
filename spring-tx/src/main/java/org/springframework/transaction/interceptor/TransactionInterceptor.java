@@ -33,6 +33,8 @@ import org.springframework.transaction.PlatformTransactionManager;
  */
 public class TransactionInterceptor extends TransactionAspectSupport implements MethodInterceptor, Serializable{
 
+    private static final long serialVersionUID = 366697520969709359L;
+
     public TransactionInterceptor() {
     }
 

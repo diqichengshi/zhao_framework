@@ -40,6 +40,7 @@ public interface ObjectFactory {
 
   /**
    * Creates a new object with the specified constructor and params.
+   * 根据参数列表,从指定类型中选择合适的构造器创建对象
    * @param type Object type
    * @param constructorArgTypes Constructor argument types
    * @param constructorArgs Constructor argument values

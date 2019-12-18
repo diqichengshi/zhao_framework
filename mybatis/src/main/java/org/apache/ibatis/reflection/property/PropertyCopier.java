@@ -33,11 +33,13 @@ public final class PropertyCopier {
       for(Field field : fields) {
         try {
           field.setAccessible(true);
+          // 将sourceBean对象中的属性值设置到destinationBean对象中
           field.set(destinationBean, field.get(sourceBean));
         } catch (Exception e) {
           // Nothing useful to do, will only fail on final fields, which will be ignored.
         }
       }
+      // 继续拷贝父类中定义的字段
       parent = parent.getSuperclass();
     }
   }

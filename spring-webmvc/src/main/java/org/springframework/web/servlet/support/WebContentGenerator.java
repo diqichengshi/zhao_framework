@@ -350,7 +350,6 @@ public abstract class WebContentGenerator extends WebApplicationObjectSupport {
 	 * @param cacheSeconds positive number of seconds into the future that the
 	 * response should be cacheable for, 0 to prevent caching
 	 */
-	@SuppressWarnings("deprecation")
 	protected final void applyCacheSeconds(HttpServletResponse response, int cacheSeconds) {
 		if (this.useExpiresHeader || !this.useCacheControlHeader) {
 			// Deprecated HTTP 1.0 cache behavior, as in previous Spring versions

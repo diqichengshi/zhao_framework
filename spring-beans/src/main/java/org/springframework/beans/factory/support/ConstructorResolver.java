@@ -703,7 +703,7 @@ class ConstructorResolver {
 					try {
 						convertedValue = converter.convertIfNecessary(originalValue, paramType,
 								MethodParameter.forMethodOrConstructor(methodOrCtor, paramIndex));
-						// TODO re-enable once race condition has been found (SPR-7423)
+						// re-enable once race condition has been found (SPR-7423)
 						/*
 						if (originalValue == sourceValue || sourceValue instanceof TypedStringValue) {
 							// Either a converted value or still the original one: store converted value.

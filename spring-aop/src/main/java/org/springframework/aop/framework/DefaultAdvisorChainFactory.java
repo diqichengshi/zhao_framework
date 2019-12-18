@@ -27,6 +27,8 @@ import org.springframework.aop.support.MethodMatchers;
 
 public class DefaultAdvisorChainFactory  implements AdvisorChainFactory, Serializable {
 
+    private static final long serialVersionUID = 1227139454465040612L;
+    
     @Override
     public List<Object> getInterceptorsAndDynamicInterceptionAdvice(
             Advised config, Method method, Class<?> targetClass) {

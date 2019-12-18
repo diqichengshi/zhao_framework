@@ -4,6 +4,8 @@ import org.springframework.beans.factory.BeanCreationException;
 
 public class BeanCreationNotAllowedException extends BeanCreationException {
 
+    private static final long serialVersionUID = -4996136228728712344L;
+
     /**
      * Create a new BeanCreationNotAllowedException.
      *

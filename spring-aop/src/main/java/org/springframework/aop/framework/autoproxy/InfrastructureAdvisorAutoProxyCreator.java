@@ -1,12 +1,8 @@
 package org.springframework.aop.framework.autoproxy;
 
-import org.springframework.aop.TargetSource;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
-import java.beans.PropertyDescriptor;
 
 public class InfrastructureAdvisorAutoProxyCreator extends AbstractAdvisorAutoProxyCreator{
 

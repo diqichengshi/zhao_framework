@@ -19,12 +19,21 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 /**
+ * 工厂接口角色
  * @author Clinton Begin
  */
 public interface DataSourceFactory {
 
+  /**
+   * 设置DataSource的相关属性,一般紧跟在初始化完成之后
+   * @param props
+   */
   void setProperties(Properties props);
 
+  /**
+   * 获取DataSource对象
+   * @return
+   */
   DataSource getDataSource();
 
 }

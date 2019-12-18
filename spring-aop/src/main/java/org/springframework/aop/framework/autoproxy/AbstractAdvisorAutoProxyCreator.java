@@ -4,13 +4,10 @@ import org.springframework.aop.Advisor;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Constructor;
 import java.util.List;
 
 public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyCreator {

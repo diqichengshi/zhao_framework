@@ -291,7 +291,7 @@ public final class SqlSessionUtils {
             // But, do cleanup the SqlSession / Executor, including flushing BATCH statements so
             // they are actually executed.
             // SpringManagedTransaction will no-op the commit over the jdbc connection
-            // TODO This updates 2nd level caches but the tx may be rolledback later on!
+            // This updates 2nd level caches but the tx may be rolledback later on!
             if (TransactionSynchronizationManager.isActualTransactionActive()) {
                 try {
                     if (LOGGER.isDebugEnabled()) {

@@ -16,13 +16,16 @@
 package org.apache.ibatis.mapping;
 
 /**
- * Represents the content of a mapped statement read from an XML file or an annotation. 
- * It creates the SQL that will be passed to the database out of the input parameter received from the user.
+ * Represents the content of a mapped statement read from an XML file or an
+ * annotation. It creates the SQL that will be passed to the database out of the
+ * input parameter received from the user.
  *
  * @author Clinton Begin
  */
 public interface SqlSource {
-
-  BoundSql getBoundSql(Object parameterObject);
+	/**
+	 * 通过解析得到BoundSql对象,BoundSql对象会在后面具体介绍,其中包含了"?"占位符的SQL语句,以及绑定的参数
+	 */
+	BoundSql getBoundSql(Object parameterObject);
 
 }

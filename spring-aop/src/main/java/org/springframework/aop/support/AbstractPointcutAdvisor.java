@@ -8,6 +8,9 @@ import org.springframework.util.ObjectUtils;
 import java.io.Serializable;
 
 public abstract class AbstractPointcutAdvisor implements PointcutAdvisor, Ordered, Serializable {
+
+    private static final long serialVersionUID = 8508282209933397324L;
+    
     private Integer order;
 
 

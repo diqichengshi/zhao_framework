@@ -52,6 +52,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("rawtypes")
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
@@ -77,7 +78,6 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
         if (!BeanNameGenerator.class.equals(generatorClass)) {
             scanner.setBeanNameGenerator(BeanUtils.instantiateClass(generatorClass));
         }
-
         Class<? extends MapperFactoryBean> mapperFactoryBeanClass = annoAttrs.getClass("factoryBean");
         if (!MapperFactoryBean.class.equals(mapperFactoryBeanClass)) {
             scanner.setMapperFactoryBean(BeanUtils.instantiateClass(mapperFactoryBeanClass));

@@ -985,24 +985,24 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     public Object resolveDependency(DependencyDescriptor descriptor, String beanName,
                                     Set<String> autowiredBeanNames, TypeConverter typeConverter) throws BeansException {
         descriptor.initParameterNameDiscovery(getParameterNameDiscoverer());
-       /* if (descriptor.getDependencyType().equals(javaUtilOptionalClass)) {
+        if (descriptor.getDependencyType().equals(javaUtilOptionalClass)) {
             return new OptionalDependencyFactory().createOptionalDependency(descriptor, beanName);
         } else if (ObjectFactory.class == descriptor.getDependencyType()) {
             return new DependencyObjectFactory(descriptor, beanName);
-        }*//* else if (javaxInjectProviderClass == descriptor.getDependencyType()) {
+        } else if (javaxInjectProviderClass == descriptor.getDependencyType()) {
             return new DependencyProviderFactory().createDependencyProvider(descriptor, beanName);
-        }*//* else {
+        } else {
             Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(descriptor, beanName);
             if (result == null) {
                 result = doResolveDependency(descriptor, beanName, autowiredBeanNames, typeConverter);
             }
             return result;
-        }*/
-        Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(descriptor, beanName);
-        if (result == null) {
-            result = doResolveDependency(descriptor, beanName, autowiredBeanNames, typeConverter);
-        }
-        return result;
+		}
+        // Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(descriptor, beanName);
+        // if (result == null) {
+        //     result = doResolveDependency(descriptor, beanName, autowiredBeanNames, typeConverter);
+        // }
+        // return result;
     }
 
     public Object doResolveDependency(DependencyDescriptor descriptor, String beanName,

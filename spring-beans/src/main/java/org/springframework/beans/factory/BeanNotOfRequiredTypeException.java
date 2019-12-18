@@ -4,6 +4,8 @@ import org.springframework.beans.BeansException;
 
 public class BeanNotOfRequiredTypeException extends BeansException {
 
+    private static final long serialVersionUID = -7650560007156702542L;
+
     /**
      * The name of the instance that was of the wrong type
      */

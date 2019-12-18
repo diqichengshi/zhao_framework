@@ -50,16 +50,19 @@ public abstract class VFS {
    */
   @SuppressWarnings("unchecked")
   public static VFS getInstance() {
+    // 检测instance对象
     if (instance != null) {
       return instance;
     }
 
     // Try the user implementations first, then the built-ins
+    // 优先使用用户自定义的VFS实现,如果没有自定义的VFS实现,则使用Mybatis提供的VFS实现
     List<Class<? extends VFS>> impls = new ArrayList<Class<? extends VFS>>();
     impls.addAll(USER_IMPLEMENTATIONS);
     impls.addAll(Arrays.asList((Class<? extends VFS>[]) IMPLEMENTATIONS));
 
     // Try each implementation class until a valid one is found
+    // 遍历impls集合,依次实例化VFS对象并检测VFS对象是否有效,一旦得到有效的VFS对象,则结束循环
     VFS vfs = null;
     for (int i = 0; vfs == null || !vfs.isValid(); i++) {
       Class<? extends VFS> impl = impls.get(i);

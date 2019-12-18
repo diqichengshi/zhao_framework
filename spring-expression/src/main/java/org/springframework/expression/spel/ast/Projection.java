@@ -83,7 +83,7 @@ public class Projection extends SpelNodeImpl {
 					state.exitScope();
 				}
 			}
-			return new ValueRef.TypedValueHolderValueRef(new TypedValue(result), this);  // TODO unable to build correct type descriptor
+			return new ValueRef.TypedValueHolderValueRef(new TypedValue(result), this);  // unable to build correct type descriptor
 		}
 
 		if (operand instanceof Iterable || operandIsArray) {

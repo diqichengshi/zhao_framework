@@ -16,17 +16,12 @@
 
 package org.springframework.beans.factory.annotation;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.util.ObjectUtils;
 
 /**
  * Convenience methods performing bean lookups related to annotations, for example

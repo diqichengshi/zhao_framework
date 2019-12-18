@@ -261,7 +261,6 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 	/**
 	 * @see #getProducibleMediaTypes(HttpServletRequest, Class, Type)
 	 */
-	@SuppressWarnings({"unchecked", "unused"})
 	protected List<MediaType> getProducibleMediaTypes(HttpServletRequest request, Class<?> returnValueClass) {
 		return getProducibleMediaTypes(request, returnValueClass, null);
 	}

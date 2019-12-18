@@ -18,7 +18,6 @@ package org.springframework.web.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.regex.Pattern;
 
 import org.springframework.util.Assert;
 
@@ -40,30 +39,30 @@ import org.springframework.util.Assert;
  */
 public abstract class UriUtils {
 
-	private static final String SCHEME_PATTERN = "([^:/?#]+):";
+	// private static final String SCHEME_PATTERN = "([^:/?#]+):";
 
-	private static final String HTTP_PATTERN = "(http|https):";
+	// private static final String HTTP_PATTERN = "(http|https):";
 
-	private static final String USERINFO_PATTERN = "([^@/]*)";
+	// private static final String USERINFO_PATTERN = "([^@/]*)";
 
-	private static final String HOST_PATTERN = "([^/?#:]*)";
+	// private static final String HOST_PATTERN = "([^/?#:]*)";
 
-	private static final String PORT_PATTERN = "(\\d*)";
+	// private static final String PORT_PATTERN = "(\\d*)";
 
-	private static final String PATH_PATTERN = "([^?#]*)";
+	// private static final String PATH_PATTERN = "([^?#]*)";
 
-	private static final String QUERY_PATTERN = "([^#]*)";
+	// private static final String QUERY_PATTERN = "([^#]*)";
 
-	private static final String LAST_PATTERN = "(.*)";
+	// private static final String LAST_PATTERN = "(.*)";
 
 	// Regex patterns that matches URIs. See RFC 3986, appendix B
-	private static final Pattern URI_PATTERN = Pattern.compile(
-			"^(" + SCHEME_PATTERN + ")?" + "(//(" + USERINFO_PATTERN + "@)?" + HOST_PATTERN + "(:" + PORT_PATTERN +
-					")?" + ")?" + PATH_PATTERN + "(\\?" + QUERY_PATTERN + ")?" + "(#" + LAST_PATTERN + ")?");
+	// private static final Pattern URI_PATTERN = Pattern.compile(
+	// 		"^(" + SCHEME_PATTERN + ")?" + "(//(" + USERINFO_PATTERN + "@)?" + HOST_PATTERN + "(:" + PORT_PATTERN +
+	// 				")?" + ")?" + PATH_PATTERN + "(\\?" + QUERY_PATTERN + ")?" + "(#" + LAST_PATTERN + ")?");
 
-	private static final Pattern HTTP_URL_PATTERN = Pattern.compile(
-			"^" + HTTP_PATTERN + "(//(" + USERINFO_PATTERN + "@)?" + HOST_PATTERN + "(:" + PORT_PATTERN + ")?" + ")?" +
-					PATH_PATTERN + "(\\?" + LAST_PATTERN + ")?");
+	// private static final Pattern HTTP_URL_PATTERN = Pattern.compile(
+	// 		"^" + HTTP_PATTERN + "(//(" + USERINFO_PATTERN + "@)?" + HOST_PATTERN + "(:" + PORT_PATTERN + ")?" + ")?" +
+	// 				PATH_PATTERN + "(\\?" + LAST_PATTERN + ")?");
 
 
 	/**

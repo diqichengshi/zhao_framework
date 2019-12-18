@@ -39,9 +39,13 @@ import org.apache.ibatis.io.Resources;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public final class TypeHandlerRegistry {
 
+  // 该集合主要用于从结果集中读取数据,将数据从jdbc类型转成Java类型
   private final Map<JdbcType, TypeHandler<?>> JDBC_TYPE_HANDLER_MAP = new EnumMap<JdbcType, TypeHandler<?>>(JdbcType.class);
+  // 记录了Java类型向指定JdbcType转换时,需要使用的TypeHandler对象
   private final Map<Type, Map<JdbcType, TypeHandler<?>>> TYPE_HANDLER_MAP = new HashMap<Type, Map<JdbcType, TypeHandler<?>>>();
+  // 记录了全部TypeHandler的类型以及该类型相应的TypeHandler对象
   private final TypeHandler<Object> UNKNOWN_TYPE_HANDLER = new UnknownTypeHandler(this);
+  // 空TypeHandler集合的标识
   private final Map<Class<?>, TypeHandler<?>> ALL_TYPE_HANDLERS_MAP = new HashMap<Class<?>, TypeHandler<?>>();
 
   public TypeHandlerRegistry() {
@@ -266,10 +270,19 @@ public final class TypeHandlerRegistry {
     register((Type) javaType, typeHandler);
   }
 
+  /**
+   * 重载方法3
+   * @param <T>
+   * @param javaType
+   * @param typeHandler
+   */
   private <T> void register(Type javaType, TypeHandler<? extends T> typeHandler) {
+    // 获取@MappedJdbcTypes注解
     MappedJdbcTypes mappedJdbcTypes = typeHandler.getClass().getAnnotation(MappedJdbcTypes.class);
     if (mappedJdbcTypes != null) {
+      // 根据@MappedJdbcTypes注解中指定的Java类型进行注册
       for (JdbcType handledJdbcType : mappedJdbcTypes.value()) {
+        // 经过强制类型转换以及使用反射创建TypeHandler对象之后,交由重载方法继续处理
         register(javaType, handledJdbcType, typeHandler);
       }
       if (mappedJdbcTypes.includeNullJdbcType()) {
@@ -290,8 +303,15 @@ public final class TypeHandlerRegistry {
     register((Type) type, jdbcType, handler);
   }
 
+  /**
+   * @param javaType
+   * @param jdbcType
+   * @param handler
+   */
   private void register(Type javaType, JdbcType jdbcType, TypeHandler<?> handler) {
+    // 检测是否明确指定了TypeHandler能够处理的Java类型
     if (javaType != null) {
+      // 获取指定Java类型在TYPE_HANDLER_MAP集合中对应的TypeHandler集合
       Map<JdbcType, TypeHandler<?>> map = TYPE_HANDLER_MAP.get(javaType);
       if (map == null) {
         map = new HashMap<JdbcType, TypeHandler<?>>();

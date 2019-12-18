@@ -124,7 +124,7 @@ public class CompoundExpression extends SpelNodeImpl {
 	
 	@Override
 	public void generateCode(MethodVisitor mv, CodeFlow cf) {
-		// TODO could optimize T(SomeType).staticMethod - no need to generate the T() part
+		// could optimize T(SomeType).staticMethod - no need to generate the T() part
 		for (int i = 0; i < this.children.length;i++) {
 			SpelNodeImpl child = this.children[i];
 			if (child instanceof TypeReference && (i + 1) < this.children.length &&

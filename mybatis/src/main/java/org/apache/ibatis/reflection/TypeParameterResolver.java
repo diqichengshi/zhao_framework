@@ -35,8 +35,11 @@ public class TypeParameterResolver {
    *         they will be resolved to the actual runtime {@link Type}s.
    */
   public static Type resolveFieldType(Field field, Type srcType) {
+    // 获取字段的声明类型
     Type fieldType = field.getGenericType();
+    // 获取字段定义所在的类的Class对象
     Class<?> declaringClass = field.getDeclaringClass();
+    // 调用resolveType()方法进行后续处理
     return resolveType(fieldType, srcType, declaringClass);
   }
 
@@ -66,12 +69,16 @@ public class TypeParameterResolver {
 
   private static Type resolveType(Type type, Type srcType, Class<?> declaringClass) {
     if (type instanceof TypeVariable) {
+      // 解析TypeVariable类型
       return resolveTypeVar((TypeVariable<?>) type, srcType, declaringClass);
     } else if (type instanceof ParameterizedType) {
+      // 解析ParameterizedType类型
       return resolveParameterizedType((ParameterizedType) type, srcType, declaringClass);
     } else if (type instanceof GenericArrayType) {
+      // 解析GenericArrayType类型
       return resolveGenericArrayType((GenericArrayType) type, srcType, declaringClass);
     } else {
+      // Class类型
       return type;
     }
   }
@@ -79,13 +86,16 @@ public class TypeParameterResolver {
   private static Type resolveGenericArrayType(GenericArrayType genericArrayType, Type srcType, Class<?> declaringClass) {
     Type componentType = genericArrayType.getGenericComponentType();
     Type resolvedComponentType = null;
+    // 根据数组类型选择合适的方法进行解析
     if (componentType instanceof TypeVariable) {
       resolvedComponentType = resolveTypeVar((TypeVariable<?>) componentType, srcType, declaringClass);
     } else if (componentType instanceof GenericArrayType) {
+      // 递归调用resolveGenericArrayType()方法
       resolvedComponentType = resolveGenericArrayType((GenericArrayType) componentType, srcType, declaringClass);
     } else if (componentType instanceof ParameterizedType) {
       resolvedComponentType = resolveParameterizedType((ParameterizedType) componentType, srcType, declaringClass);
     }
+    // 根据解析后的数组项类型构造返回类型
     if (resolvedComponentType instanceof Class) {
       return Array.newInstance((Class<?>) resolvedComponentType, 0).getClass();
     } else {
@@ -94,20 +104,28 @@ public class TypeParameterResolver {
   }
 
   private static ParameterizedType resolveParameterizedType(ParameterizedType parameterizedType, Type srcType, Class<?> declaringClass) {
+    // 解析原始类型对应的Class对象
     Class<?> rawType = (Class<?>) parameterizedType.getRawType();
+    // 变量类型为K和V
     Type[] typeArgs = parameterizedType.getActualTypeArguments();
+    // 用于保存解析后的结果
     Type[] args = new Type[typeArgs.length];
+    // 解析K和V
     for (int i = 0; i < typeArgs.length; i++) {
       if (typeArgs[i] instanceof TypeVariable) {
+        // 解析变量类型
         args[i] = resolveTypeVar((TypeVariable<?>) typeArgs[i], srcType, declaringClass);
       } else if (typeArgs[i] instanceof ParameterizedType) {
+        // 如果嵌套了ParameterizedType类型,则调用resolveParameterizedType()方法进行处理
         args[i] = resolveParameterizedType((ParameterizedType) typeArgs[i], srcType, declaringClass);
       } else if (typeArgs[i] instanceof WildcardType) {
+         // 如果嵌套了WildcardType类型,则调用resolveWildcardType()方法进行处理
         args[i] = resolveWildcardType((WildcardType) typeArgs[i], srcType, declaringClass);
       } else {
         args[i] = typeArgs[i];
       }
     }
+    // 将解析结果封装成TypeParameterResolver中定义的ParameterType实现并返回
     return new ParameterizedTypeImpl(rawType, null, args);
   }
 
@@ -133,6 +151,13 @@ public class TypeParameterResolver {
     return result;
   }
 
+  /**
+   * 解析TypeVariable
+   * @param typeVar
+   * @param srcType
+   * @param declaringClass
+   * @return
+   */
   private static Type resolveTypeVar(TypeVariable<?> typeVar, Type srcType, Class<?> declaringClass) {
     Type result = null;
     Class<?> clazz = null;
@@ -149,32 +174,42 @@ public class TypeParameterResolver {
       return Object.class;
     }
 
+    // 获取声明的父类类型,即Class<T,T>对应的ParameterizedType对象
     Type superclass = clazz.getGenericSuperclass();
+    // 通过扫描父类继续后续解析,这是递归的入口
     result = scanSuperTypes(typeVar, srcType, declaringClass, clazz, superclass);
     if (result != null) {
       return result;
     }
 
+    // 获取接口
     Type[] superInterfaces = clazz.getGenericInterfaces();
     for (Type superInterface : superInterfaces) {
+      
       result = scanSuperTypes(typeVar, srcType, declaringClass, clazz, superInterface);
       if (result != null) {
         return result;
       }
     }
+    // 若在整个继承结构中都没有解析成功,则返回Object.class
     return Object.class;
   }
 
   private static Type scanSuperTypes(TypeVariable<?> typeVar, Type srcType, Class<?> declaringClass, Class<?> clazz, Type superclass) {
     Type result = null;
+    // superclass是ClassA<T,T>对应的ParameterizedType对象,条件成立
     if (superclass instanceof ParameterizedType) {
       ParameterizedType parentAsType = (ParameterizedType) superclass;
+      // 原始类型是ClassA
       Class<?> parentAsClass = (Class<?>) parentAsType.getRawType();
       if (declaringClass == parentAsClass) {
         Type[] typeArgs = parentAsType.getActualTypeArguments();
+        // ClassA中定义的类型变量是K和V
         TypeVariable<?>[] declaredTypeVars = declaringClass.getTypeParameters();
         for (int i = 0; i < declaredTypeVars.length; i++) {
+          // 解析的目标类型变量是K
           if (declaredTypeVars[i] == typeVar) {
+            // T是类型变量,条件成立
             if (typeArgs[i] instanceof TypeVariable) {
               TypeVariable<?>[] typeParams = clazz.getTypeParameters();
               for (int j = 0; j < typeParams.length; j++) {
@@ -191,9 +226,11 @@ public class TypeParameterResolver {
           }
         }
       } else if (declaringClass.isAssignableFrom(parentAsClass)) {
+        // 继续解析父类,知道解析到定义该字段的类
         result = resolveTypeVar(typeVar, parentAsType, declaringClass);
       }
     } else if (superclass instanceof Class) {
+      // 声明的父类不再含有类型变量且不是定义该字段的类,则继续解析
       if (declaringClass.isAssignableFrom((Class<?>) superclass)) {
         result = resolveTypeVar(typeVar, superclass, declaringClass);
       }

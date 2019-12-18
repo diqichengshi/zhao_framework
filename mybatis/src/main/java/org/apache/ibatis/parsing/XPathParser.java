@@ -47,6 +47,7 @@ public class XPathParser {
   private Document document;
   private boolean validation;
   private EntityResolver entityResolver;
+  // mybatis-config.xml中<propteries>标签定义的键值对集合
   private Properties variables;
   private XPath xpath;
 
@@ -140,6 +141,7 @@ public class XPathParser {
 
   public String evalString(Object root, String expression) {
     String result = (String) evaluate(expression, root, XPathConstants.STRING);
+    // 调用PropertyParser.parse()处理节点中相应的默认值
     result = PropertyParser.parse(result, variables);
     return result;
   }
@@ -200,6 +202,7 @@ public class XPathParser {
     List<XNode> xnodes = new ArrayList<XNode>();
     NodeList nodes = (NodeList) evaluate(expression, root, XPathConstants.NODESET);
     for (int i = 0; i < nodes.getLength(); i++) {
+      // 在构造函数中解析org.w3c.dom.Node对象中的信息
       xnodes.add(new XNode(this, nodes.item(i), variables));
     }
     return xnodes;
@@ -228,15 +231,18 @@ public class XPathParser {
   private Document createDocument(InputSource inputSource) {
     // important: this must only be called AFTER common constructor
     try {
+      // 创建DocumentBuilderFactory对象
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setValidating(validation);
 
+      // 对DocumentBuilderFactory对象进行一系列配置
       factory.setNamespaceAware(false);
       factory.setIgnoringComments(true);
       factory.setIgnoringElementContentWhitespace(false);
       factory.setCoalescing(false);
       factory.setExpandEntityReferences(true);
 
+      // 创建DocumentBuilder对象并进行配置
       DocumentBuilder builder = factory.newDocumentBuilder();
       builder.setEntityResolver(entityResolver);
       builder.setErrorHandler(new ErrorHandler() {
@@ -254,6 +260,7 @@ public class XPathParser {
         public void warning(SAXParseException exception) throws SAXException {
         }
       });
+      // TODO 加载XML文件
       return builder.parse(inputSource);
     } catch (Exception e) {
       throw new BuilderException("Error creating document instance.  Cause: " + e, e);

@@ -138,23 +138,25 @@ public class ClassLoaderWrapper {
   URL getResourceAsURL(String resource, ClassLoader[] classLoader) {
 
     URL url;
-
+    // 遍历classLoader数组
     for (ClassLoader cl : classLoader) {
 
       if (null != cl) {
-
+        // 调用ClassLoader.getResource()方法查找指定的资源
         // look for the resource as passed in...
         url = cl.getResource(resource);
 
         // ...but some class loaders want this leading "/", so we'll add it
         // and try again if we didn't find the resource
         if (null == url) {
+          // 尝试以"/"开头,再次查找
           url = cl.getResource("/" + resource);
         }
 
         // "It's always in the last place I look for it!"
         // ... because only an idiot would keep looking for it after finding it, so stop looking already.
         if (null != url) {
+          // 查找到指定资源
           return url;
         }
 
@@ -201,11 +203,16 @@ public class ClassLoaderWrapper {
 
   }
 
+  /**
+   * 返回ClassLoader[]数组,该数组指明了类加载器的使用顺序
+   * @param classLoader
+   * @return
+   */
   ClassLoader[] getClassLoaders(ClassLoader classLoader) {
     return new ClassLoader[]{
-        classLoader,
-        defaultClassLoader,
-        Thread.currentThread().getContextClassLoader(),
+        classLoader, // 参数指定的类加载器
+        defaultClassLoader, // 系统指定的默认类加载器
+        Thread.currentThread().getContextClassLoader(), // 当前线程绑定的类加载器
         getClass().getClassLoader(),
         systemClassLoader};
   }

@@ -22,80 +22,96 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
- * Lru (least recently used) cache decorator
- *
+ * Lru (least recently used) cache decorator 按照最近最少使用算法(Last Recently
+ * Used,LRU)进行缓存清理得装饰器,在需要清理缓存得时候,它会清除最近最少使用的缓存项
+ * 
  * @author Clinton Begin
  */
 public class LruCache implements Cache {
 
-  private final Cache delegate;
-  private Map<Object, Object> keyMap;
-  private Object eldestKey;
+	// 底层被装饰的cache对象
+	private final Cache delegate;
+	// 记录key的使用情况
+	private Map<Object, Object> keyMap;
+	// 记录最少被使用的缓存项的key
+	private Object eldestKey;
 
-  public LruCache(Cache delegate) {
-    this.delegate = delegate;
-    setSize(1024);
-  }
+	public LruCache(Cache delegate) {
+		this.delegate = delegate;
+		setSize(1024);
+	}
 
-  @Override
-  public String getId() {
-    return delegate.getId();
-  }
+	@Override
+	public String getId() {
+		return delegate.getId();
+	}
 
-  @Override
-  public int getSize() {
-    return delegate.getSize();
-  }
+	@Override
+	public int getSize() {
+		return delegate.getSize();
+	}
 
-  public void setSize(final int size) {
-    keyMap = new LinkedHashMap<Object, Object>(size, .75F, true) {
-      private static final long serialVersionUID = 4267176411845948333L;
+	public void setSize(final int size) {
+		// 重新设置缓存大小,会重置keyMap字段
+		keyMap = new LinkedHashMap<Object, Object>(size, .75F, true) {
+			private static final long serialVersionUID = 4267176411845948333L;
 
-      @Override
-      protected boolean removeEldestEntry(Map.Entry<Object, Object> eldest) {
-        boolean tooBig = size() > size;
-        if (tooBig) {
-          eldestKey = eldest.getKey();
-        }
-        return tooBig;
-      }
-    };
-  }
+			// 当调用LinkedHashMap.put()方法时,会调用该方法
+			@Override
+			protected boolean removeEldestEntry(Map.Entry<Object, Object> eldest) {
+				boolean tooBig = size() > size;
+				if (tooBig) {
+					// 如果已经达到缓存上限,则更新eldestKey字段,后面会删除该项
+					eldestKey = eldest.getKey();
+				}
+				return tooBig;
+			}
+		};
+	}
 
-  @Override
-  public void putObject(Object key, Object value) {
-    delegate.putObject(key, value);
-    cycleKeyList(key);
-  }
+	@Override
+	public void putObject(Object key, Object value) {
+		// 添加缓存项
+		delegate.putObject(key, value);
+		// 删除最久未使用的缓存项
+		cycleKeyList(key);
+	}
 
-  @Override
-  public Object getObject(Object key) {
-    keyMap.get(key); //touch
-    return delegate.getObject(key);
-  }
+	/**
+	 * LinkedHashMap中重写了HashMap的get方法，不止会取出所索要的节点的值，
+	 * 而且会调整LinkedHashMap中内置的链表中该键所对应的节点的位置，将该节点置为链表的尾部。
+	 */
+	@Override
+	public Object getObject(Object key) {
+		// 修改LinkedHashMap中记录的顺序
+		keyMap.get(key); // touch
+		return delegate.getObject(key);
+	}
 
-  @Override
-  public Object removeObject(Object key) {
-    return delegate.removeObject(key);
-  }
+	@Override
+	public Object removeObject(Object key) {
+		return delegate.removeObject(key);
+	}
 
-  @Override
-  public void clear() {
-    delegate.clear();
-    keyMap.clear();
-  }
+	@Override
+	public void clear() {
+		delegate.clear();
+		keyMap.clear();
+	}
 
-  @Override
-  public ReadWriteLock getReadWriteLock() {
-    return null;
-  }
+	@Override
+	public ReadWriteLock getReadWriteLock() {
+		return null;
+	}
 
-  private void cycleKeyList(Object key) {
-    keyMap.put(key, key);
-    if (eldestKey != null) {
-      delegate.removeObject(eldestKey);
-      eldestKey = null;
-    }
-  }
+	private void cycleKeyList(Object key) {
+		keyMap.put(key, key);
+		// eldestKey不为空,表示已达到了缓存上限
+		if (eldestKey != null) {
+			// 删除最久未使用的缓存项
+			delegate.removeObject(eldestKey);
+			eldestKey = null;
+		}
+	}
 
 }

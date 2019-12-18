@@ -26,6 +26,8 @@ import java.util.WeakHashMap;
 
 class CglibAopProxy implements AopProxy, Serializable {
 
+    private static final long serialVersionUID = 1227139454465040612L;
+
     private static final int AOP_PROXY = 0;
     private static final int INVOKE_TARGET = 1;
     private static final int NO_OVERRIDE = 2;
@@ -287,6 +289,7 @@ class CglibAopProxy implements AopProxy, Serializable {
      * Public to allow use elsewhere in the framework.
      */
     public static class SerializableNoOp implements NoOp, Serializable {
+        private static final long serialVersionUID = 1227139454465040612L;
     }
 
 
@@ -297,6 +300,8 @@ class CglibAopProxy implements AopProxy, Serializable {
      * {@code this}.
      */
     private static class StaticUnadvisedInterceptor implements MethodInterceptor, Serializable {
+
+        private static final long serialVersionUID = 1227139454465040612L;
 
         private final Object target;
 
@@ -317,6 +322,8 @@ class CglibAopProxy implements AopProxy, Serializable {
      * proxy is to be exposed.
      */
     private static class StaticUnadvisedExposedInterceptor implements MethodInterceptor, Serializable {
+
+        private static final long serialVersionUID = 1227139454465040612L;
 
         private final Object target;
 
@@ -345,6 +352,8 @@ class CglibAopProxy implements AopProxy, Serializable {
      */
     private static class DynamicUnadvisedInterceptor implements MethodInterceptor, Serializable {
 
+        private static final long serialVersionUID = 1227139454465040612L;
+
         private final TargetSource targetSource;
 
         public DynamicUnadvisedInterceptor(TargetSource targetSource) {
@@ -368,6 +377,8 @@ class CglibAopProxy implements AopProxy, Serializable {
      * Interceptor for unadvised dynamic targets when the proxy needs exposing.
      */
     private static class DynamicUnadvisedExposedInterceptor implements MethodInterceptor, Serializable {
+
+        private static final long serialVersionUID = 1227139454465040612L;
 
         private final TargetSource targetSource;
 
@@ -398,6 +409,8 @@ class CglibAopProxy implements AopProxy, Serializable {
      */
     private static class StaticDispatcher implements Dispatcher, Serializable {
 
+        private static final long serialVersionUID = 1227139454465040612L;
+
         private Object target;
 
         public StaticDispatcher(Object target) {
@@ -415,6 +428,8 @@ class CglibAopProxy implements AopProxy, Serializable {
      * Dispatcher for any methods declared on the Advised class.
      */
     private static class AdvisedDispatcher implements Dispatcher, Serializable {
+
+        private static final long serialVersionUID = 1227139454465040612L;
 
         private final AdvisedSupport advised;
 
@@ -434,6 +449,8 @@ class CglibAopProxy implements AopProxy, Serializable {
      * Ensures that the method call is always handled by this class.
      */
     private static class EqualsInterceptor implements MethodInterceptor, Serializable {
+
+        private static final long serialVersionUID = 1227139454465040612L;
 
         private final AdvisedSupport advised;
 
@@ -467,6 +484,8 @@ class CglibAopProxy implements AopProxy, Serializable {
      */
     private static class HashCodeInterceptor implements MethodInterceptor, Serializable {
 
+        private static final long serialVersionUID = 1227139454465040612L;
+
         private final AdvisedSupport advised;
 
         public HashCodeInterceptor(AdvisedSupport advised) {
@@ -484,6 +503,8 @@ class CglibAopProxy implements AopProxy, Serializable {
      * Interceptor used specifically for advised methods on a frozen, static proxy.
      */
     private static class FixedChainStaticTargetInterceptor implements MethodInterceptor, Serializable {
+
+        private static final long serialVersionUID = 1227139454465040612L;
 
         private final List<Object> adviceChain;
 
@@ -514,6 +535,8 @@ class CglibAopProxy implements AopProxy, Serializable {
      * proxy is not frozen.
      */
     private static class DynamicAdvisedInterceptor implements MethodInterceptor, Serializable {
+
+        private static final long serialVersionUID = 1227139454465040612L;
 
         private final AdvisedSupport advised;
 

@@ -33,28 +33,47 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class MetaObject {
 
+	// 原始的JavaBean对象
 	private Object originalObject;
+	// 封装了originalObject对象
 	private ObjectWrapper objectWrapper;
+	// 负责实例化originalObject的工厂对象
 	private ObjectFactory objectFactory;
+	// 负责创建objectWrapper的工厂对象
 	private ObjectWrapperFactory objectWrapperFactory;
+	// 负责创建Reflector的工厂对象
 	private ReflectorFactory reflectorFactory;
 
+	/**
+	 * 私有化构造函数,只能通过forObject()创建MetaObject对象
+	 * @param object
+	 * @param objectFactory
+	 * @param objectWrapperFactory
+	 * @param reflectorFactory
+	 */
 	private MetaObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory,
 			ReflectorFactory reflectorFactory) {
+		//初始化上述字段
 		this.originalObject = object;
 		this.objectFactory = objectFactory;
 		this.objectWrapperFactory = objectWrapperFactory;
 		this.reflectorFactory = reflectorFactory;
 
+		// 若原始对象已经是ObjectWrapper,则直接使用
 		if (object instanceof ObjectWrapper) {
 			this.objectWrapper = (ObjectWrapper) object;
 		} else if (objectWrapperFactory.hasWrapperFor(object)) {
+			// 若ObjectWrapperFactory能够为原始对象创建对应的ObjectWrapper,则优先使用ObjectWrapperFactory,
+			// 而DefaultObjectWrapperFactory.hasWrapperFor()始终返回false
 			this.objectWrapper = objectWrapperFactory.getWrapperFor(this, object);
 		} else if (object instanceof Map) {
+			// 若原始对象为Map类型,则创建MapWrapper对象
 			this.objectWrapper = new MapWrapper(this, (Map) object);
 		} else if (object instanceof Collection) {
+			// 若原始对象为Collection类型,则创建CollectionWrapper对象
 			this.objectWrapper = new CollectionWrapper(this, (Collection) object);
 		} else {
+			// 若原始对象是普通的JavaBean对象,则创建BeanWrapper对象
 			this.objectWrapper = new BeanWrapper(this, object);
 		}
 	}
@@ -113,15 +132,20 @@ public class MetaObject {
 	}
 
 	public Object getValue(String name) {
+		// 解析属性表达式
 		PropertyTokenizer prop = new PropertyTokenizer(name);
+		// 处理子表达式
 		if (prop.hasNext()) {
+			// 根据PropertyTokenizer解析后指定的属性,创建相应的MetaObject对象
 			MetaObject metaValue = metaObjectForProperty(prop.getIndexedName());
 			if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
 				return null;
 			} else {
+				// 递归处理子表达式
 				return metaValue.getValue(prop.getChildren());
 			}
 		} else {
+			// 通过ObjectWrapper获取指定的属性值
 			return objectWrapper.get(prop);
 		}
 	}

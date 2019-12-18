@@ -26,6 +26,8 @@ import org.springframework.core.env.PropertySource;
  */
 class OriginCapablePropertyValue extends PropertyValue {
 
+	private static final long serialVersionUID = -4348562253322505186L;
+
 	private static final String ATTRIBUTE_PROPERTY_ORIGIN = "propertyOrigin";
 
 	private final PropertyOrigin origin;

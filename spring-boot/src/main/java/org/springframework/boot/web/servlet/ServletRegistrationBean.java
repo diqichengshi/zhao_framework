@@ -25,7 +25,6 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 
 import org.apache.commons.logging.Log;

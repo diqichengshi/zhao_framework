@@ -7,7 +7,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 public class TypePatternClassFilter implements ClassFilter {
-
+    @SuppressWarnings({"unused"})
     private String typePattern;
     private TypePatternMatcher aspectJTypePatternMatcher;
 

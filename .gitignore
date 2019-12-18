@@ -26,3 +26,8 @@
 /spring-tx/.settings
 /spring-web/.settings
 /spring-webmvc/.settings
+/spring-boot/target
+/spring-boot/.settings
+/mybatis-generator/target
+/mybatis-generator/.settings
+spring-boot/.factorypath

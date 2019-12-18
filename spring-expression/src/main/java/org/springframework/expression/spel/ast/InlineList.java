@@ -37,7 +37,7 @@ import org.springframework.expression.spel.SpelNode;
 public class InlineList extends SpelNodeImpl {
 
 	// If the list is purely literals, it is a constant value and can be computed and cached
-	private TypedValue constant = null;  // TODO must be immutable list
+	private TypedValue constant = null;  // must be immutable list
 
 
 	public InlineList(int pos, SpelNodeImpl... args) {

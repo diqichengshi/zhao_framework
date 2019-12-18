@@ -19,5 +19,10 @@ package org.apache.ibatis.scripting.xmltags;
  * @author Clinton Begin
  */
 public interface SqlNode {
-  boolean apply(DynamicContext context);
+	/**
+	 * apply()是SqlNode接口中定义的唯一方法,该方法会根据用户传入的实参,参数解析该SqlNode多记录的动态sql节点
+	  *  并且调用DynamicContext.appendSql()方法将解析后的SQL片段追加到DynamicContext.sqlBuilder中保存,
+	  *  当SQL节点下的所有SqlNode完成解析后,我们就可以从DynamicContext中获取一条动态生成的完整的SQL语句
+	 */
+	boolean apply(DynamicContext context);
 }

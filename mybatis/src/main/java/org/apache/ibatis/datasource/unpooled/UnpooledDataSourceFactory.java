@@ -25,6 +25,7 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 
 /**
+ * 具体工厂类的角色
  * @author Clinton Begin
  */
 public class UnpooledDataSourceFactory implements DataSourceFactory {
@@ -41,21 +42,27 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
   @Override
   public void setProperties(Properties properties) {
     Properties driverProperties = new Properties();
+    // 创建DataSource相应的MetaObject
     MetaObject metaDataSource = SystemMetaObject.forObject(dataSource);
+    // 遍历properties集合,该集合中配置了数据源需要的信息
     for (Object key : properties.keySet()) {
       String propertyName = (String) key;
       if (propertyName.startsWith(DRIVER_PROPERTY_PREFIX)) {
         String value = properties.getProperty(propertyName);
+        //以"driver."开头的配置项是对DataSource的配置,记录到driverProperties中保存
         driverProperties.setProperty(propertyName.substring(DRIVER_PROPERTY_PREFIX_LENGTH), value);
       } else if (metaDataSource.hasSetter(propertyName)) {
         String value = (String) properties.get(propertyName);
+        // 根据属性类型进行转换,主要是Integer,Long,Boolean三种类型的转换
         Object convertedValue = convertValue(metaDataSource, propertyName, value);
+        // 设置DataSource相关属性
         metaDataSource.setValue(propertyName, convertedValue);
       } else {
         throw new DataSourceException("Unknown DataSource property: " + propertyName);
       }
     }
     if (driverProperties.size() > 0) {
+      // 设置DataSource.driverProperties属性
       metaDataSource.setValue("driverProperties", driverProperties);
     }
   }
