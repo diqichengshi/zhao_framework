@@ -157,6 +157,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 	 * return {@code null} to indicate that no suitable arguments could be resolved and
 	 * therefore the method should not be invoked at all for the specified event.
 	 */
+	@SuppressWarnings("rawtypes")
 	protected Object[] resolveArguments(ApplicationEvent event) {
 		ResolvableType declaredEventType = getResolvableType(event);
 		if (declaredEventType == null) {

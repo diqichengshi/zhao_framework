@@ -1379,7 +1379,6 @@ public class ResolvableType implements Serializable {
     }
 
 
-    @SuppressWarnings("serial")
     private class DefaultVariableResolver implements VariableResolver {
 
         @Override
@@ -1394,7 +1393,6 @@ public class ResolvableType implements Serializable {
     }
 
 
-    @SuppressWarnings("serial")
     private static class TypeVariablesVariableResolver implements VariableResolver {
 
         private final TypeVariable<?>[] variables;

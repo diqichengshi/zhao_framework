@@ -56,6 +56,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
 
 	private static final Log logger = LogFactory.getLog(DefaultCorsProcessor.class);
 	
+	@SuppressWarnings("resource")
 	@Override
 	public boolean processRequest(CorsConfiguration config, HttpServletRequest request, HttpServletResponse response)
 			throws IOException {

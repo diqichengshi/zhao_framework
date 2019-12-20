@@ -8,7 +8,8 @@ import java.util.Map;
 
 public abstract class AttributeAccessorSupport implements AttributeAccessor, Serializable {
 
-    /**
+	private static final long serialVersionUID = 1L;
+	/**
      * Map with String keys and Object values
      */
     private final Map<String, Object> attributes = new LinkedHashMap<String, Object>(0);

@@ -56,6 +56,7 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
 		return false;
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public void handleReturnValue(Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {

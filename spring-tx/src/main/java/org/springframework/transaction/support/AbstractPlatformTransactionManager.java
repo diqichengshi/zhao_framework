@@ -63,8 +63,9 @@ import org.springframework.transaction.UnexpectedRollbackException;
  */
 public abstract class AbstractPlatformTransactionManager implements PlatformTransactionManager, Serializable {
 
+	private static final long serialVersionUID = 1L;
 
-    /**
+	/**
      * Always activate transaction synchronization, even for "empty" transactions
      * that result from PROPAGATION_SUPPORTS with no existing backend transaction.
      * @see org.springframework.transaction.TransactionDefinition#PROPAGATION_SUPPORTS

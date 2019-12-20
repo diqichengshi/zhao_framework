@@ -138,7 +138,8 @@ final class DateTimeConverters {
 			return source.toOffsetDateTime();
 		}
 	}
-
+	
+	@SuppressWarnings("rawtypes")
 	@UsesJava8
 	private static class ZonedDateTimeToInstantConverter implements Converter<ZonedDateTime, Instant> {
 
@@ -238,7 +239,8 @@ final class DateTimeConverters {
 			return calendarToZonedDateTime(source).toLocalDateTime();
 		}
 	}
-
+	
+	@SuppressWarnings("rawtypes")
 	@UsesJava8
 	private static class CalendarToInstantConverter implements Converter<Calendar, Instant> {
 

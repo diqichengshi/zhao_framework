@@ -51,8 +51,8 @@ public class Jsr354NumberFormatAnnotationFormatterFactory extends EmbeddedValueR
 	private static final String CURRENCY_CODE_PATTERN = "\u00A4\u00A4";
 
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	@SuppressWarnings("unchecked")
 	public Set<Class<?>> getFieldTypes() {
 		return (Set) Collections.singleton(MonetaryAmount.class);
 	}

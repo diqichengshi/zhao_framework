@@ -465,16 +465,24 @@ public class MethodParameter {
         return (getParameterAnnotation(annotationType) != null);
     }
 
-    /**
-     * Initialize parameter name discovery for this method parameter.
-     * <p>This method does not actually try to retrieve the parameter name at
-     * this point; it just allows discovery to happen when the application calls
-     * {@link #getParameterName()} (if ever).
-     */
+	/**
+	 * Initialize parameter name discovery for this method parameter.
+	 * <p>
+	 * This method does not actually try to retrieve the parameter name at this
+	 * point; it just allows discovery to happen when the application calls
+	 * {@link #getParameterName()} (if ever).
+	 */
 	public void initParameterNameDiscovery(ParameterNameDiscoverer parameterNameDiscoverer) {
 		this.parameterNameDiscoverer = parameterNameDiscoverer;
 	}
 
+	/**
+	 * Return the name of the method/constructor parameterNameDiscoverer.
+	 */
+	public ParameterNameDiscoverer getParameterNameDiscovery() {
+		return this.parameterNameDiscoverer;
+	}
+	
     /**
      * Return the name of the method/constructor parameter.
      *

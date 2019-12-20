@@ -166,6 +166,7 @@ public class JettyEmbeddedServletContainerFactory extends AbstractEmbeddedServle
 		super(contextPath, port);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public EmbeddedServletContainer getEmbeddedServletContainer(ServletContextInitializer... initializers) {
 		JettyEmbeddedWebAppContext context = new JettyEmbeddedWebAppContext();
@@ -278,6 +279,7 @@ public class JettyEmbeddedServletContainerFactory extends AbstractEmbeddedServle
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private void configureSslClientAuth(SslContextFactory factory, Ssl ssl) {
 		if (ssl.getClientAuth() == ClientAuth.NEED) {
 			factory.setNeedClientAuth(true);

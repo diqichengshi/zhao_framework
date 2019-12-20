@@ -662,6 +662,7 @@ public class RelaxedDataBinder extends DataBinder {
 	/**
 	 * Extended version of {@link BeanPropertyBindingResult} to support relaxed binding.
 	 */
+	@SuppressWarnings("serial")
 	private static class RelaxedBeanPropertyBindingResult extends BeanPropertyBindingResult {
 
 		private RelaxedConversionService conversionService;

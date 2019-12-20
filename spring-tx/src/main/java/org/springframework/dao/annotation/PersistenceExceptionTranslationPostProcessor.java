@@ -56,7 +56,6 @@ import org.springframework.util.Assert;
  * @see org.springframework.dao.DataAccessException
  * @see org.springframework.dao.support.PersistenceExceptionTranslator
  */
-@SuppressWarnings("serial")
 public class PersistenceExceptionTranslationPostProcessor extends AbstractAdvisingBeanPostProcessor
 		implements BeanFactoryAware {
 

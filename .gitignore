@@ -31,3 +31,4 @@
 /mybatis-generator/target
 /mybatis-generator/.settings
 spring-boot/.factorypath
+/tomcat/.settings

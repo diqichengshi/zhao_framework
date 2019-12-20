@@ -14,8 +14,9 @@ import org.springframework.util.Assert;
  */
 public class PayloadApplicationEvent <T> extends ApplicationEvent implements ResolvableTypeProvider {
 
-    private final T payload;
-
+	private static final long serialVersionUID = 6841660747199523526L;
+	
+	private final T payload;
 
     /**
      * Create a new PayloadApplicationEvent.

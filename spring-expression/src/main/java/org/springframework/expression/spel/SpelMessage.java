@@ -280,9 +280,11 @@ public enum SpelMessage {
 		StringBuilder formattedMessage = new StringBuilder();
 		formattedMessage.append("EL").append(this.code);
 		switch (this.kind) {
-			case ERROR:
-				formattedMessage.append("E");
-				break;
+		case ERROR:
+			formattedMessage.append("E");
+			break;
+		default:
+			break;
 		}
 		formattedMessage.append(":");
 		if (pos != -1) {

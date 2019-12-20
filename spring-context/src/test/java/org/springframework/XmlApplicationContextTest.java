@@ -7,7 +7,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class XmlApplicationContextTest {
     public static void main(String[] args) throws Exception {
         //创建ClassPathXmlApplicationContext对象
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("ApplicationContext.xml");
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("ApplicationContext.xml");
         //使用手动强转的方式获取单例的User对象
         User user = (User) context.getBean("user");
         System.out.println("单例user:" + user);
@@ -24,6 +24,8 @@ public class XmlApplicationContextTest {
         menu.setId(1);
         menu.setName("系统管理");
         System.out.println("注解注入的对象menu" + menu);
+        
+        context.close();
     }
 
 }

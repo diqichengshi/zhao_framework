@@ -130,6 +130,8 @@ public class CommonsLoggingLiquibaseLogger extends AbstractLogger {
 				return this.logger.isWarnEnabled();
 			case SEVERE:
 				return this.logger.isErrorEnabled();
+			default:
+				break;
 			}
 		}
 		return false;

@@ -8,5 +8,6 @@ public class AopApplicationContextTest {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("AopApplicationTest.xml");
         Person bean2 = (Person) context.getBean("student");
         bean2.say();
+        context.close();
     }
 }

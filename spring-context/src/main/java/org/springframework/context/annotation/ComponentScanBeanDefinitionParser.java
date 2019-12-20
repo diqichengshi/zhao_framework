@@ -186,7 +186,8 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
         }
     }
 
-    protected TypeFilter createTypeFilter(Element element, ClassLoader classLoader, ParserContext parserContext) {
+    @SuppressWarnings("unchecked")
+	protected TypeFilter createTypeFilter(Element element, ClassLoader classLoader, ParserContext parserContext) {
         String filterType = element.getAttribute(FILTER_TYPE_ATTRIBUTE);
         String expression = element.getAttribute(FILTER_EXPRESSION_ATTRIBUTE);
         expression = parserContext.getReaderContext().getEnvironment().resolvePlaceholders(expression);
@@ -218,7 +219,6 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private Object instantiateUserDefinedStrategy(String className, Class<?> strategyType, ClassLoader classLoader) {
         Object result;
         try {

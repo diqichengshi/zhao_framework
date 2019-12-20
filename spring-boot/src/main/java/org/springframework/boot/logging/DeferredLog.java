@@ -183,6 +183,8 @@ public class DeferredLog implements Log {
 			case FATAL:
 				log.fatal(this.message, this.throwable);
 				return;
+			default:
+				break;
 			}
 		}
 

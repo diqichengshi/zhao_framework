@@ -4,7 +4,9 @@ import org.springframework.beans.FatalBeanException;
 
 public class ApplicationContextException extends FatalBeanException {
 
-    /**
+	private static final long serialVersionUID = 1L;
+
+	/**
      * Create a new {@code ApplicationContextException}
      * with the specified detail message and no root cause.
      *

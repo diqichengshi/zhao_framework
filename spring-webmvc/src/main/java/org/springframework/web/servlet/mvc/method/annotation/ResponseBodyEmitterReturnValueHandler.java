@@ -75,6 +75,7 @@ public class ResponseBodyEmitterReturnValueHandler implements AsyncHandlerMethod
 		return false;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean isAsyncReturnValue(Object returnValue, MethodParameter returnType) {
 		if (returnValue != null) {
@@ -89,6 +90,7 @@ public class ResponseBodyEmitterReturnValueHandler implements AsyncHandlerMethod
 		return false;
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public void handleReturnValue(Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
