@@ -33,12 +33,11 @@ import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.net.AbstractEndpoint.Handler.SocketState;
 
-
 /**
  * Handle incoming TCP connections.
  *
- * This class implement a simple server model: one listener thread accepts on a socket and
- * creates a new worker thread for each incoming connection.
+ * This class implement a simple server model: one listener thread accepts on a
+ * socket and creates a new worker thread for each incoming connection.
  *
  * More advanced Endpoints will reuse the threads, use queues, etc.
  *
@@ -52,554 +51,557 @@ import org.apache.tomcat.util.net.AbstractEndpoint.Handler.SocketState;
  */
 public class JIoEndpoint extends AbstractEndpoint {
 
-
-    // -------------------------------------------------------------- Constants
-
-    private static final Log log = LogFactory.getLog(JIoEndpoint.class);
-
-    // ----------------------------------------------------------------- Fields
-
-    /**
-     * Associated server socket.
-     */
-    protected ServerSocket serverSocket = null;
-
-
-    // ------------------------------------------------------------ Constructor
-
-    public JIoEndpoint() {
-        // Set maxConnections to zero so we can tell if the user has specified
-        // their own value on the connector when we reach bind()
-        setMaxConnections(0);
-    }
-
-    // ------------------------------------------------------------- Properties
-
-    /**
-     * Handling of accepted sockets.
-     */
-    protected Handler handler = null;
-    public void setHandler(Handler handler ) { this.handler = handler; }
-    public Handler getHandler() { return handler; }
-
-    /**
-     * Server socket factory.
-     */
-    protected ServerSocketFactory serverSocketFactory = null;
-    public void setServerSocketFactory(ServerSocketFactory factory) { this.serverSocketFactory = factory; }
-    public ServerSocketFactory getServerSocketFactory() { return serverSocketFactory; }
-
-    /**
-     * Port in use.
-     */
-    @Override
-    public int getLocalPort() {
-        ServerSocket s = serverSocket;
-        if (s == null) {
-            return -1;
-        } else {
-            return s.getLocalPort();
-        }
-    }
-
-    /*
-     * Optional feature support.
-     */
-    @Override
-    public boolean getUseSendfile() { return false; } // Not supported
-    @Override
-    public boolean getUseComet() { return false; } // Not supported
-    @Override
-    public boolean getUseCometTimeout() { return false; } // Not supported
-    @Override
-    public boolean getDeferAccept() { return false; } // Not supported
-    @Override
-    public boolean getUsePolling() { return false; } // Not supported
-
-
-    // ------------------------------------------------ Handler Inner Interface
-
-    /**
-     * Bare bones interface used for socket processing. Per thread data is to be
-     * stored in the ThreadWithAttributes extra folders, or alternately in
-     * thread local fields.
-     */
-    public interface Handler extends AbstractEndpoint.Handler {
-        public SocketState process(SocketWrapper<Socket> socket,
-                SocketStatus status);
-        public SSLImplementation getSslImplementation();
-    }
-
-
-    /**
-     * Async timeout thread
-     */
-    protected class AsyncTimeout implements Runnable {
-        /**
-         * The background thread that checks async requests and fires the
-         * timeout if there has been no activity.
-         */
-        @Override
-        public void run() {
-
-            // Loop until we receive a shutdown command
-            while (running) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    // Ignore
-                }
-                long now = System.currentTimeMillis();
-                Iterator<SocketWrapper<Socket>> sockets =
-                    waitingRequests.iterator();
-                while (sockets.hasNext()) {
-                    SocketWrapper<Socket> socket = sockets.next();
-                    long access = socket.getLastAccess();
-                    if (socket.getTimeout() > 0 &&
-                            (now-access)>socket.getTimeout()) {
-                        processSocketAsync(socket,SocketStatus.TIMEOUT);
-                    }
-                }
-
-                // Loop if endpoint is paused
-                while (paused && running) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        // Ignore
-                    }
-                }
-
-            }
-        }
-    }
-
-
-    // --------------------------------------------------- Acceptor Inner Class
-    /**
-     * The background thread that listens for incoming TCP/IP connections and
-     * hands them off to an appropriate processor.
-     */
-    protected class Acceptor extends AbstractEndpoint.Acceptor {
-
-        @Override
-        public void run() {
-
-            int errorDelay = 0;
-
-            // Loop until we receive a shutdown command
-            while (running) {
-
-                // Loop if endpoint is paused
-                while (paused && running) {
-                    state = AcceptorState.PAUSED;
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        // Ignore
-                    }
-                }
-
-                if (!running) {
-                    break;
-                }
-                state = AcceptorState.RUNNING;
-
-                try {
-                    //if we have reached max connections, wait
-                    countUpOrAwaitConnection();
-
-                    Socket socket = null;
-                    try {
-                        // Accept the next incoming connection from the server
-                        // socket
-                        socket = serverSocketFactory.acceptSocket(serverSocket);
-                    } catch (IOException ioe) {
-                        // Introduce delay if necessary
-                        errorDelay = handleExceptionWithDelay(errorDelay);
-                        // re-throw
-                        throw ioe;
-                    }
-                    // Successful accept, reset the error delay
-                    errorDelay = 0;
-
-                    // Configure the socket
-                    if (running && !paused && setSocketOptions(socket)) {
-                        // Hand this socket off to an appropriate processor
-                        if (!processSocket(socket)) {
-                            // Close socket right away
-                            closeSocket(socket);
-                        }
-                    } else {
-                        // Close socket right away
-                        closeSocket(socket);
-                    }
-                } catch (IOException x) {
-                    if (running) {
-                        log.error(sm.getString("endpoint.accept.fail"), x);
-                    }
-                } catch (NullPointerException npe) {
-                    if (running) {
-                        log.error(sm.getString("endpoint.accept.fail"), npe);
-                    }
-                } catch (Throwable t) {
-                    ExceptionUtils.handleThrowable(t);
-                    log.error(sm.getString("endpoint.accept.fail"), t);
-                }
-            }
-            state = AcceptorState.ENDED;
-        }
-    }
-
-
-    private void closeSocket(Socket socket) {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            // Ignore
-        }
-    }
-
-
-    // ------------------------------------------- SocketProcessor Inner Class
-
-
-    /**
-     * This class is the equivalent of the Worker, but will simply use in an
-     * external Executor thread pool.
-     */
-    protected class SocketProcessor implements Runnable {
-
-        protected SocketWrapper<Socket> socket = null;
-        protected SocketStatus status = null;
-
-        public SocketProcessor(SocketWrapper<Socket> socket) {
-            if (socket==null) throw new NullPointerException();
-            this.socket = socket;
-        }
-
-        public SocketProcessor(SocketWrapper<Socket> socket, SocketStatus status) {
-            this(socket);
-            this.status = status;
-        }
-
-        @Override
-        public void run() {
-            boolean launch = false;
-            synchronized (socket) {
-                try {
-                    SocketState state = SocketState.OPEN;
-
-                    try {
-                        // SSL handshake
-                        serverSocketFactory.handshake(socket.getSocket());
-                    } catch (Throwable t) {
-                        ExceptionUtils.handleThrowable(t);
-                        if (log.isDebugEnabled()) {
-                            log.debug(sm.getString("endpoint.err.handshake"), t);
-                        }
-                        // Tell to close the socket
-                        state = SocketState.CLOSED;
-                    }
-
-                    if ((state != SocketState.CLOSED)) {
-                        if (status == null) {
-                            state = handler.process(socket, SocketStatus.OPEN);
-                        } else {
-                            state = handler.process(socket,status);
-                        }
-                    }
-                    if (state == SocketState.CLOSED) {
-                        // Close socket
-                        if (log.isTraceEnabled()) {
-                            log.trace("Closing socket:"+socket);
-                        }
-                        countDownConnection();
-                        try {
-                            socket.getSocket().close();
-                        } catch (IOException e) {
-                            // Ignore
-                        }
-                    } else if (state == SocketState.OPEN ||
-                            state == SocketState.UPGRADING  ||
-                            state == SocketState.UPGRADED){
-                        socket.setKeptAlive(true);
-                        socket.access();
-                        launch = true;
-                    } else if (state == SocketState.LONG) {
-                        socket.access();
-                        waitingRequests.add(socket);
-                    }
-                } finally {
-                    if (launch) {
-                        try {
-                            getExecutor().execute(new SocketProcessor(socket, SocketStatus.OPEN));
-                        } catch (NullPointerException npe) {
-                            if (running) {
-                                log.error(sm.getString("endpoint.launch.fail"),
-                                        npe);
-                            }
-                        }
-                    }
-                }
-            }
-            socket = null;
-            // Finish up this request
-        }
-
-    }
-
-
-    // -------------------- Public methods --------------------
-
-    @Override
-    public void bind() throws Exception {
-
-        // Initialize thread count defaults for acceptor
-        if (acceptorThreadCount == 0) {
-            acceptorThreadCount = 1;
-        }
-        // Initialize maxConnections
-        if (getMaxConnections() == 0) {
-            // User hasn't set a value - use the default
-            setMaxConnections(getMaxThreads());
-        }
-
-        if (serverSocketFactory == null) {
-            if (isSSLEnabled()) {
-                serverSocketFactory =
-                    handler.getSslImplementation().getServerSocketFactory(this);
-            } else {
-                serverSocketFactory = new DefaultServerSocketFactory(this);
-            }
-        }
-
-        if (serverSocket == null) {
-            try {
-                if (getAddress() == null) {
-                    serverSocket = serverSocketFactory.createSocket(getPort(),
-                            getBacklog());
-                } else {
-                    serverSocket = serverSocketFactory.createSocket(getPort(),
-                            getBacklog(), getAddress());
-                }
-            } catch (BindException orig) {
-                String msg;
-                if (getAddress() == null)
-                    msg = orig.getMessage() + " <null>:" + getPort();
-                else
-                    msg = orig.getMessage() + " " +
-                            getAddress().toString() + ":" + getPort();
-                BindException be = new BindException(msg);
-                be.initCause(orig);
-                throw be;
-            }
-        }
-
-    }
-
-    @Override
-    public void startInternal() throws Exception {
-
-        if (!running) {
-            running = true;
-            paused = false;
-
-            // Create worker collection
-            if (getExecutor() == null) {
-                createExecutor();
-            }
-
-            initializeConnectionLatch();
-
-            startAcceptorThreads();
-
-            // Start async timeout thread
-            Thread timeoutThread = new Thread(new AsyncTimeout(),
-                    getName() + "-AsyncTimeout");
-            timeoutThread.setPriority(threadPriority);
-            timeoutThread.setDaemon(true);
-            timeoutThread.start();
-        }
-    }
-
-    @Override
-    public void stopInternal() {
-        releaseConnectionLatch();
-        if (!paused) {
-            pause();
-        }
-        if (running) {
-            running = false;
-            unlockAccept();
-        }
-        shutdownExecutor();
-    }
-
-    /**
-     * Deallocate APR memory pools, and close server socket.
-     */
-    @Override
-    public void unbind() throws Exception {
-        if (running) {
-            stop();
-        }
-        if (serverSocket != null) {
-            try {
-                if (serverSocket != null)
-                    serverSocket.close();
-            } catch (Exception e) {
-                log.error(sm.getString("endpoint.err.close"), e);
-            }
-            serverSocket = null;
-        }
-        handler.recycle();
-    }
-
-
-    @Override
-    protected AbstractEndpoint.Acceptor createAcceptor() {
-        return new Acceptor();
-    }
-
-
-    /**
-     * Configure the socket.
-     */
-    protected boolean setSocketOptions(Socket socket) {
-        try {
-            // 1: Set socket options: timeout, linger, etc
-            socketProperties.setProperties(socket);
-        } catch (SocketException s) {
-            //error here is common if the client has reset the connection
-            if (log.isDebugEnabled()) {
-                log.debug(sm.getString("endpoint.err.unexpected"), s);
-            }
-            // Close the socket
-            return false;
-        } catch (Throwable t) {
-            ExceptionUtils.handleThrowable(t);
-            log.error(sm.getString("endpoint.err.unexpected"), t);
-            // Close the socket
-            return false;
-        }
-        return true;
-    }
-
-
-    /**
-     * Process a new connection from a new client. Wraps the socket so
-     * keep-alive and other attributes can be tracked and then passes the socket
-     * to the executor for processing.
-     *
-     * @param socket    The socket associated with the client.
-     *
-     * @return          <code>true</code> if the socket is passed to the
-     *                  executor, <code>false</code> if something went wrong or
-     *                  if the endpoint is shutting down. Returning
-     *                  <code>false</code> is an indication to close the socket
-     *                  immediately.
-     */
-    protected boolean processSocket(Socket socket) {
-        // Process the request from this socket
-        try {
-            SocketWrapper<Socket> wrapper = new SocketWrapper<Socket>(socket);
-            wrapper.setKeepAliveLeft(getMaxKeepAliveRequests());
-            // During shutdown, executor may be null - avoid NPE
-            if (!running) {
-                return false;
-            }
-            getExecutor().execute(new SocketProcessor(wrapper));
-        } catch (RejectedExecutionException x) {
-            log.warn("Socket processing request was rejected for:"+socket,x);
-            return false;
-        } catch (Throwable t) {
-            ExceptionUtils.handleThrowable(t);
-            // This means we got an OOM or similar creating a thread, or that
-            // the pool and its queue are full
-            log.error(sm.getString("endpoint.process.fail"), t);
-            return false;
-        }
-        return true;
-    }
-
-
-    /**
-     * Process an existing async connection. If processing is required, passes
-     * the wrapped socket to an executor for processing.
-     *
-     * @param socket    The socket associated with the client.
-     * @param status    Only OPEN and TIMEOUT are used. The others are used for
-     *                  Comet requests that are not supported by the BIO (JIO)
-     *                  Connector.
-     * @return          <code>true</code> if the socket is passed to the
-     *                  executor, <code>false</code> if something went wrong.
-     *                  Returning <code>false</code> is an indication to close
-     *                  the socket immediately.
-     */
-    public boolean processSocketAsync(SocketWrapper<Socket> socket,
-            SocketStatus status) {
-        try {
-            synchronized (socket) {
-                if (waitingRequests.remove(socket)) {
-                    SocketProcessor proc = new SocketProcessor(socket,status);
-                    ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                    try {
-                        //threads should not be created by the webapp classloader
-                        if (Constants.IS_SECURITY_ENABLED) {
-                            PrivilegedAction<Void> pa = new PrivilegedSetTccl(
-                                    getClass().getClassLoader());
-                            AccessController.doPrivileged(pa);
-                        } else {
-                            Thread.currentThread().setContextClassLoader(
-                                    getClass().getClassLoader());
-                        }
-                        // During shutdown, executor may be null - avoid NPE
-                        if (!running) {
-                            return false;
-                        }
-                        getExecutor().execute(proc);
-                    } finally {
-                        if (Constants.IS_SECURITY_ENABLED) {
-                            PrivilegedAction<Void> pa = new PrivilegedSetTccl(loader);
-                            AccessController.doPrivileged(pa);
-                        } else {
-                            Thread.currentThread().setContextClassLoader(loader);
-                        }
-                    }
-                }
-            }
-        } catch (Throwable t) {
-            ExceptionUtils.handleThrowable(t);
-            // This means we got an OOM or similar creating a thread, or that
-            // the pool and its queue are full
-            log.error(sm.getString("endpoint.process.fail"), t);
-            return false;
-        }
-        return true;
-    }
-
-    protected ConcurrentLinkedQueue<SocketWrapper<Socket>> waitingRequests =
-        new ConcurrentLinkedQueue<SocketWrapper<Socket>>();
-
-    @Override
-    protected Log getLog() {
-        return log;
-    }
-
-    private static class PrivilegedSetTccl implements PrivilegedAction<Void> {
-
-        private ClassLoader cl;
-
-        PrivilegedSetTccl(ClassLoader cl) {
-            this.cl = cl;
-        }
-
-        @Override
-        public Void run() {
-            Thread.currentThread().setContextClassLoader(cl);
-            return null;
-        }
-    }
+	// -------------------------------------------------------------- Constants
+
+	private static final Log log = LogFactory.getLog(JIoEndpoint.class);
+
+	// ----------------------------------------------------------------- Fields
+
+	/**
+	 * Associated server socket.
+	 */
+	protected ServerSocket serverSocket = null;
+
+	// ------------------------------------------------------------ Constructor
+
+	public JIoEndpoint() {
+		// Set maxConnections to zero so we can tell if the user has specified
+		// their own value on the connector when we reach bind()
+		setMaxConnections(0);
+	}
+
+	// ------------------------------------------------------------- Properties
+
+	/**
+	 * Handling of accepted sockets.
+	 */
+	protected Handler handler = null;
+
+	public void setHandler(Handler handler) {
+		this.handler = handler;
+	}
+
+	public Handler getHandler() {
+		return handler;
+	}
+
+	/**
+	 * Server socket factory.
+	 */
+	protected ServerSocketFactory serverSocketFactory = null;
+
+	public void setServerSocketFactory(ServerSocketFactory factory) {
+		this.serverSocketFactory = factory;
+	}
+
+	public ServerSocketFactory getServerSocketFactory() {
+		return serverSocketFactory;
+	}
+
+	/**
+	 * Port in use.
+	 */
+	@Override
+	public int getLocalPort() {
+		ServerSocket s = serverSocket;
+		if (s == null) {
+			return -1;
+		} else {
+			return s.getLocalPort();
+		}
+	}
+
+	/*
+	 * Optional feature support.
+	 */
+	@Override
+	public boolean getUseSendfile() {
+		return false;
+	} // Not supported
+
+	@Override
+	public boolean getUseComet() {
+		return false;
+	} // Not supported
+
+	@Override
+	public boolean getUseCometTimeout() {
+		return false;
+	} // Not supported
+
+	@Override
+	public boolean getDeferAccept() {
+		return false;
+	} // Not supported
+
+	@Override
+	public boolean getUsePolling() {
+		return false;
+	} // Not supported
+
+	// ------------------------------------------------ Handler Inner Interface
+
+	/**
+	 * Bare bones interface used for socket processing. Per thread data is to be
+	 * stored in the ThreadWithAttributes extra folders, or alternately in thread
+	 * local fields.
+	 */
+	public interface Handler extends AbstractEndpoint.Handler {
+		public SocketState process(SocketWrapper<Socket> socket, SocketStatus status);
+
+		public SSLImplementation getSslImplementation();
+	}
+
+	/**
+	 * Async timeout thread
+	 */
+	protected class AsyncTimeout implements Runnable {
+		/**
+		 * The background thread that checks async requests and fires the timeout if
+		 * there has been no activity.
+		 */
+		@Override
+		public void run() {
+
+			// Loop until we receive a shutdown command
+			while (running) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// Ignore
+				}
+				long now = System.currentTimeMillis();
+				Iterator<SocketWrapper<Socket>> sockets = waitingRequests.iterator();
+				while (sockets.hasNext()) {
+					SocketWrapper<Socket> socket = sockets.next();
+					long access = socket.getLastAccess();
+					if (socket.getTimeout() > 0 && (now - access) > socket.getTimeout()) {
+						processSocketAsync(socket, SocketStatus.TIMEOUT);
+					}
+				}
+
+				// Loop if endpoint is paused
+				while (paused && running) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// Ignore
+					}
+				}
+
+			}
+		}
+	}
+
+	// --------------------------------------------------- Acceptor Inner Class
+	/**
+	 * The background thread that listens for incoming TCP/IP connections and hands
+	 * them off to an appropriate processor.
+	 */
+	protected class Acceptor extends AbstractEndpoint.Acceptor {
+
+		@Override
+		public void run() {
+
+			int errorDelay = 0;
+
+			// Loop until we receive a shutdown command
+			while (running) {
+
+				// Loop if endpoint is paused
+				while (paused && running) {
+					state = AcceptorState.PAUSED;
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						// Ignore
+					}
+				}
+
+				if (!running) {
+					break;
+				}
+				state = AcceptorState.RUNNING;
+
+				try {
+					// if we have reached max connections, wait
+					countUpOrAwaitConnection();
+
+					Socket socket = null;
+					try {
+						// Accept the next incoming connection from the server
+						// socket
+						socket = serverSocketFactory.acceptSocket(serverSocket);
+					} catch (IOException ioe) {
+						// Introduce delay if necessary
+						errorDelay = handleExceptionWithDelay(errorDelay);
+						// re-throw
+						throw ioe;
+					}
+					// Successful accept, reset the error delay
+					errorDelay = 0;
+
+					// Configure the socket
+					if (running && !paused && setSocketOptions(socket)) {
+						// Hand this socket off to an appropriate processor
+						if (!processSocket(socket)) {
+							// Close socket right away
+							closeSocket(socket);
+						}
+					} else {
+						// Close socket right away
+						closeSocket(socket);
+					}
+				} catch (IOException x) {
+					if (running) {
+						log.error(sm.getString("endpoint.accept.fail"), x);
+					}
+				} catch (NullPointerException npe) {
+					if (running) {
+						log.error(sm.getString("endpoint.accept.fail"), npe);
+					}
+				} catch (Throwable t) {
+					ExceptionUtils.handleThrowable(t);
+					log.error(sm.getString("endpoint.accept.fail"), t);
+				}
+			}
+			state = AcceptorState.ENDED;
+		}
+	}
+
+	private void closeSocket(Socket socket) {
+		try {
+			socket.close();
+		} catch (IOException e) {
+			// Ignore
+		}
+	}
+
+	// ------------------------------------------- SocketProcessor Inner Class
+
+	/**
+	 * This class is the equivalent of the Worker, but will simply use in an
+	 * external Executor thread pool.
+	 */
+	protected class SocketProcessor implements Runnable {
+
+		protected SocketWrapper<Socket> socket = null;
+		protected SocketStatus status = null;
+
+		public SocketProcessor(SocketWrapper<Socket> socket) {
+			if (socket == null)
+				throw new NullPointerException();
+			this.socket = socket;
+		}
+
+		public SocketProcessor(SocketWrapper<Socket> socket, SocketStatus status) {
+			this(socket);
+			this.status = status;
+		}
+
+		@Override
+		public void run() {
+			boolean launch = false;
+			synchronized (socket) {
+				try {
+					SocketState state = SocketState.OPEN;
+
+					try {
+						// SSL handshake
+						serverSocketFactory.handshake(socket.getSocket());
+					} catch (Throwable t) {
+						ExceptionUtils.handleThrowable(t);
+						if (log.isDebugEnabled()) {
+							log.debug(sm.getString("endpoint.err.handshake"), t);
+						}
+						// Tell to close the socket
+						state = SocketState.CLOSED;
+					}
+
+					if ((state != SocketState.CLOSED)) {
+						if (status == null) {
+							state = handler.process(socket, SocketStatus.OPEN);
+						} else {
+							state = handler.process(socket, status);
+						}
+					}
+					if (state == SocketState.CLOSED) {
+						// Close socket
+						if (log.isTraceEnabled()) {
+							log.trace("Closing socket:" + socket);
+						}
+						countDownConnection();
+						try {
+							socket.getSocket().close();
+						} catch (IOException e) {
+							// Ignore
+						}
+					} else if (state == SocketState.OPEN || state == SocketState.UPGRADING
+							|| state == SocketState.UPGRADED) {
+						socket.setKeptAlive(true);
+						socket.access();
+						launch = true;
+					} else if (state == SocketState.LONG) {
+						socket.access();
+						waitingRequests.add(socket);
+					}
+				} finally {
+					if (launch) {
+						try {
+							getExecutor().execute(new SocketProcessor(socket, SocketStatus.OPEN));
+						} catch (NullPointerException npe) {
+							if (running) {
+								log.error(sm.getString("endpoint.launch.fail"), npe);
+							}
+						}
+					}
+				}
+			}
+			socket = null;
+			// Finish up this request
+		}
+
+	}
+
+	// -------------------- Public methods --------------------
+
+	@Override
+	public void bind() throws Exception {
+
+		// 初始化acceptor的默认线程总数
+		if (acceptorThreadCount == 0) {
+			acceptorThreadCount = 1;
+		}
+		// 初始化最大连接数
+		if (getMaxConnections() == 0) {
+			// User hasn't set a value - use the default
+			setMaxConnections(getMaxThreads());
+		}
+
+		if (serverSocketFactory == null) {
+			// https的处理
+			if (isSSLEnabled()) {
+				serverSocketFactory = handler.getSslImplementation().getServerSocketFactory(this);
+			} else {
+				// 处理http请求的serversocket工厂
+				serverSocketFactory = new DefaultServerSocketFactory(this);
+			}
+		}
+
+		if (serverSocket == null) {
+			// 创建serverSocket
+			try {
+				if (getAddress() == null) {
+					serverSocket = serverSocketFactory.createSocket(getPort(), getBacklog());
+				} else {
+					serverSocket = serverSocketFactory.createSocket(getPort(), getBacklog(), getAddress());
+				}
+			} catch (BindException orig) {
+				String msg;
+				if (getAddress() == null)
+					msg = orig.getMessage() + " <null>:" + getPort();
+				else
+					msg = orig.getMessage() + " " + getAddress().toString() + ":" + getPort();
+				BindException be = new BindException(msg);
+				be.initCause(orig);
+				throw be;
+			}
+		}
+
+	}
+
+	@Override
+	public void startInternal() throws Exception {
+
+		if (!running) {
+			running = true;
+			paused = false;
+
+	        //创建工作者线程
+			if (getExecutor() == null) {
+				createExecutor();
+			}
+
+	        //实例化连接数栅栏
+			initializeConnectionLatch();
+
+	        //启动Acceptor线程
+			startAcceptorThreads();
+
+	        //启动异步超时线程
+			Thread timeoutThread = new Thread(new AsyncTimeout(), getName() + "-AsyncTimeout");
+			timeoutThread.setPriority(threadPriority);
+			timeoutThread.setDaemon(true);
+			timeoutThread.start();
+		}
+	}
+
+	@Override
+	public void stopInternal() {
+		releaseConnectionLatch();
+		if (!paused) {
+			pause();
+		}
+		if (running) {
+			running = false;
+			unlockAccept();
+		}
+		shutdownExecutor();
+	}
+
+	/**
+	 * Deallocate APR memory pools, and close server socket.
+	 */
+	@Override
+	public void unbind() throws Exception {
+		if (running) {
+			stop();
+		}
+		if (serverSocket != null) {
+			try {
+				if (serverSocket != null)
+					serverSocket.close();
+			} catch (Exception e) {
+				log.error(sm.getString("endpoint.err.close"), e);
+			}
+			serverSocket = null;
+		}
+		handler.recycle();
+	}
+
+	@Override
+	protected AbstractEndpoint.Acceptor createAcceptor() {
+		return new Acceptor();
+	}
+
+	/**
+	 * Configure the socket.
+	 */
+	protected boolean setSocketOptions(Socket socket) {
+		try {
+			// 1: Set socket options: timeout, linger, etc
+			socketProperties.setProperties(socket);
+		} catch (SocketException s) {
+			// error here is common if the client has reset the connection
+			if (log.isDebugEnabled()) {
+				log.debug(sm.getString("endpoint.err.unexpected"), s);
+			}
+			// Close the socket
+			return false;
+		} catch (Throwable t) {
+			ExceptionUtils.handleThrowable(t);
+			log.error(sm.getString("endpoint.err.unexpected"), t);
+			// Close the socket
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Process a new connection from a new client. Wraps the socket so keep-alive
+	 * and other attributes can be tracked and then passes the socket to the
+	 * executor for processing.
+	 *
+	 * @param socket The socket associated with the client.
+	 *
+	 * @return <code>true</code> if the socket is passed to the executor,
+	 *         <code>false</code> if something went wrong or if the endpoint is
+	 *         shutting down. Returning <code>false</code> is an indication to close
+	 *         the socket immediately.
+	 */
+	protected boolean processSocket(Socket socket) {
+		// Process the request from this socket
+		try {
+			SocketWrapper<Socket> wrapper = new SocketWrapper<Socket>(socket);
+			wrapper.setKeepAliveLeft(getMaxKeepAliveRequests());
+			// During shutdown, executor may be null - avoid NPE
+			if (!running) {
+				return false;
+			}
+			getExecutor().execute(new SocketProcessor(wrapper));
+		} catch (RejectedExecutionException x) {
+			log.warn("Socket processing request was rejected for:" + socket, x);
+			return false;
+		} catch (Throwable t) {
+			ExceptionUtils.handleThrowable(t);
+			// This means we got an OOM or similar creating a thread, or that
+			// the pool and its queue are full
+			log.error(sm.getString("endpoint.process.fail"), t);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Process an existing async connection. If processing is required, passes the
+	 * wrapped socket to an executor for processing.
+	 *
+	 * @param socket The socket associated with the client.
+	 * @param status Only OPEN and TIMEOUT are used. The others are used for Comet
+	 *               requests that are not supported by the BIO (JIO) Connector.
+	 * @return <code>true</code> if the socket is passed to the executor,
+	 *         <code>false</code> if something went wrong. Returning
+	 *         <code>false</code> is an indication to close the socket immediately.
+	 */
+	public boolean processSocketAsync(SocketWrapper<Socket> socket, SocketStatus status) {
+		try {
+			synchronized (socket) {
+				if (waitingRequests.remove(socket)) {
+					SocketProcessor proc = new SocketProcessor(socket, status);
+					ClassLoader loader = Thread.currentThread().getContextClassLoader();
+					try {
+						// threads should not be created by the webapp classloader
+						if (Constants.IS_SECURITY_ENABLED) {
+							PrivilegedAction<Void> pa = new PrivilegedSetTccl(getClass().getClassLoader());
+							AccessController.doPrivileged(pa);
+						} else {
+							Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+						}
+						// During shutdown, executor may be null - avoid NPE
+						if (!running) {
+							return false;
+						}
+						getExecutor().execute(proc);
+					} finally {
+						if (Constants.IS_SECURITY_ENABLED) {
+							PrivilegedAction<Void> pa = new PrivilegedSetTccl(loader);
+							AccessController.doPrivileged(pa);
+						} else {
+							Thread.currentThread().setContextClassLoader(loader);
+						}
+					}
+				}
+			}
+		} catch (Throwable t) {
+			ExceptionUtils.handleThrowable(t);
+			// This means we got an OOM or similar creating a thread, or that
+			// the pool and its queue are full
+			log.error(sm.getString("endpoint.process.fail"), t);
+			return false;
+		}
+		return true;
+	}
+
+	protected ConcurrentLinkedQueue<SocketWrapper<Socket>> waitingRequests = new ConcurrentLinkedQueue<SocketWrapper<Socket>>();
+
+	@Override
+	protected Log getLog() {
+		return log;
+	}
+
+	private static class PrivilegedSetTccl implements PrivilegedAction<Void> {
+
+		private ClassLoader cl;
+
+		PrivilegedSetTccl(ClassLoader cl) {
+			this.cl = cl;
+		}
+
+		@Override
+		public Void run() {
+			Thread.currentThread().setContextClassLoader(cl);
+			return null;
+		}
+	}
 
 }
