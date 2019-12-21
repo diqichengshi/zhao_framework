@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.zhaojuan</groupId>
+    <artifactId>springframework</artifactId>
+    <version>1.0.0</version>
+  </parent>
+  
+	<groupId>org.apache.tomcat</groupId>
+	<artifactId>tomcat</artifactId>
+	<name>tomcat</name>
+	<version>7.0</version>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jdt.core.compiler</groupId>
+			<artifactId>ecj</artifactId>
+			<version>3.7.2</version>
+		</dependency>
+		<dependency>
+			<groupId>ant</groupId>
+			<artifactId>ant</artifactId>
+			<version>1.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>wsdl4j</groupId>
+			<artifactId>wsdl4j</artifactId>
+			<version>1.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.xml</groupId>
+			<artifactId>jaxrpc</artifactId>
+			<version>1.1</version>
+		</dependency>
+	</dependencies>
+	
+	 <build>
+        <resources>
+            <!--项目相关的所有资源路径列表,例如和项目相关的配置文件,这些资源被包含在最终的打包文件里。 -->
+            <resource>
+                <!--是否使用参数值代替参数名。参数值取自properties元素或者文件里配置的属性，文件在filters元素里列出。 -->
+                <filtering>true</filtering>
+                <!--描述存放资源的目录，该路径相对POM路径 -->
+                <directory>src/main/resources</directory>
+                <!--包含的模式列表 -->
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+	
+</project>
