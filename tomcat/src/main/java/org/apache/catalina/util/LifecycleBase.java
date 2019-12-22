@@ -75,8 +75,10 @@ public abstract class LifecycleBase implements Lifecycle {
 	/**
 	 * Allow sub classes to fire {@link Lifecycle} events.
 	 * 
-	 * @param type Event type
-	 * @param data Data associated with event.
+	 * @param type
+	 *            Event type
+	 * @param data
+	 *            Data associated with event.
 	 */
 	protected void fireLifecycleEvent(String type, Object data) {
 		lifecycle.fireLifecycleEvent(type, data);
@@ -84,22 +86,22 @@ public abstract class LifecycleBase implements Lifecycle {
 
 	@Override
 	public final synchronized void init() throws LifecycleException {
-		//状态不为new，抛异常
+		// 状态不为new，抛异常
 		if (!state.equals(LifecycleState.NEW)) {
 			invalidTransition(Lifecycle.BEFORE_INIT_EVENT);
 		}
-		 //设置状态为INITIALIZING
+		// 设置状态为INITIALIZING
 		setStateInternal(LifecycleState.INITIALIZING, null, false);
 
 		try {
-			//初始化
+			// 初始化
 			initInternal();
 		} catch (Throwable t) {
 			ExceptionUtils.handleThrowable(t);
 			setStateInternal(LifecycleState.FAILED, null, false);
 			throw new LifecycleException(sm.getString("lifecycleBase.initFail", toString()), t);
 		}
-		//设置状态为INITIALIZED
+		// 设置状态为INITIALIZED
 		setStateInternal(LifecycleState.INITIALIZED, null, false);
 	}
 
@@ -125,10 +127,10 @@ public abstract class LifecycleBase implements Lifecycle {
 		}
 
 		if (state.equals(LifecycleState.NEW)) {
-		    //init
+			// init
 			init();
 		} else if (state.equals(LifecycleState.FAILED)) {
-	        //stop
+			// stop
 			stop();
 		} else if (!state.equals(LifecycleState.INITIALIZED) && !state.equals(LifecycleState.STOPPED)) {
 			invalidTransition(Lifecycle.BEFORE_START_EVENT);
@@ -137,7 +139,7 @@ public abstract class LifecycleBase implements Lifecycle {
 		setStateInternal(LifecycleState.STARTING_PREP, null, false);
 
 		try {
-			// 调用startInternal()方法进行启动
+			// 调用子类覆写的startInternal()方法进行启动
 			startInternal();
 		} catch (Throwable t) {
 			ExceptionUtils.handleThrowable(t);
@@ -160,14 +162,14 @@ public abstract class LifecycleBase implements Lifecycle {
 
 	/**
 	 * Sub-classes must ensure that the state is changed to
-	 * {@link LifecycleState#STARTING} during the execution of this method. Changing
-	 * state will trigger the {@link Lifecycle#START_EVENT} event.
+	 * {@link LifecycleState#STARTING} during the execution of this method.
+	 * Changing state will trigger the {@link Lifecycle#START_EVENT} event.
 	 * 
 	 * If a component fails to start it may either throw a
-	 * {@link LifecycleException} which will cause it's parent to fail to start or
-	 * it can place itself in the error state in which case {@link #stop()} will be
-	 * called on the failed component but the parent component will continue to
-	 * start normally.
+	 * {@link LifecycleException} which will cause it's parent to fail to start
+	 * or it can place itself in the error state in which case {@link #stop()}
+	 * will be called on the failed component but the parent component will
+	 * continue to start normally.
 	 * 
 	 * @throws LifecycleException
 	 */
@@ -237,8 +239,8 @@ public abstract class LifecycleBase implements Lifecycle {
 
 	/**
 	 * Sub-classes must ensure that the state is changed to
-	 * {@link LifecycleState#STOPPING} during the execution of this method. Changing
-	 * state will trigger the {@link Lifecycle#STOP_EVENT} event.
+	 * {@link LifecycleState#STOPPING} during the execution of this method.
+	 * Changing state will trigger the {@link Lifecycle#STOP_EVENT} event.
 	 * 
 	 * @throws LifecycleException
 	 */
@@ -305,25 +307,28 @@ public abstract class LifecycleBase implements Lifecycle {
 	}
 
 	/**
-	 * Provides a mechanism for sub-classes to update the component state. Calling
-	 * this method will automatically fire any associated {@link Lifecycle} event.
-	 * It will also check that any attempted state transition is valid for a
-	 * sub-class.
+	 * Provides a mechanism for sub-classes to update the component state.
+	 * Calling this method will automatically fire any associated
+	 * {@link Lifecycle} event. It will also check that any attempted state
+	 * transition is valid for a sub-class.
 	 * 
-	 * @param state The new state for this component
+	 * @param state
+	 *            The new state for this component
 	 */
 	protected synchronized void setState(LifecycleState state) throws LifecycleException {
 		setStateInternal(state, null, true);
 	}
 
 	/**
-	 * Provides a mechanism for sub-classes to update the component state. Calling
-	 * this method will automatically fire any associated {@link Lifecycle} event.
-	 * It will also check that any attempted state transition is valid for a
-	 * sub-class.
+	 * Provides a mechanism for sub-classes to update the component state.
+	 * Calling this method will automatically fire any associated
+	 * {@link Lifecycle} event. It will also check that any attempted state
+	 * transition is valid for a sub-class.
 	 * 
-	 * @param state The new state for this component
-	 * @param data  The data to pass to the associated {@link Lifecycle} event
+	 * @param state
+	 *            The new state for this component
+	 * @param data
+	 *            The data to pass to the associated {@link Lifecycle} event
 	 */
 	protected synchronized void setState(LifecycleState state, Object data) throws LifecycleException {
 		setStateInternal(state, data, true);
