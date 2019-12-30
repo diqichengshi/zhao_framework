@@ -758,6 +758,7 @@ public class NioEndpoint extends AbstractEndpoint {
 
             int errorDelay = 0;
 
+            // 循环里面不断的accept新的连接
             // Loop until we receive a shutdown command
             while (running) {
 
@@ -777,6 +778,7 @@ public class NioEndpoint extends AbstractEndpoint {
                 state = AcceptorState.RUNNING;
 
                 try {
+                	// 在accept新的连接之前， 首选进行连接数的自增
                     //if we have reached max connections, wait
                     countUpOrAwaitConnection();
 

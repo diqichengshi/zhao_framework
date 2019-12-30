@@ -178,19 +178,25 @@ public interface Lifecycle {
 	// --------------------------------------------------------- Public Methods
 
 	/**
+	  *  添加监听器
+	 * 
 	 * Add a LifecycleEvent listener to this component.
-	 *
+	 * 
 	 * @param listener The listener to add
 	 */
 	public void addLifecycleListener(LifecycleListener listener);
 
 	/**
+	  *  获取监听器
+	 * 
 	 * Get the life cycle listeners associated with this life cycle. If this
 	 * component has no listeners registered, a zero-length array is returned.
 	 */
 	public LifecycleListener[] findLifecycleListeners();
 
 	/**
+	  *  移除某个监听器
+	 * 
 	 * Remove a LifecycleEvent listener from this component.
 	 *
 	 * @param listener The listener to remove
@@ -198,6 +204,8 @@ public interface Lifecycle {
 	public void removeLifecycleListener(LifecycleListener listener);
 
 	/**
+	  *  初始化方法
+	 * 
 	 * Prepare the component for starting. This method should perform any
 	 * initialization required post object creation. The following
 	 * {@link LifecycleEvent}s will be fired in the following order:
@@ -212,6 +220,8 @@ public interface Lifecycle {
 	public void init() throws LifecycleException;
 
 	/**
+	  *  启动方法
+	 * 
 	 * Prepare for the beginning of active use of the public methods other than
 	 * property getters/setters and life cycle methods of this component. This
 	 * method should be called before any of the public methods other than property
@@ -235,6 +245,8 @@ public interface Lifecycle {
 	public void start() throws LifecycleException;
 
 	/**
+	  *  停止方法,和start对应
+	 * 
 	 * Gracefully terminate the active use of the public methods other than property
 	 * getters/setters and life cycle methods of this component. Once the STOP_EVENT
 	 * is fired, the public methods other than property getters/setters and life
@@ -263,6 +275,8 @@ public interface Lifecycle {
 	public void stop() throws LifecycleException;
 
 	/**
+	  *  销毁方法,和init对应
+	 * 
 	 * Prepare to discard the object. The following {@link LifecycleEvent}s will be
 	 * fired in the following order:
 	 * <ol>
@@ -276,6 +290,8 @@ public interface Lifecycle {
 	public void destroy() throws LifecycleException;
 
 	/**
+	  *  获取生命周期状态
+	 * 
 	 * Obtain the current state of the source component.
 	 *
 	 * @return The current state of the source component.
@@ -283,6 +299,8 @@ public interface Lifecycle {
 	public LifecycleState getState();
 
 	/**
+	  *  获取字符串类型的生命周期状态
+	 * 
 	 * Obtain a textual representation of the current component state. Useful for
 	 * JMX.
 	 */

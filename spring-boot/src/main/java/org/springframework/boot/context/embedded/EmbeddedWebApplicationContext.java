@@ -55,30 +55,32 @@ import org.springframework.web.context.support.ServletContextScope;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * A {@link WebApplicationContext} that can be used to bootstrap itself from a contained
- * {@link EmbeddedServletContainerFactory} bean.
+ * A {@link WebApplicationContext} that can be used to bootstrap itself from a
+ * contained {@link EmbeddedServletContainerFactory} bean.
  * <p>
- * This context will create, initialize and run an {@link EmbeddedServletContainer} by
- * searching for a single {@link EmbeddedServletContainerFactory} bean within the
- * {@link ApplicationContext} itself. The {@link EmbeddedServletContainerFactory} is free
- * to use standard Spring concepts (such as dependency injection, lifecycle callbacks and
- * property placeholder variables).
+ * This context will create, initialize and run an
+ * {@link EmbeddedServletContainer} by searching for a single
+ * {@link EmbeddedServletContainerFactory} bean within the
+ * {@link ApplicationContext} itself. The
+ * {@link EmbeddedServletContainerFactory} is free to use standard Spring
+ * concepts (such as dependency injection, lifecycle callbacks and property
+ * placeholder variables).
  * <p>
- * In addition, any {@link Servlet} or {@link Filter} beans defined in the context will be
- * automatically registered with the embedded Servlet container. In the case of a single
- * Servlet bean, the '/' mapping will be used. If multiple Servlet beans are found then
- * the lowercase bean name will be used as a mapping prefix. Any Servlet named
- * 'dispatcherServlet' will always be mapped to '/'. Filter beans will be mapped to all
- * URLs ('/*').
+ * In addition, any {@link Servlet} or {@link Filter} beans defined in the
+ * context will be automatically registered with the embedded Servlet container.
+ * In the case of a single Servlet bean, the '/' mapping will be used. If
+ * multiple Servlet beans are found then the lowercase bean name will be used as
+ * a mapping prefix. Any Servlet named 'dispatcherServlet' will always be mapped
+ * to '/'. Filter beans will be mapped to all URLs ('/*').
  * <p>
- * For more advanced configuration, the context can instead define beans that implement
- * the {@link ServletContextInitializer} interface (most often
- * {@link ServletRegistrationBean}s and/or {@link FilterRegistrationBean}s). To prevent
- * double registration, the use of {@link ServletContextInitializer} beans will disable
- * automatic Servlet and Filter bean registration.
+ * For more advanced configuration, the context can instead define beans that
+ * implement the {@link ServletContextInitializer} interface (most often
+ * {@link ServletRegistrationBean}s and/or {@link FilterRegistrationBean}s). To
+ * prevent double registration, the use of {@link ServletContextInitializer}
+ * beans will disable automatic Servlet and Filter bean registration.
  * <p>
- * Although this context can be used directly, most developers should consider using the
- * {@link AnnotationConfigEmbeddedWebApplicationContext} or
+ * Although this context can be used directly, most developers should consider
+ * using the {@link AnnotationConfigEmbeddedWebApplicationContext} or
  * {@link XmlEmbeddedWebApplicationContext} variants.
  *
  * @author Phillip Webb
@@ -93,9 +95,9 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 	private static final Log logger = LogFactory.getLog(EmbeddedWebApplicationContext.class);
 
 	/**
-	 * Constant value for the DispatcherServlet bean name. A Servlet bean with this name
-	 * is deemed to be the "main" servlet and is automatically given a mapping of "/" by
-	 * default. To change the default behaviour you can use a
+	 * Constant value for the DispatcherServlet bean name. A Servlet bean with this
+	 * name is deemed to be the "main" servlet and is automatically given a mapping
+	 * of "/" by default. To change the default behaviour you can use a
 	 * {@link ServletRegistrationBean} or a different bean name.
 	 */
 	public static final String DISPATCHER_SERVLET_NAME = "dispatcherServlet";
@@ -108,6 +110,7 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 
 	/**
 	 * Register ServletContextAwareProcessor.
+	 * 
 	 * @see ServletContextAwareProcessor
 	 */
 	@Override
@@ -121,8 +124,7 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 	public final void refresh() throws BeansException, IllegalStateException {
 		try {
 			super.refresh();
-		}
-		catch (RuntimeException ex) {
+		} catch (RuntimeException ex) {
 			stopAndReleaseEmbeddedServletContainer();
 			throw ex;
 		}
@@ -133,8 +135,7 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 		super.onRefresh();
 		try {
 			createEmbeddedServletContainer();
-		}
-		catch (Throwable ex) {
+		} catch (Throwable ex) {
 			throw new ApplicationContextException("Unable to start embedded container", ex);
 		}
 	}
@@ -160,12 +161,10 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 		if (localContainer == null && localServletContext == null) {
 			EmbeddedServletContainerFactory containerFactory = getEmbeddedServletContainerFactory();
 			this.embeddedServletContainer = containerFactory.getEmbeddedServletContainer(getSelfInitializer());
-		}
-		else if (localServletContext != null) {
+		} else if (localServletContext != null) {
 			try {
 				getSelfInitializer().onStartup(localServletContext);
-			}
-			catch (ServletException ex) {
+			} catch (ServletException ex) {
 				throw new ApplicationContextException("Cannot initialize servlet context", ex);
 			}
 		}
@@ -173,9 +172,10 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 	}
 
 	/**
-	 * Returns the {@link EmbeddedServletContainerFactory} that should be used to create
-	 * the embedded servlet container. By default this method searches for a suitable bean
-	 * in the context itself.
+	 * Returns the {@link EmbeddedServletContainerFactory} that should be used to
+	 * create the embedded servlet container. By default this method searches for a
+	 * suitable bean in the context itself.
+	 * 
 	 * @return a {@link EmbeddedServletContainerFactory} (never {@code null})
 	 */
 	protected EmbeddedServletContainerFactory getEmbeddedServletContainerFactory() {
@@ -193,8 +193,9 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 	}
 
 	/**
-	 * Returns the {@link ServletContextInitializer} that will be used to complete the
-	 * setup of this {@link WebApplicationContext}.
+	 * Returns the {@link ServletContextInitializer} that will be used to complete
+	 * the setup of this {@link WebApplicationContext}.
+	 * 
 	 * @return the self initializer
 	 * @see #prepareEmbeddedWebApplicationContext(ServletContext)
 	 */
@@ -219,7 +220,8 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 	private void registerApplicationScope(ServletContext servletContext) {
 		ServletContextScope appScope = new ServletContextScope(servletContext);
 		getBeanFactory().registerScope(WebApplicationContext.SCOPE_APPLICATION, appScope);
-		// Register as ServletContext attribute, for ContextCleanupListener to detect it.
+		// Register as ServletContext attribute, for ContextCleanupListener to detect
+		// it.
 		servletContext.setAttribute(ServletContextScope.class.getName(), appScope);
 	}
 
@@ -230,10 +232,11 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 	}
 
 	/**
-	 * Returns {@link ServletContextInitializer}s that should be used with the embedded
-	 * Servlet context. By default this method will first attempt to find
-	 * {@link ServletContextInitializer}, {@link Servlet}, {@link Filter} and certain
-	 * {@link EventListener} beans.
+	 * Returns {@link ServletContextInitializer}s that should be used with the
+	 * embedded Servlet context. By default this method will first attempt to find
+	 * {@link ServletContextInitializer}, {@link Servlet}, {@link Filter} and
+	 * certain {@link EventListener} beans.
+	 * 
 	 * @return the servlet initializer beans
 	 */
 	protected Collection<ServletContextInitializer> getServletContextInitializerBeans() {
@@ -243,8 +246,9 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 	/**
 	 * Prepare the {@link WebApplicationContext} with the given fully loaded
 	 * {@link ServletContext}. This method is usually called from
-	 * {@link ServletContextInitializer#onStartup(ServletContext)} and is similar to the
-	 * functionality usually provided by a {@link ContextLoaderListener}.
+	 * {@link ServletContextInitializer#onStartup(ServletContext)} and is similar to
+	 * the functionality usually provided by a {@link ContextLoaderListener}.
+	 * 
 	 * @param servletContext the operational servlet context
 	 */
 	protected void prepareEmbeddedWebApplicationContext(ServletContext servletContext) {
@@ -270,13 +274,11 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 				long elapsedTime = System.currentTimeMillis() - getStartupDate();
 				logger.info("Root WebApplicationContext: initialization completed in " + elapsedTime + " ms");
 			}
-		}
-		catch (RuntimeException ex) {
+		} catch (RuntimeException ex) {
 			logger.error("Context initialization failed", ex);
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ex);
 			throw ex;
-		}
-		catch (Error ex) {
+		} catch (Error ex) {
 			logger.error("Context initialization failed", ex);
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ex);
 			throw ex;
@@ -297,8 +299,7 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 			try {
 				localContainer.stop();
 				this.embeddedServletContainer = null;
-			}
-			catch (Exception ex) {
+			} catch (Exception ex) {
 				throw new IllegalStateException(ex);
 			}
 		}
@@ -333,8 +334,9 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 	}
 
 	/**
-	 * Returns the {@link EmbeddedServletContainer} that was created by the context or
-	 * {@code null} if the container has not yet been created.
+	 * Returns the {@link EmbeddedServletContainer} that was created by the context
+	 * or {@code null} if the container has not yet been created.
+	 * 
 	 * @return the embedded servlet container
 	 */
 	public EmbeddedServletContainer getEmbeddedServletContainer() {
@@ -342,9 +344,9 @@ public class EmbeddedWebApplicationContext extends GenericWebApplicationContext 
 	}
 
 	/**
-	 * Utility class to store and restore any user defined scopes. This allow scopes to be
-	 * registered in an ApplicationContextInitializer in the same way as they would in a
-	 * classic non-embedded web application context.
+	 * Utility class to store and restore any user defined scopes. This allow scopes
+	 * to be registered in an ApplicationContextInitializer in the same way as they
+	 * would in a classic non-embedded web application context.
 	 */
 	public static class ExistingWebApplicationScopes {
 

@@ -21,5 +21,6 @@ public class SpringJdbcTest {
         for (User user1: userList) {
             System.out.println(user1.toString());
         }
+        context.close();
     }
 }

@@ -36,6 +36,7 @@ public class LimitLatch {
         @Override
         protected int tryAcquireShared(int ignored) {
             long newCount = count.incrementAndGet();
+            // 如果一旦超过limit则首先进行for循环加CAS的自减，然后返回-1表示获取锁失败，便进入加入同步队列进入阻塞状态
             if (!released && newCount > limit) {
                 // Limit exceeded
                 count.decrementAndGet();

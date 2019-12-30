@@ -141,7 +141,8 @@ public class AjpNioProtocol extends AbstractAjpProtocol {
          * Expected to be used by the Poller to release resources on socket
          * close, errors etc.
          */
-        @Override
+        @SuppressWarnings("unlikely-arg-type")
+		@Override
         public void release(SocketWrapper<NioChannel> socket) {
             Processor<NioChannel> processor = connections.remove(socket);
             if (processor != null) {

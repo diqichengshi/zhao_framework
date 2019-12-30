@@ -131,7 +131,10 @@ public abstract class AbstractEndpoint {
 	}
 
 	/**
-	 * Threads used to accept new connections and pass them to worker threads.
+	  *  在AbstractEndpoint中定义了Acceptor类（实现了Runnable接口），同时定义了acceptors属性，
+	  *  主要用于接收网络请求。
+	  *  启动acceptors时，并没有使用前面提到过的线程池，而是生成了新的守护线程来运行，
+	  *  具体生成Acceptor由子类重写抽象方法createAcceptor来完成
 	 */
 	protected Acceptor[] acceptors;
 
@@ -179,7 +182,9 @@ public abstract class AbstractEndpoint {
 	}
 
 	/**
-	 * External Executor based thread pool.
+	  *  使用的线程池,这个线程池可以是外界指定的,也可以是由AbstractEndpoint自己创建的,
+	  *  通过属性internalExecutor来标识使用的是外部的线程池,还是Endpoint自己创建的线程池 
+	  *  这个线程池具体是用来处理网络连接的读写的。
 	 */
 	private Executor executor = null;
 
@@ -517,6 +522,9 @@ public abstract class AbstractEndpoint {
 		return paused;
 	}
 
+	/** 
+	  * 在当调用者没有显示指定所用的线程池时,会创建一个自己所用的线程池
+	 */
 	public void createExecutor() {
 		internalExecutor = true;
 		TaskQueue taskqueue = new TaskQueue();
@@ -635,14 +643,14 @@ public abstract class AbstractEndpoint {
 
 	public final void init() throws Exception {
 		if (bindOnInit) {
-			// 绑定方法，该对底层的Socket之类的进行处理了。
+			// 绑定方法,该对底层的Socket之类的进行处理了。
 			bind();
 			bindState = BindState.BOUND_ON_INIT;
 		}
 	}
 
 	public final void start() throws Exception {
-		// 没有绑定，先绑定
+		// 没有绑定,先绑定
 		if (bindState == BindState.UNBOUND) {
 			bind();
 			bindState = BindState.BOUND_ON_START;

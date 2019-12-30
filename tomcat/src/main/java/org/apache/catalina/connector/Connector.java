@@ -846,10 +846,10 @@ public class Connector extends LifecycleMBeanBase {
 
 		super.initInternal();
 
-		// CoyoteAdapter，用来处理请求
+		// CoyoteAdapter,用来处理请求
 		adapter = new CoyoteAdapter(this);
 		// protocolHandler对于不同请求会有不同的Handler
-		// 我们这里重点看http请求的处理，即是Http11Protocol
+		// 我们这里重点看http请求的处理,即是Http11Protocol
 		protocolHandler.setAdapter(adapter);
 
 		// Make sure parseBodyMethodsSet has a default
@@ -859,6 +859,7 @@ public class Connector extends LifecycleMBeanBase {
 
 		try {
 			// 处理器初始化
+			// ProtocolHandler的init方法会调用父类AbstractProtocol的init方法
 			protocolHandler.init();
 		} catch (Exception e) {
 			throw new LifecycleException(sm.getString("coyoteConnector.protocolHandlerInitializationFailed"), e);

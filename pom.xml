@@ -20,7 +20,7 @@
         <module>mybatis-spring</module>
         <module>mybatis</module>
         <module>spring-boot</module>
-    <module>tomcat</module>
+        <module>tomcat</module>
   </modules>
 
     <properties>
