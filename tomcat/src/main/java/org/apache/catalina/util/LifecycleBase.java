@@ -306,7 +306,7 @@ public abstract class LifecycleBase implements Lifecycle {
 
 	/**
 	 * 使用状态机+模板模式来实现销毁,此处为模板方法
-	 * 
+	 *
 	 * @throws LifecycleException
 	 */
 	protected abstract void destroyInternal() throws LifecycleException;

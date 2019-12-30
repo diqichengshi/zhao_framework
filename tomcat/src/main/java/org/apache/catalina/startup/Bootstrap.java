@@ -392,7 +392,7 @@ public final class Bootstrap {
 	 * @param args Command line arguments to be processed
 	 */
 	public static void main(String args[]) {
-
+		
 		if (daemon == null) {
 			// 首先new一个对象，该对象会触发Bootstrap的类初始化，,不过这个main方法就是在Bootstrap类中执行的所以会在main方法执行前执行初始化操作
 			// 设置catalina.home和catalina.base的文件目录path
@@ -452,7 +452,6 @@ public final class Bootstrap {
 			t.printStackTrace();
 			System.exit(1);
 		}
-
 	}
 
 	public void setCatalinaHome(String s) {
